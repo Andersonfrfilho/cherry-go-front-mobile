@@ -1,16 +1,16 @@
 import React from 'react';
 import {
-  createStackNavigator,
-  StackNavigationProp,
-  TransitionPresets,
-} from '@react-navigation/stack';
+  createNativeStackNavigator,
+  NativeStackNavigationProp,
+} from '@react-navigation/native-stack';
+import { TransitionPresets } from '@react-navigation/stack';
 import { Confirmation } from '../screens/Confirmation';
 import { Splash } from '../screens/Splash';
 import { SignIn } from '../screens/SignIn';
 import { SignUpFirstStep } from '../screens/SignUp/FirstStep';
 import { SignUpSecondStep } from '../screens/SignUp/SecondStep';
 
-const { Navigator, Screen } = createStackNavigator();
+const { Navigator, Screen } = createNativeStackNavigator();
 
 export type RootStackParamList = {
   Home: undefined;
@@ -24,7 +24,7 @@ export type RootStackParamList = {
   SignUpSecondStep: undefined;
 };
 
-export type ScreenNavigationProp = StackNavigationProp<
+export type ScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
   'Home'
 >;

@@ -23,6 +23,7 @@ export default function App() {
     Archivo_400Regular,
     Archivo_500Medium,
     Archivo_600SemiBold,
+    'Painted-Paradise': require('./assets/fonts/Painted-Paradise.ttf'),
   });
   if (!fontsLoaded) {
     return <AppLoading />;

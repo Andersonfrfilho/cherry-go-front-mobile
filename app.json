@@ -6,10 +6,20 @@
     "assetBundlePatterns": [
       "**/*"
     ],
+    "icon": "./assets/icon.png",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#922246"
+    },
+    "android":{
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#922246"
+      }
+    },
+    "web": {
+      "favicon": "./assets/icon.png"
     }
   },
   "name": "cherry-go"

@@ -1,19 +1,19 @@
 export default {
   colors: {
-    header: '#1b1b1b',
+    header: '#EA5D6C',
 
-    background_primary: '#f4f5f6',
+    background_primary: '#922246',
     background_secondary: '#FFFFFF',
 
-    text: '#7a7a80',
-    text_detail: '#AEAEB3',
-    title: '#47474D',
+    text: '#FFFFFF',
+    text_detail: '#922246',
+    title: '#45090E',
 
-    line: '#EBEBF0',
+    line: '#45090E',
 
-    main: '#DC1637',
-    main_light: '#FDEDEF',
-    success: '#03B252',
+    main: '#D86593',
+    main_light: '#FFFFFF',
+    success: '#1CCF84',
 
     shape: '#E1E1E8',
     shape_dark: '#29292E',

@@ -1,6 +1,7 @@
 import { useNavigation } from '@react-navigation/core';
 import { StackNavigationProp } from '@react-navigation/stack';
 import React, { useEffect } from 'react';
+import { StatusBar } from 'react-native';
 import Animated, {
   Extrapolate,
   interpolate,
@@ -68,6 +69,11 @@ export function Splash() {
 
   return (
     <Container>
+      <StatusBar
+        barStyle="light-content"
+        translucent
+        backgroundColor="transparent"
+      />
       <Animated.View style={[brandStyle, { position: 'absolute' }]}>
         <BrandSvg width={231} height={204} />
       </Animated.View>

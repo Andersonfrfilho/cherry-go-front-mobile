@@ -22,84 +22,84 @@ import { ScreenNavigationProp } from '../../routes/app.stack.routes';
 import { database } from '../../databases';
 
 export function Home() {
-  const [loading, setLoading] = useState(false);
-  const [cars, setCars] = useState<ModelCar[]>([]);
+  // const [loading, setLoading] = useState(false);
+  // const [cars, setCars] = useState<ModelCar[]>([]);
 
-  const netInfo = useNetInfo();
-  const navigation = useNavigation<ScreenNavigationProp>();
+  // const netInfo = useNetInfo();
+  // const navigation = useNavigation<ScreenNavigationProp>();
 
-  function handleCarDetails(car: CarDTO) {
-    navigation.navigate('CarDetails', { car });
-  }
+  // function handleCarDetails(car: CarDTO) {
+  //   navigation.navigate('CarDetails', { car });
+  // }
 
-  async function offlineSynchronize() {
-    await synchronize({
-      database,
-      pullChanges: async ({ lastPulledAt }) => {
-        const response = await api.get(
-          `cars/sync/pull?lastPullVersion=${lastPulledAt || 0}`,
-        );
-        const { changes, latestVersion } = response.data;
-        console.log(response.data);
-        console.log('##### changes #####');
-        console.log(changes);
+  // async function offlineSynchronize() {
+  //   await synchronize({
+  //     database,
+  //     pullChanges: async ({ lastPulledAt }) => {
+  //       const response = await api.get(
+  //         `cars/sync/pull?lastPullVersion=${lastPulledAt || 0}`,
+  //       );
+  //       const { changes, latestVersion } = response.data;
+  //       console.log(response.data);
+  //       console.log('##### changes #####');
+  //       console.log(changes);
 
-        return { changes, timestamp: latestVersion };
-      },
-      pushChanges: async ({ changes }) => {
-        try {
-          const user = changes.users;
-          await api.post('/users/sync', user);
-        } catch (error) {
-          console.log(error);
-        }
-      },
-    });
-  }
+  //       return { changes, timestamp: latestVersion };
+  //     },
+  //     pushChanges: async ({ changes }) => {
+  //       try {
+  //         const user = changes.users;
+  //         await api.post('/users/sync', user);
+  //       } catch (error) {
+  //         console.log(error);
+  //       }
+  //     },
+  //   });
+  // }
 
-  useEffect(() => {
-    let isMounted = true;
-    async function fetchCars() {
-      setLoading(true);
-      try {
-        const carCollection = database.get<ModelCar>('cars');
-        const carsFounded = await carCollection.query().fetch();
+  // useEffect(() => {
+  //   let isMounted = true;
+  //   async function fetchCars() {
+  //     setLoading(true);
+  //     try {
+  //       const carCollection = database.get<ModelCar>('cars');
+  //       const carsFounded = await carCollection.query().fetch();
 
-        if (carsFounded.length === 0) {
-          const { data } = await api.get('/cars');
-          console.log(data);
-          console.log('$$$$$$$$$$$$$$$$$$');
-          await database.write(async () => {
-            await carCollection.create(newUser => data);
-          });
-          setCars(data);
-          console.log('$$$$$$$$$$$$$$$$$$');
-        } else if (isMounted) {
-          setCars(carsFounded);
-        }
-      } catch (error) {
-        console.log(error);
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
-      }
-    }
-    fetchCars();
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+  //       if (carsFounded.length === 0) {
+  //         const { data } = await api.get('/cars');
+  //         console.log(data);
+  //         console.log('$$$$$$$$$$$$$$$$$$');
+  //         await database.write(async () => {
+  //           await carCollection.create(newUser => data);
+  //         });
+  //         setCars(data);
+  //         console.log('$$$$$$$$$$$$$$$$$$');
+  //       } else if (isMounted) {
+  //         setCars(carsFounded);
+  //       }
+  //     } catch (error) {
+  //       console.log(error);
+  //     } finally {
+  //       if (isMounted) {
+  //         setLoading(false);
+  //       }
+  //     }
+  //   }
+  //   fetchCars();
+  //   return () => {
+  //     isMounted = false;
+  //   };
+  // }, []);
 
-  useEffect(() => {
-    if (netInfo.isConnected === true) {
-      offlineSynchronize();
-    }
-  }, [netInfo.isConnected]);
+  // useEffect(() => {
+  //   if (netInfo.isConnected === true) {
+  //     offlineSynchronize();
+  //   }
+  // }, [netInfo.isConnected]);
 
   return (
     <Container>
-      <StatusBar
+      {/* <StatusBar
         barStyle="light-content"
         backgroundColor="transparent"
         translucent
@@ -120,7 +120,7 @@ export function Home() {
             <Car data={item} onPress={() => handleCarDetails(item)} />
           )}
         />
-      )}
+      )} */}
     </Container>
   );
 }
