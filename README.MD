@@ -1,7 +1,7 @@
 start project
 - expo init cherry-go
-- expo install @react-native-community/netinfo @expo-google-fonts/archivo @expo-google-fonts/inter expo-font expo-app-loading expo-image-picker
-- yarn add @hookform/resolvers @nozbe/watermelondb @react-navigation/bottom-tabs @react-navigation/native @react-navigation/stack axios date-fns lottie-react-native react-hook-form react-native-calendars react-native-fast-image react-native-iphone-x-helper react-native-responsive-fontsize react-native-safe-area-context react-native-screens react-native-svg styled-components yup
+- expo install @react-native-community/netinfo @expo-google-fonts/archivo @expo-google-fonts/inter expo-font expo-app-loading expo-image-picker react-native-svg
+- yarn add @hookform/resolvers @nozbe/watermelondb @react-navigation/bottom-tabs @react-navigation/native @react-navigation/stack axios date-fns lottie-react-native react-hook-form react-native-calendars react-native-fast-image react-native-iphone-x-helper react-native-responsive-fontsize react-native-safe-area-context react-native-screens styled-components yup
 - copy devDependency:
   ```json
     "@babel/core": "^7.9.0",
@@ -41,6 +41,7 @@ start project
   - app.json
   - babel.config.js
   - jest.config.ts
-  prettier.config.js
+  - prettier.config.js
+  - metro.config.js
 run
 - cd android;./gradlew clean;cd ..;npx react-native run-android;yarn start
