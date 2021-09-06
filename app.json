@@ -1,0 +1,11 @@
+{
+  "expo": {
+    "name": "cherry-go",
+    "slug": "cherry-go",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  },
+  "name": "cherry-go"
+}
