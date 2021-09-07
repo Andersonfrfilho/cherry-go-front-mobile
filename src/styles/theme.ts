@@ -3,6 +3,7 @@ export default {
     header: '#EA5D6C',
 
     background_primary: '#922246',
+    background_primary_light: 'rgb(146, 34, 70,0.3)',
     background_secondary: '#FFFFFF',
 
     text: '#FFFFFF',
@@ -17,10 +18,20 @@ export default {
 
     shape: '#E1E1E8',
     shape_dark: '#29292E',
+
+    bon_jour_light_shade: '#FCF4F5',
+    bon_jour: '#E4DBDC',
+    bon_jour_dark_shade: '#C1B6B7',
+    bon_jour_dark_shadow: '#9F9293',
+
+    red_ryb: '#F32013',
+    red_ku_crimson: '#EA0016',
+    red_devil: '#880013',
   },
   fonts: {
-    primary_400: 'Inter_400Regular',
-    primary_500: 'Inter_500Medium',
+    primary_300: 'AveriaSansLibre_300Light',
+    primary_400: 'AveriaSansLibre_400Regular',
+    primary_700: 'AveriaSansLibre_700Bold',
 
     secondary_400: 'Archivo_400Regular',
     secondary_500: 'Archivo_500Medium',

@@ -12,13 +12,21 @@ import { useTheme } from 'styled-components';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Button } from '../../components/Button';
-import { Input } from '../../components/Input';
-import { PasswordInput } from '../../components/PasswordInput';
-
-import { Container, Header, Title, SubTitle, Form, Footer } from './styles';
+import LogoTitleSvg from '../../assets/logo_title.svg';
+import {
+  Container,
+  Header,
+  AreaLogoTitle,
+  AreaTitle,
+  Title,
+  Form,
+  Footer,
+  ButtonIcons,
+} from './styles';
 import { useAuth } from '../../hooks/auth';
 import { ScreenNavigationProp } from '../../routes/app.stack.routes';
-import { InputForm } from '../../components/InputForm';
+import { FormInput } from '../../components/FormInput';
+import { ButtonIcon } from '../../components/ButtonIcon';
 
 interface FormData {
   email: string;
@@ -67,50 +75,63 @@ export function SignIn() {
   }
 
   return (
-    <KeyboardAvoidingView behavior="position" enabled>
+    <KeyboardAvoidingView behavior="position" enabled style={{ flex: 1 }}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <Container>
           <StatusBar
-            barStyle="dark-content"
-            backgroundColor="transparent"
+            barStyle="light-content"
             translucent
+            backgroundColor="transparent"
           />
           <Header>
-            <Title>Estamos{'\n'}quase lá.</Title>
-            <SubTitle>
-              Faça seu login para começar{'\n'}uma experiencia incrível.
-            </SubTitle>
+            <AreaLogoTitle>
+              <LogoTitleSvg width="100%" height="100%" />
+            </AreaLogoTitle>
+
+            <AreaTitle>
+              <Title>Entrar</Title>
+            </AreaTitle>
           </Header>
           <Form>
-            <InputForm
+            <FormInput
               name="email"
               control={control}
               placeholder="E-mail"
               error={errors.email && errors.email.message}
+              iconName="mail"
+              iconSize={24}
             />
-            <PasswordInput
-              iconName="lock"
+            <FormInput
+              name="password"
+              control={control}
               placeholder="Senha"
-              onChangeText={setPassword}
-              value={password}
+              error={errors.password && errors.password.message}
+              iconName="airplay"
+              iconSize={24}
+              password
             />
           </Form>
           <Footer>
-            <Button
-              title="Login"
-              onPress={handleSubmit(handleSignIn)}
-              enabled
-              loading={false}
-            />
-
-            <Button
-              title="Criar conta gratuita"
-              color={theme.colors.background_secondary}
-              onPress={handleNewAccount}
-              enabled
-              loading={false}
-              light
-            />
+            <Button title="Login" onPress={() => {}} enabled loading={false} />
+            <ButtonIcons>
+              <ButtonIcon
+                iconName="airplay"
+                title="Registrar"
+                color={theme.colors.background_secondary}
+                onPress={handleNewAccount}
+                enabled
+                loading={false}
+                light
+              />
+              <ButtonIcon
+                title="Esqueci a senha"
+                color={theme.colors.background_secondary}
+                onPress={handleNewAccount}
+                enabled
+                loading={false}
+                light
+              />
+            </ButtonIcons>
           </Footer>
         </Container>
       </TouchableWithoutFeedback>

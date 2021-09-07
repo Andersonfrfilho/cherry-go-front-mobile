@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@expo-google-fonts/archivo": "^0.2.0",
+    "@expo-google-fonts/averia-sans-libre": "^0.2.0",
     "@expo-google-fonts/inter": "^0.2.0",
     "@hookform/resolvers": "^2.8.0",
     "@nozbe/watermelondb": "^0.23.0",

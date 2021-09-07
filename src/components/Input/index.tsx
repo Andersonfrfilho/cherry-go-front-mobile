@@ -1,15 +1,25 @@
-import { Feather } from '@expo/vector-icons';
 import React, { useState } from 'react';
-import { Alert, TextInputProps } from 'react-native';
+import { TextInputProps } from 'react-native';
+import { Feather } from '@expo/vector-icons';
 import { useTheme } from 'styled-components';
-import { Container, IconContainer, InputText } from './styles';
 
-interface InputProps extends TextInputProps {
+import { Container, AreaInput, AreaIcon, TextInputSC } from './styles';
+
+interface Props extends TextInputProps {
+  loading?: boolean;
   iconName: React.ComponentProps<typeof Feather>['name'];
-  value?: string;
+  iconSize?: number;
+  error?: string;
 }
 
-export function Input({ iconName, value, ...rest }: InputProps) {
+export function Input({
+  iconName,
+  iconSize = 24,
+  loading = false,
+  error,
+  value,
+  ...rest
+}: Props) {
   const [isFocused, setIsFocused] = useState(false);
   const [isFilled, setIsFilled] = useState(false);
 
@@ -26,21 +36,27 @@ export function Input({ iconName, value, ...rest }: InputProps) {
 
   return (
     <Container>
-      <IconContainer isFocused={isFocused}>
+      <AreaIcon isFocused={isFocused} isFilled={isFilled}>
         <Feather
           name={iconName}
-          size={24}
+          size={iconSize}
           color={
-            isFocused || isFilled ? theme.colors.main : theme.colors.text_detail
+            (!!error && theme.colors.red_devil) || isFilled
+              ? theme.colors.background_primary
+              : theme.colors.bon_jour_dark_shade
           }
         />
-      </IconContainer>
-      <InputText
-        onFocus={handleInputFocus}
-        onBlur={handleInputBlur}
-        isFocused={isFocused}
-        {...rest}
-      />
+      </AreaIcon>
+      <AreaInput isFocused={isFocused} isFilled={isFilled}>
+        <TextInputSC
+          editable={!loading}
+          {...rest}
+          onBlur={handleInputBlur}
+          onFocus={handleInputFocus}
+          error={!!error}
+          isFilled={isFilled}
+        />
+      </AreaInput>
     </Container>
   );
 }

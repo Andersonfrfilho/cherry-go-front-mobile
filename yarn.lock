@@ -1227,6 +1227,11 @@
   resolved "https://registry.yarnpkg.com/@expo-google-fonts/archivo/-/archivo-0.2.0.tgz#f94343a106507de272a76a6e7b01fbebcea6eb63"
   integrity sha512-4erhp8X2J0lKNeCqTMgbfn5JX9bdoQd6MTm/f+k4+iXlzfN5Odd5s20RGtFS7onxy/D1HuSViBgpJoAp2EPN9g==
 
+"@expo-google-fonts/averia-sans-libre@^0.2.0":
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/@expo-google-fonts/averia-sans-libre/-/averia-sans-libre-0.2.0.tgz#9802b7b215148d0520803aabeab47b9b6c27e4f5"
+  integrity sha512-jNMddo6Pbwo9xghZUPWE3mU0fzcjXFKngCbRI3/ytYGoU1bWxTeKNcJDLo0wPPdnD9yGjDAX+wSsm5IQTMtoKg==
+
 "@expo-google-fonts/inter@^0.2.0":
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/@expo-google-fonts/inter/-/inter-0.2.0.tgz#2934c1e510d58b652e3a5150ca7f76f55b89e84a"

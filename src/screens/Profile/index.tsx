@@ -30,8 +30,8 @@ import {
 } from './styles';
 
 import { BackButton } from '../../components/BackButton';
-import { Input } from '../../components/Input';
-import { PasswordInput } from '../../components/PasswordInput';
+// import { Input } from '../../components/Input';
+// import { PasswordInput } from '../../components/PasswordInput';
 import { useAuth } from '../../hooks/auth';
 import { Button } from '../../components/Button';
 
@@ -157,7 +157,7 @@ export function Profile() {
             </Options>
             {option === 'dataEdit' ? (
               <Section>
-                <Input
+                {/* <Input
                   iconName="user"
                   placeholder="Nome"
                   autoCorrect={false}
@@ -178,13 +178,13 @@ export function Profile() {
                   autoCorrect={false}
                   defaultValue={user.driver_license}
                   onChangeText={setDriverLicense}
-                />
+                /> */}
               </Section>
             ) : (
               <Section>
-                <PasswordInput iconName="lock" placeholder="Senha atual" />
+                {/* <PasswordInput iconName="lock" placeholder="Senha atual" />
                 <PasswordInput iconName="lock" placeholder="Nova senha" />
-                <PasswordInput iconName="lock" placeholder="Repetir senha" />
+                <PasswordInput iconName="lock" placeholder="Repetir senha" /> */}
               </Section>
             )}
             <Button title="Salvar alterações" onPress={handleProfileUpdate} />

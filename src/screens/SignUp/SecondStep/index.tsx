@@ -20,10 +20,10 @@ import {
   FormTitle,
 } from './styles';
 import { BackButton } from '../../../components/BackButton';
-import { ScreenNavigationProp } from '../../../routes/stack.routes';
+// import { ScreenNavigationProp } from '../../../routes/stack.routes';
 import { Bullet } from '../../../components/Bullet';
 import { Button } from '../../../components/Button';
-import { PasswordInput } from '../../../components/PasswordInput';
+// import { PasswordInput } from '../../../components/PasswordInput';
 import { api } from '../../../services/api';
 
 interface Params {
@@ -89,7 +89,7 @@ export function SignUpSecondStep() {
           <SubTitle>Faça seu cadastro de{'\n'}forma rápida e fácil</SubTitle>
           <Form>
             <FormTitle>1. Senha</FormTitle>
-            <PasswordInput
+            {/* <PasswordInput
               iconName="lock"
               placeholder="Senha"
               onChangeText={setPassword}
@@ -100,7 +100,7 @@ export function SignUpSecondStep() {
               placeholder="Repetir Senha"
               onChangeText={setPasswordConfirm}
               value={passwordConfirm}
-            />
+            /> */}
           </Form>
 
           <Button

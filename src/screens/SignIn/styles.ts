@@ -3,33 +3,53 @@ import { getStatusBarHeight } from 'react-native-iphone-x-helper';
 import { RFValue } from 'react-native-responsive-fontsize';
 
 export const Container = styled.View`
-  padding: 0 24px;
   background-color: ${({ theme }) => theme.colors.background_primary};
 `;
 
 export const Header = styled.View`
-  width: 100%;
-  margin-top: ${getStatusBarHeight() + 116}px;
+  margin-top: ${getStatusBarHeight()}px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+`;
+
+export const AreaLogoTitle = styled.View`
+  height: ${RFValue(300)}px;
+  width: ${RFValue(300)}px;
+  margin-top: 20px;
+`;
+
+export const AreaTitle = styled.View`
+  margin-top: 30px;
 `;
 
 export const Title = styled.Text`
-  font-size: ${RFValue(40)}px;
-  font-family: ${({ theme }) => theme.fonts.secondary_600};
-  color: ${({ theme }) => theme.colors.title};
-`;
-
-export const SubTitle = styled.Text`
-  font-size: ${RFValue(15)}px;
-  font-family: ${({ theme }) => theme.fonts.primary_400};
-  color: ${({ theme }) => theme.colors.text_detail};
-  line-height: ${RFValue(25)}px;
-
-  margin-top: 16px;
+  font-size: ${RFValue(35)}px;
+  font-family: ${({ theme }) => theme.fonts.primary_700};
+  color: ${({ theme }) => theme.colors.text};
 `;
 
 export const Form = styled.View`
   width: 100%;
-  margin: 64px 0;
+  margin: 20px 0;
+  padding: 0px 20px;
 `;
 
-export const Footer = styled.View``;
+export const Footer = styled.View`
+  flex-direction: column;
+  justify-content: flex-start;
+
+  width: 100%;
+  height: 100%;
+
+  padding: 0px 20px;
+`;
+
+export const ButtonIcons = styled.View`
+  width: 100%;
+
+  flex-direction: row;
+  justify-content: space-between;
+
+  margin-top: 10px;
+`;
