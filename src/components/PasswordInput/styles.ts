@@ -11,6 +11,7 @@ interface TextInputProps {
 interface PropsArea {
   isFocused: boolean;
   isFilled: boolean;
+  error?: boolean;
 }
 
 export const Container = styled.View`
@@ -40,15 +41,25 @@ export const AreaIcon = styled.View<PropsArea>`
   border-top-left-radius: 15px;
   border-bottom-left-radius: 15px;
 
+  ${({ theme, error }) =>
+    error &&
+    css`
+      border-style: solid;
+      border-bottom-width: 4px;
+      border-right-width: 1.5px;
+      border-color: ${theme.colors.red_ku_crimson};
+    `}
+
   ${({ theme, isFocused }) =>
     isFocused &&
     css`
       border-style: solid;
       border-bottom-width: 4px;
+      border-right-width: 1.5px;
       border-color: ${theme.colors.main};
     `}
 
-  ${({ theme, isFilled }) =>
+${({ theme, isFilled }) =>
     isFilled &&
     css`
       border-color: ${theme.colors.background_primary};
@@ -64,15 +75,24 @@ export const AreaInput = styled.View<PropsArea>`
   border-left-width: 1.5px;
   border-color: ${({ theme }) => theme.colors.bon_jour_dark_shade};
 
+  ${({ theme, error }) =>
+    error &&
+    css`
+      border-style: solid;
+      border-bottom-width: 4px;
+      border-color: ${theme.colors.red_ku_crimson};
+    `}
+
   ${({ theme, isFocused }) =>
     isFocused &&
     css`
       border-style: solid;
       border-bottom-width: 4px;
+      border-left-width: 1.5px;
       border-color: ${theme.colors.main};
     `}
 
-  ${({ theme, isFilled }) =>
+${({ theme, isFilled }) =>
     isFilled &&
     css`
       border-color: ${theme.colors.background_primary};
@@ -93,6 +113,14 @@ export const AreaIconEyes = styled.TouchableOpacity<PropsArea>`
 
   border-left-width: 3px;
   border-color: ${({ theme }) => theme.colors.bon_jour_dark_shade};
+
+  ${({ theme, error }) =>
+    error &&
+    css`
+      border-style: solid;
+      border-bottom-width: 4px;
+      border-color: ${theme.colors.red_ku_crimson};
+    `}
 
   ${({ theme, isFocused }) =>
     isFocused &&
@@ -124,11 +152,9 @@ export const TextInputSC = styled(TextInput).attrs({
 
   margin-bottom: 8px;
 
-  ${({ theme, error, isFilled }) =>
-    (error || isFilled) &&
+  ${({ theme, error }) =>
+    error &&
     css`
-      color: ${(!!error && theme.colors.red_devil) || isFilled
-        ? theme.colors.background_primary
-        : theme.colors.bon_jour_dark_shade};
+      color: ${theme.colors.red_devil};
     `}
 `;

@@ -37,7 +37,7 @@ export function AuthRoutes() {
         gestureEnabled: true,
         ...TransitionPresets.ModalPresentationIOS,
       }}
-      initialRouteName="Splash"
+      initialRouteName="SignUpFirstStep"
     >
       <Screen name="Splash" component={Splash} />
       <Screen name="SignIn" component={SignIn} />

@@ -5,7 +5,6 @@ import {
   StatusBar,
   TouchableWithoutFeedback,
   Keyboard,
-  Alert,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from 'styled-components';
@@ -22,11 +21,14 @@ import {
   Form,
   Footer,
   ButtonIcons,
+  SubTitle,
 } from './styles';
 import { useAuth } from '../../hooks/auth';
 import { ScreenNavigationProp } from '../../routes/app.stack.routes';
 import { FormInput } from '../../components/FormInput';
 import { ButtonIcon } from '../../components/ButtonIcon';
+import { useCommon } from '../../hooks/common';
+import { TextInputTypeEnum } from '../../enums/TextInputType.enum';
 
 interface FormData {
   email: string;
@@ -42,18 +44,21 @@ export function SignIn() {
   const {
     control,
     handleSubmit,
+    setFocus,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
   });
   const theme = useTheme();
+  const { isLoading, setIsLoading, appError } = useCommon();
   const { signIn } = useAuth();
   const navigation = useNavigation<ScreenNavigationProp>();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
 
   async function handleSignIn(form: FormData) {
-    console.log(form);
+    console.log('################');
+    setIsLoading(true);
+    setTimeout(() => {}, 3000);
+    setIsLoading(false);
     // try {
 
     //   await schema.validate({ email, password });
@@ -73,7 +78,8 @@ export function SignIn() {
   function handleNewAccount() {
     navigation.navigate('SignUpFirstStep');
   }
-
+  console.log(isLoading);
+  console.log(errors);
   return (
     <KeyboardAvoidingView behavior="position" enabled style={{ flex: 1 }}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -90,6 +96,7 @@ export function SignIn() {
 
             <AreaTitle>
               <Title>Entrar</Title>
+              <SubTitle>{appError.message}</SubTitle>
             </AreaTitle>
           </Header>
           <Form>
@@ -100,6 +107,8 @@ export function SignIn() {
               error={errors.email && errors.email.message}
               iconName="mail"
               iconSize={24}
+              autoCorrect={false}
+              editable={!isLoading}
             />
             <FormInput
               name="password"
@@ -108,27 +117,35 @@ export function SignIn() {
               error={errors.password && errors.password.message}
               iconName="airplay"
               iconSize={24}
-              password
+              type={TextInputTypeEnum.password}
+              editable={!isLoading}
             />
           </Form>
           <Footer>
-            <Button title="Login" onPress={() => {}} enabled loading={false} />
+            <Button
+              title="Entrar"
+              onPress={handleSubmit(handleSignIn)}
+              enabled={!isLoading}
+              loading={isLoading}
+            />
             <ButtonIcons>
               <ButtonIcon
-                iconName="airplay"
+                iconName="user-plus"
                 title="Registrar"
-                color={theme.colors.background_secondary}
-                onPress={handleNewAccount}
-                enabled
-                loading={false}
+                disabled={isLoading}
+                loading={isLoading}
                 light
+                buttonColor={theme.colors.success_chateau}
+                textColor={theme.colors.shape}
+                iconColor={theme.colors.shape}
+                onPress={handleNewAccount}
               />
               <ButtonIcon
+                iconName="edit-2"
                 title="Esqueci a senha"
-                color={theme.colors.background_secondary}
-                onPress={handleNewAccount}
-                enabled
-                loading={false}
+                buttonColor={theme.colors.warning_buttercup_light_shade}
+                disabled={isLoading}
+                loading={isLoading}
                 light
               />
             </ButtonIcons>

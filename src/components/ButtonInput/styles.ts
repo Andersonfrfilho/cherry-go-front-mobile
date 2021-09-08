@@ -1,6 +1,6 @@
 import styled, { css } from 'styled-components/native';
 import { RFValue } from 'react-native-responsive-fontsize';
-import { TextInput } from 'react-native';
+import TextInputMask from 'react-native-text-input-mask';
 import themeFile from '../../styles/theme';
 
 interface TextInputProps {
@@ -59,7 +59,7 @@ export const AreaIcon = styled.View<PropsArea>`
       border-color: ${theme.colors.main};
     `}
 
-  ${({ theme, isFilled }) =>
+${({ theme, isFilled }) =>
     isFilled &&
     css`
       border-color: ${theme.colors.background_primary};
@@ -67,13 +67,10 @@ export const AreaIcon = styled.View<PropsArea>`
 `;
 
 export const AreaInput = styled.View<PropsArea>`
-  flex: 5;
+  flex: 4;
 
   padding-top: 4px;
   padding-right: 1.5px;
-
-  border-top-right-radius: 15px;
-  border-bottom-right-radius: 15px;
 
   border-left-width: 1.5px;
   border-color: ${({ theme }) => theme.colors.bon_jour_dark_shade};
@@ -83,7 +80,6 @@ export const AreaInput = styled.View<PropsArea>`
     css`
       border-style: solid;
       border-bottom-width: 4px;
-      border-right-width: 1.5px;
       border-color: ${theme.colors.red_ku_crimson};
     `}
 
@@ -96,6 +92,44 @@ export const AreaInput = styled.View<PropsArea>`
       border-color: ${theme.colors.main};
     `}
 
+${({ theme, isFilled }) =>
+    isFilled &&
+    css`
+      border-color: ${theme.colors.background_primary};
+    `}
+`;
+
+export const AreaIconButton = styled.TouchableOpacity<PropsArea>`
+  flex: 1;
+
+  justify-content: center;
+  align-items: center;
+
+  padding-top: 4px;
+  padding-right: 1.5px;
+
+  border-top-right-radius: 15px;
+  border-bottom-right-radius: 15px;
+
+  border-left-width: 3px;
+  border-color: ${({ theme }) => theme.colors.bon_jour_dark_shade};
+
+  ${({ theme, error }) =>
+    error &&
+    css`
+      border-style: solid;
+      border-bottom-width: 4px;
+      border-color: ${theme.colors.red_ku_crimson};
+    `}
+
+  ${({ theme, isFocused }) =>
+    isFocused &&
+    css`
+      border-style: solid;
+      border-bottom-width: 4px;
+      border-color: ${theme.colors.main};
+    `}
+
   ${({ theme, isFilled }) =>
     isFilled &&
     css`
@@ -103,7 +137,7 @@ export const AreaInput = styled.View<PropsArea>`
     `}
 `;
 
-export const TextInputSC = styled(TextInput).attrs({
+export const TextInputSC = styled(TextInputMask).attrs({
   placeholderTextColor: themeFile.colors.bon_jour_dark_shade,
 })<TextInputProps>`
   width: 100%;

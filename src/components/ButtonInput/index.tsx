@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { TextInputProps } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { useTheme } from 'styled-components';
 
 import {
   Container,
   AreaInput,
   AreaIcon,
-  AreaIconEyes,
+  AreaIconButton,
   TextInputSC,
 } from './styles';
 import { colorFunction } from '../../utils/getColorInput';
@@ -17,21 +16,26 @@ interface Props extends TextInputProps {
   iconName: React.ComponentProps<typeof Feather>['name'];
   iconSize?: number;
   error?: string;
+  iconButtonName: React.ComponentProps<typeof Feather>['name'];
+  iconButtonSize?: number;
+  functionOnPress: () => void;
+  mask?: string;
 }
 
-export function PasswordInput({
+export function ButtonInput({
   iconName,
   iconSize = 24,
+  iconButtonName,
+  iconButtonSize = 24,
   loading = false,
   error,
   value,
+  functionOnPress,
+  mask,
   ...rest
 }: Props) {
-  const [isPasswordVisible, setIsPasswordVisible] = useState(true);
   const [isFocused, setIsFocused] = useState(false);
   const [isFilled, setIsFilled] = useState(false);
-
-  const theme = useTheme();
 
   function handleInputFocus() {
     setIsFocused(true);
@@ -42,15 +46,11 @@ export function PasswordInput({
     setIsFilled(!!value);
   }
 
-  function handlePasswordVisibilityChange() {
-    setIsPasswordVisible(prevState => !prevState);
-  }
-
   return (
     <Container>
       <AreaIcon isFocused={isFocused} isFilled={isFilled} error={!!error}>
         <Feather
-          name="lock"
+          name={iconName}
           size={iconSize}
           color={colorFunction({ error: !!error, isFilled })}
         />
@@ -63,21 +63,21 @@ export function PasswordInput({
           onFocus={handleInputFocus}
           error={!!error}
           isFilled={isFilled}
-          secureTextEntry={isPasswordVisible}
+          mask={mask}
         />
       </AreaInput>
-      <AreaIconEyes
+      <AreaIconButton
         isFocused={isFocused}
         isFilled={isFilled}
-        onPress={handlePasswordVisibilityChange}
+        onPress={functionOnPress}
         error={!!error}
       >
         <Feather
-          name={isPasswordVisible ? 'eye' : 'eye-off'}
-          size={iconSize}
+          name={iconButtonName}
+          size={iconButtonSize}
           color={colorFunction({ error: !!error, isFilled })}
         />
-      </AreaIconEyes>
+      </AreaIconButton>
     </Container>
   );
 }

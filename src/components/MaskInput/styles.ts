@@ -1,11 +1,12 @@
 import styled, { css } from 'styled-components/native';
 import { RFValue } from 'react-native-responsive-fontsize';
-import { TextInput } from 'react-native';
+import TextInputMask from 'react-native-text-input-mask';
 import themeFile from '../../styles/theme';
 
 interface TextInputProps {
   error: boolean;
   isFilled: boolean;
+  mask: string;
 }
 
 interface PropsArea {
@@ -103,7 +104,7 @@ export const AreaInput = styled.View<PropsArea>`
     `}
 `;
 
-export const TextInputSC = styled(TextInput).attrs({
+export const TextInputSC = styled(TextInputMask).attrs({
   placeholderTextColor: themeFile.colors.bon_jour_dark_shade,
 })<TextInputProps>`
   width: 100%;

@@ -15,6 +15,10 @@ export default {
     main: '#D86593',
     main_light: '#FFFFFF',
     success: '#1CCF84',
+    success_chateau_green: '#098036',
+    success_chateau: '#7DBD59',
+
+    warning_buttercup_light_shade: '#FDC53B',
 
     shape: '#E1E1E8',
     shape_dark: '#29292E',

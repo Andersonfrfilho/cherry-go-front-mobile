@@ -13,44 +13,31 @@ interface Props extends TouchableOpacityProps {
   iconSize?: number;
   buttonColor?: string;
   textColor?: string;
-  iconPosition?: 'left' | 'right';
-  titleSize?: number;
+  active: boolean;
 }
 
-export function ButtonIcon({
+export function CheckBox({
   title,
   iconColor,
   loading = false,
   light = false,
   iconName,
   iconSize = 24,
-  titleSize = 16,
   buttonColor,
   textColor,
-  iconPosition = 'right',
+  active = false,
   ...rest
 }: Props) {
   const theme = useTheme();
   return (
     <Button color={buttonColor} {...rest}>
-      <IconContainer>
-        {iconPosition === 'left' && (
-          <Feather
-            name={iconName}
-            size={iconSize}
-            color={iconColor || theme.colors.background_primary}
-          />
-        )}
-        <Title color={textColor} size={titleSize}>
-          {title}
-        </Title>
-        {iconPosition === 'right' && (
-          <Feather
-            name={iconName}
-            size={iconSize}
-            color={iconColor || theme.colors.background_primary}
-          />
-        )}
+      <IconContainer title={!!title}>
+        {!!title && <Title color={textColor}>{title}</Title>}
+        <Feather
+          name={active ? 'check-square' : 'square'}
+          size={iconSize}
+          color={iconColor || theme.colors.background_primary}
+        />
       </IconContainer>
     </Button>
   );

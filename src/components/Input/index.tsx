@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { TextInputProps } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { useTheme } from 'styled-components';
 
 import { Container, AreaInput, AreaIcon, TextInputSC } from './styles';
+import { colorFunction } from '../../utils/getColorInput';
 
 interface Props extends TextInputProps {
   loading?: boolean;
@@ -23,8 +23,6 @@ export function Input({
   const [isFocused, setIsFocused] = useState(false);
   const [isFilled, setIsFilled] = useState(false);
 
-  const theme = useTheme();
-
   function handleInputFocus() {
     setIsFocused(true);
   }
@@ -36,18 +34,14 @@ export function Input({
 
   return (
     <Container>
-      <AreaIcon isFocused={isFocused} isFilled={isFilled}>
+      <AreaIcon isFocused={isFocused} isFilled={isFilled} error={!!error}>
         <Feather
           name={iconName}
           size={iconSize}
-          color={
-            (!!error && theme.colors.red_devil) || isFilled
-              ? theme.colors.background_primary
-              : theme.colors.bon_jour_dark_shade
-          }
+          color={colorFunction({ error: !!error, isFilled })}
         />
       </AreaIcon>
-      <AreaInput isFocused={isFocused} isFilled={isFilled}>
+      <AreaInput isFocused={isFocused} isFilled={isFilled} error={!!error}>
         <TextInputSC
           editable={!loading}
           {...rest}
