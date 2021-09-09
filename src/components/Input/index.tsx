@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { TextInputProps } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 
@@ -10,14 +10,17 @@ interface Props extends TextInputProps {
   iconName: React.ComponentProps<typeof Feather>['name'];
   iconSize?: number;
   error?: string;
+  inputRef?: React.RefObject<unknown>;
 }
 
 export function Input({
   iconName,
   iconSize = 24,
-  loading = false,
   error,
+  onChangeText,
   value,
+  inputRef,
+  editable,
   ...rest
 }: Props) {
   const [isFocused, setIsFocused] = useState(false);
@@ -32,8 +35,11 @@ export function Input({
     setIsFilled(!!value);
   }
 
+  useEffect(() => {
+    setIsFilled(!!value);
+  }, [value]);
   return (
-    <Container>
+    <Container editable={editable}>
       <AreaIcon isFocused={isFocused} isFilled={isFilled} error={!!error}>
         <Feather
           name={iconName}
@@ -43,12 +49,14 @@ export function Input({
       </AreaIcon>
       <AreaInput isFocused={isFocused} isFilled={isFilled} error={!!error}>
         <TextInputSC
-          editable={!loading}
           {...rest}
+          onChangeText={onChangeText}
+          value={value}
           onBlur={handleInputBlur}
           onFocus={handleInputFocus}
           error={!!error}
           isFilled={isFilled}
+          ref={inputRef}
         />
       </AreaInput>
     </Container>

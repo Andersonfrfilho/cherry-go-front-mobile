@@ -6,20 +6,23 @@ import { Container, AreaInput, AreaIcon, TextInputSC } from './styles';
 import { colorFunction } from '../../utils/getColorInput';
 
 interface Props extends TextInputProps {
-  loading?: boolean;
   iconName: React.ComponentProps<typeof Feather>['name'];
   iconSize?: number;
+  iconColor?: string;
   error?: string;
   mask?: string;
+  inputRef?: React.RefObject<unknown>;
 }
 
 export function MaskInput({
   iconName,
   iconSize = 24,
-  loading = false,
+  iconColor,
   error,
   value,
   mask,
+  inputRef,
+  editable,
   ...rest
 }: Props) {
   const [isFocused, setIsFocused] = useState(false);
@@ -35,23 +38,23 @@ export function MaskInput({
   }
 
   return (
-    <Container>
+    <Container editable={editable}>
       <AreaIcon isFocused={isFocused} isFilled={isFilled} error={!!error}>
         <Feather
           name={iconName}
           size={iconSize}
-          color={colorFunction({ error: !!error, isFilled })}
+          color={colorFunction({ error: !!error, isFilled, color: iconColor })}
         />
       </AreaIcon>
       <AreaInput isFocused={isFocused} isFilled={isFilled} error={!!error}>
         <TextInputSC
-          editable={!loading}
           {...rest}
           onBlur={handleInputBlur}
           onFocus={handleInputFocus}
           error={!!error}
           isFilled={isFilled}
           mask={mask}
+          ref={inputRef}
         />
       </AreaInput>
     </Container>

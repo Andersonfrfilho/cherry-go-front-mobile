@@ -7,6 +7,7 @@ import { CONFLICT } from './Conflict.const';
 import { NOT_FOUND } from './NotFound.const';
 import { TOO_MANY_REQUESTS } from './TooManyRequest.const';
 import { INTERNAL_SERVER_ERROR } from './InternalServerError.const';
+import { APPLICATION_ERROR } from './ApplicationError.const';
 
 export default {
   ...BAD_REQUEST,
@@ -18,4 +19,5 @@ export default {
   ...NOT_FOUND,
   ...TOO_MANY_REQUESTS,
   ...INTERNAL_SERVER_ERROR,
+  ...APPLICATION_ERROR,
 };

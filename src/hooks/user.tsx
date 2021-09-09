@@ -1,40 +1,34 @@
-import React, {
-  createContext,
-  ReactNode,
-  useContext,
-  useState,
-  useEffect,
-} from 'react';
+import React, { createContext, ReactNode, useContext, useState } from 'react';
 import { Dispatch, SetStateAction } from 'react';
 import { ErrorData } from '../errors/Error.type';
 
-type CommonContextData = {
+type UserContextData = {
   isLoading: boolean;
   appError: Partial<ErrorData>;
   setAppError: Dispatch<SetStateAction<Partial<ErrorData>>>;
   setIsLoading: Dispatch<SetStateAction<boolean>>;
 };
-interface CommonProviderProps {
+interface UserProviderProps {
   children: ReactNode;
 }
-const CommonContext = createContext<CommonContextData>({} as CommonContextData);
+const UserContext = createContext<UserContextData>({} as UserContextData);
 
-function CommonProvider({ children }: CommonProviderProps) {
+function UserProvider({ children }: UserProviderProps) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [appError, setAppError] = useState<Partial<ErrorData>>({});
 
   return (
-    <CommonContext.Provider
+    <UserContext.Provider
       value={{ isLoading, setIsLoading, appError, setAppError }}
     >
       {children}
-    </CommonContext.Provider>
+    </UserContext.Provider>
   );
 }
 
-function useCommon(): CommonContextData {
-  const context = useContext(CommonContext);
+function useUser(): UserContextData {
+  const context = useContext(UserContext);
   return context;
 }
 
-export { CommonProvider, useCommon };
+export { UserProvider, useUser };

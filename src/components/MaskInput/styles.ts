@@ -1,7 +1,13 @@
 import styled, { css } from 'styled-components/native';
 import { RFValue } from 'react-native-responsive-fontsize';
-import TextInputMask from 'react-native-text-input-mask';
+import TextInputMask, {
+  TextInputMaskProps,
+} from 'react-native-text-input-mask';
 import themeFile from '../../styles/theme';
+
+interface ContainerProps {
+  editable?: boolean;
+}
 
 interface TextInputProps {
   error: boolean;
@@ -15,16 +21,22 @@ interface PropsArea {
   error?: boolean;
 }
 
-export const Container = styled.View`
+export const Container = styled.View<ContainerProps>`
   flex-direction: row;
   justify-content: flex-start;
 
-  background-color: #ffffff;
+  background-color: ${({ theme }) => theme.colors.background_secondary};
 
   height: 60px;
   width: 100%;
 
   border-radius: 16px;
+
+  ${({ theme, editable }) =>
+    !editable &&
+    css`
+      background-color: ${theme.colors.desative_shade};
+    `}
 `;
 
 export const AreaIcon = styled.View<PropsArea>`
@@ -106,7 +118,7 @@ export const AreaInput = styled.View<PropsArea>`
 
 export const TextInputSC = styled(TextInputMask).attrs({
   placeholderTextColor: themeFile.colors.bon_jour_dark_shade,
-})<TextInputProps>`
+})<TextInputMaskProps>`
   width: 100%;
   height: 100%;
 

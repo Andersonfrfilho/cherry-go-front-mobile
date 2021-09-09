@@ -9,9 +9,8 @@ interface Props extends TouchableOpacityProps {
   title: string;
   text: string;
   modalVisible: boolean;
-  setModalVisible: () => {};
   titleButton: string;
-  onPress: () => {};
+  onPress: () => void;
 }
 
 export function Modal({

@@ -12,7 +12,6 @@ import {
 import { colorFunction } from '../../utils/getColorInput';
 
 interface Props extends TextInputProps {
-  loading?: boolean;
   iconName: React.ComponentProps<typeof Feather>['name'];
   iconSize?: number;
   error?: string;
@@ -20,6 +19,7 @@ interface Props extends TextInputProps {
   iconButtonSize?: number;
   functionOnPress: () => void;
   mask?: string;
+  inputRef?: React.RefObject<unknown>;
 }
 
 export function ButtonInput({
@@ -27,11 +27,13 @@ export function ButtonInput({
   iconSize = 24,
   iconButtonName,
   iconButtonSize = 24,
-  loading = false,
   error,
   value,
+  onChangeText,
   functionOnPress,
   mask,
+  inputRef,
+  editable,
   ...rest
 }: Props) {
   const [isFocused, setIsFocused] = useState(false);
@@ -47,7 +49,7 @@ export function ButtonInput({
   }
 
   return (
-    <Container>
+    <Container editable={editable}>
       <AreaIcon isFocused={isFocused} isFilled={isFilled} error={!!error}>
         <Feather
           name={iconName}
@@ -57,13 +59,15 @@ export function ButtonInput({
       </AreaIcon>
       <AreaInput isFocused={isFocused} isFilled={isFilled} error={!!error}>
         <TextInputSC
-          editable={!loading}
           {...rest}
+          onChangeText={onChangeText}
+          value={value}
           onBlur={handleInputBlur}
           onFocus={handleInputFocus}
           error={!!error}
           isFilled={isFilled}
           mask={mask}
+          ref={inputRef}
         />
       </AreaInput>
       <AreaIconButton

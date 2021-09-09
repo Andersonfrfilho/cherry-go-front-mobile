@@ -3,6 +3,9 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import { TextInput } from 'react-native';
 import themeFile from '../../styles/theme';
 
+interface ContainerProps {
+  editable?: boolean;
+}
 interface TextInputProps {
   error: boolean;
   isFilled: boolean;
@@ -14,16 +17,22 @@ interface PropsArea {
   error?: boolean;
 }
 
-export const Container = styled.View`
+export const Container = styled.View<ContainerProps>`
   flex-direction: row;
   justify-content: flex-start;
 
-  background-color: #ffffff;
+  background-color: ${({ theme }) => theme.colors.background_secondary};
 
   height: 60px;
   width: 100%;
 
   border-radius: 16px;
+
+  ${({ theme, editable }) =>
+    !editable &&
+    css`
+      background-color: ${theme.colors.desative_shade};
+    `}
 `;
 
 export const AreaIcon = styled.View<PropsArea>`

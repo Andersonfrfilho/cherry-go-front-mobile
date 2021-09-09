@@ -1,6 +1,6 @@
 import React from 'react';
 import { Control, Controller } from 'react-hook-form';
-import { TextInputProps } from 'react-native';
+import { TextInput, TextInputProps } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { Input } from '../Input';
 import { Container, Error } from './styles';
@@ -9,6 +9,7 @@ import { MaskInput } from '../MaskInput';
 import { ButtonIcon } from '../ButtonIcon';
 import { ButtonInput } from '../ButtonInput';
 import { TextInputTypeEnum } from '../../enums/TextInputType.enum';
+import { Focusable } from '../../screens/SignUp/FirstStep';
 
 interface Props extends TextInputProps {
   control: Control;
@@ -24,6 +25,7 @@ interface Props extends TextInputProps {
   password?: boolean;
   mask?: string;
   type?: TextInputTypeEnum;
+  inputRef?: React.RefObject<unknown>;
 }
 
 export function FormInput({
@@ -31,10 +33,12 @@ export function FormInput({
   name,
   error,
   mask,
+  iconColor,
   iconButtonName = 'user-plus',
   iconButtonSize = 24,
   functionOnPress = () => {},
   type = TextInputTypeEnum.default,
+  inputRef,
   ...rest
 }: Props) {
   return (
@@ -50,7 +54,9 @@ export function FormInput({
                 mask={mask}
                 value={value}
                 error={error}
+                iconColor={iconColor}
                 {...rest}
+                inputRef={inputRef}
               />
             );
           }
@@ -62,6 +68,7 @@ export function FormInput({
                 value={value}
                 error={error}
                 {...rest}
+                inputRef={inputRef}
               />
             );
           }
@@ -76,6 +83,7 @@ export function FormInput({
                 iconButtonName={iconButtonName}
                 iconButtonSize={iconButtonSize}
                 functionOnPress={functionOnPress}
+                inputRef={inputRef}
                 {...rest}
               />
             );
@@ -87,6 +95,7 @@ export function FormInput({
               value={value}
               error={error}
               {...rest}
+              inputRef={inputRef}
             />
           );
         }}

@@ -3,14 +3,14 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import { RectButton } from 'react-native-gesture-handler';
 
 interface ButtonTextProps {
-  light: boolean;
+  error: boolean;
 }
 
-export const Container = styled.View`
+export const Container = styled.View<ButtonTextProps>`
   width: 100%;
-  height: 80px;
+  height: ${({ error }) => (error ? 100 : 80)}px;
 
-  margin-bottom: 10px;
+  margin-bottom: 20px;
 `;
 
 export const AreaTitle = styled.View`
@@ -32,4 +32,16 @@ export const AreaPicker = styled.View`
   border-width: 3px;
   border-color: ${({ theme }) => theme.colors.shape};
   border-radius: 15px;
+`;
+
+export const Error = styled.Text`
+  text-align: left;
+  background-color: ${({ theme }) => theme.colors.red_ku_crimson};
+  color: ${({ theme }) => theme.colors.bon_jour_light_shade};
+  font-family: ${({ theme }) => theme.fonts.secondary_400};
+  border-radius: 5px;
+  margin: 7px;
+  padding-left: 5px;
+  width: 50%;
+  font-size: ${RFValue(12)}px;
 `;

@@ -1,23 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import { isDate, sub } from 'date-fns';
+import React, { useState, createRef, useEffect } from 'react';
+import { format, sub } from 'date-fns';
 import * as Yup from 'yup';
 import {
-  KeyboardAvoidingView,
   StatusBar,
   TouchableWithoutFeedback,
   Keyboard,
   Platform,
+  Alert,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from 'styled-components';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import LogoTitleSvg from '../../../assets/logo_title.svg';
+import DatePicker from '@react-native-community/datetimepicker';
 import {
   Container,
   Header,
-  AreaLogoTitle,
   AreaTitle,
   Title,
   Form,
@@ -25,117 +23,226 @@ import {
   ButtonIcons,
   SubTitle,
   TermsUseArea,
+  AreaLoad,
 } from './styles';
-import { useAuth } from '../../../hooks/auth';
 import { ScreenNavigationProp } from '../../../routes/app.stack.routes';
 import { FormInput } from '../../../components/FormInput';
 import { ButtonIcon } from '../../../components/ButtonIcon';
 import { useCommon } from '../../../hooks/common';
 import { SelectedPicker } from '../../../components/SelectedPicker';
-import { GENDERS_ENUM } from '../../../enums/genderType.enum';
-import { ButtonInput } from '../../../components/ButtonInput';
 import { TextInputTypeEnum } from '../../../enums/TextInputType.enum';
 import { CheckBox } from '../../../components/CheckBox';
 import { Modal } from '../../../components/Modal';
 import { term } from '../../../constant/term.const';
-
-interface ItemSelectedGender {
-  label: string;
-  value: string;
-}
+import { termWork } from '../../../constant/termWork.const';
+import { useClientUser } from '../../../hooks/clientUser';
+import { UserClientDTO } from '../../../hooks/dtos';
+import { appErrorVerifyError } from '../../../errors/appErrorVerify';
+import {
+  formattedDate,
+  removeCharacterSpecial,
+  validationCpf,
+  verifyAge,
+} from '../../../utils/validations';
+import { GENDER_ENUM } from '../../../enums/genderType.enum';
+import { Load } from '../../../components/Load';
+import { WarningText } from '../../../components/WarningText';
 
 interface FormData {
+  name: string;
+  last_name: string;
   email: string;
+  cpf: string;
+  rg: string;
+  gender: GENDER_ENUM;
+  birth_date: string;
   password: string;
+  password_confirm: string;
 }
+Yup.addMethod(Yup.string, 'cpfValidation', function (errorMessage) {
+  return this.test('test-cpf-validation', errorMessage, function (value) {
+    const { path, createError } = this;
+
+    return (
+      (value && validationCpf(value)) ||
+      createError({ path, message: errorMessage })
+    );
+  });
+});
+
+Yup.addMethod(Yup.string, 'ageValidation', function (errorMessage) {
+  return this.test('test-age-validation', errorMessage, function (value) {
+    const { path, createError } = this;
+
+    return (
+      (value && verifyAge(value)) ||
+      createError({ path, message: errorMessage })
+    );
+  });
+});
+
 const schema = Yup.object().shape({
-  name: Yup.string().required('Nome é obrigatório'),
-  last_name: Yup.string().required('Sobrenome obrigatório'),
+  name: Yup.string()
+    .required('Nome é obrigatório')
+    .min(3, 'Insira um nome válido')
+    .max(50, 'Insira um nome válido'),
+  last_name: Yup.string()
+    .required('Sobrenome obrigatório')
+    .min(3, 'Insira um nome válido')
+    .max(50, 'Insira um nome válido'),
   email: Yup.string()
-    .required('E-mail é obrigatório')
-    .email('Digite um e-mail válido'),
-  cpf: Yup.string().required('CPF é obrigatório').length(14, 'CPF inválido'),
+    .email('Digite um e-mail válido')
+    .required('E-mail é obrigatório'),
+  cpf: Yup.string()
+    .length(14, 'CPF inválido')
+    .cpfValidation('O CPF digitado não é invalido')
+    .required('CPF é obrigatório'),
   rg: Yup.string()
     .required('RG é obrigatório')
     .min(10, 'RG inválido')
     .max(12, 'RG inválido'),
   gender: Yup.string()
-    .required('Genero é obrigatório')
-    .oneOf(['male', 'female'], 'selecione um genero valido'),
+    .oneOf(['male', 'female'], 'selecione um genero valido')
+    .required('Genero é obrigatório'),
+  birth_date: Yup.string().required('Data é obrigatória'),
   password: Yup.string().required('Senha é obrigatória'),
-  passwordConfirmation: Yup.string().oneOf(
+  password_confirm: Yup.string().oneOf(
     [Yup.ref('password'), null],
     'As senhas precisam ser iguais',
   ),
-  birth_date: Yup.date().required('Data é obrigatória'),
 });
+export interface Focusable {
+  focus(): void;
+}
+
 export function SignUpFirstStep() {
   const {
     control,
     handleSubmit,
-    setFocus,
+    setValue,
+    clearErrors,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
   });
-  const [selectedGender, setSelectedGender] = useState('');
-  const [date, setDate] = useState(new Date(1598051730000));
+  const [selectedGenre, setSelectedGenre] = useState('');
+  const [birthDate, setBirthDate] = useState(
+    sub(new Date(), {
+      years: 18,
+    }),
+  );
   const [checkTerm, setCheckTerm] = useState(false);
-  const [openTerm, setOpenTerm] = useState(false);
-  const [mode, setMode] = useState('date');
-  const [show, setShow] = useState(false);
-  const [modalVisible, setModalVisible] = useState(false);
-  const itensGender = [
-    { label: 'Masculino', value: GENDERS_ENUM.MALE },
-    { label: 'Feminino', value: GENDERS_ENUM.FEMALE },
+  const [checkTermWork, setCheckTermWork] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [modalVisibleTerm, setModalVisibleTerm] = useState(false);
+  const [modalVisibleTermWork, setModalVisibleTermWork] = useState(false);
+
+  const refName = createRef<Focusable>();
+  const refLastName = createRef<Focusable>();
+  const refEmail = createRef<Focusable>();
+  const refCpf = createRef<Focusable>();
+  const refRg = createRef<Focusable>();
+  const refGenre = createRef<Focusable>();
+  const refBirthDate = createRef<Focusable>();
+  const refPassword = createRef<Focusable>();
+  const refConfirmPassword = createRef<Focusable>();
+
+  const itensGenre = [
+    { label: 'Selecione seu genero', value: '' },
+    { label: 'Masculino', value: GENDER_ENUM.MALE },
+    { label: 'Feminino', value: GENDER_ENUM.FEMALE },
   ];
   const theme = useTheme();
-  const { isLoading, setIsLoading, appError } = useCommon();
-  const { signIn } = useAuth();
+  const { isLoading, setIsLoading, appError, setAppError } = useCommon();
+  const { registerClient } = useClientUser();
   const navigation = useNavigation<ScreenNavigationProp>();
 
   async function handleSignIn(form: FormData) {
-    console.log('################');
     setIsLoading(true);
-    setTimeout(() => {}, 3000);
+    const {
+      name,
+      last_name,
+      email,
+      cpf,
+      rg,
+      gender,
+      birth_date,
+      password,
+      password_confirm,
+    } = form;
+
+    const data: UserClientDTO = {
+      name,
+      last_name,
+      email,
+      cpf: removeCharacterSpecial(cpf),
+      rg: removeCharacterSpecial(rg),
+      gender,
+      birth_date: formattedDate(birth_date),
+      password,
+      password_confirm,
+    };
+    try {
+      // if (checkTerm && checkTermWork) {
+      //   await registerWorker(form);
+      // return;
+      // }
+
+      if (!checkTerm) {
+        setAppError(appErrorVerifyError({ status_code: 'app', code: '0001' }));
+        Alert.alert('Aceite os termos para terminar o cadastro');
+        return;
+      }
+
+      setAppError({});
+      await registerClient(data);
+    } catch (error) {
+      console.log(error);
+      setAppError(appErrorVerifyError(error));
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  function handleBack() {
+    navigation.navigate('SignIn');
+  }
+
+  const onChangeBirthDate = (event: Event, selectedDate?: Date | undefined) => {
+    if (selectedDate) {
+      const currentBirthDate = format(selectedDate, 'dd/MM/yyyy');
+      setShowDatePicker(Platform.OS === 'ios');
+      setValue('birth_date', currentBirthDate);
+      setBirthDate(selectedDate);
+      clearErrors('birth_date');
+      refConfirmPassword.current?.focus();
+    }
+  };
+
+  const handleShowDatePicker = () => {
+    setShowDatePicker(true);
+  };
+
+  function handleModalTerm(param: boolean) {
+    setModalVisibleTerm(param);
+  }
+
+  function handleModalTermWork(param: boolean) {
+    setModalVisibleTermWork(param);
+  }
+
+  function handleChangeSelectedGenre(value: string) {
+    setSelectedGenre(value);
+    setValue('gender', value);
+    clearErrors('gender');
+    refBirthDate.current?.focus();
+  }
+
+  useEffect(() => {
     setIsLoading(false);
-    // try {
+    setAppError({});
+  }, []);
 
-    //   await schema.validate({ email, password });
-
-    //   await signIn({ email, password });
-    // } catch (error) {
-    //   if (error instanceof Yup.ValidationError) {
-    //     return Alert.alert('Opa', error.message);
-    //   }
-    //   Alert.alert(
-    //     'Erro na autenticação',
-    //     'Ocorreu um erro ao fazer login, verifique as credenciais',
-    //   );
-    // }
-  }
-
-  function handleNewAccount() {
-    navigation.navigate('SignUpFirstStep');
-  }
-
-  const onChange = (_, selectedDate: Date) => {
-    const currentDate = selectedDate || date;
-    setShow(Platform.OS === 'ios');
-    setDate(currentDate);
-  };
-
-  const showMode = (currentMode: 'date' | 'time') => {
-    setShow(true);
-    setMode(currentMode);
-  };
-
-  const showDatepicker = () => {
-    showMode('date');
-  };
-  function handleModalView() {
-    setModalVisible(false);
-  }
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <Container>
@@ -147,14 +254,23 @@ export function SignUpFirstStep() {
         <Modal
           title="Termos de uso"
           text={term}
-          modalVisible={modalVisible}
-          onPress={handleModalView}
+          modalVisible={modalVisibleTerm}
+          onPress={() => handleModalTerm(false)}
+          titleButton="Fechar"
+        />
+        <Modal
+          title="Termos de uso para trabalhar"
+          text={termWork}
+          modalVisible={modalVisibleTermWork}
+          onPress={() => handleModalTermWork(false)}
           titleButton="Fechar"
         />
         <Header>
           <AreaTitle>
             <Title>Registrar</Title>
-            <SubTitle>{appError.message}</SubTitle>
+            {appError && appError.message && (
+              <WarningText title={appError.message} />
+            )}
           </AreaTitle>
         </Header>
         <Form>
@@ -162,21 +278,27 @@ export function SignUpFirstStep() {
             name="name"
             control={control}
             placeholder="Nome"
-            error={errors.email && errors.email.message}
+            error={errors.name && errors.name.message}
             iconName="tag"
-            iconSize={24}
             autoCorrect={false}
+            autoCapitalize="sentences"
             editable={!isLoading}
+            maxLength={50}
+            inputRef={refName}
+            onEndEditing={() => refLastName.current?.focus()}
           />
           <FormInput
             name="last_name"
             control={control}
             placeholder="Sobrenome"
-            error={errors.email && errors.email.message}
+            error={errors.last_name && errors.last_name.message}
             iconName="tag"
-            iconSize={24}
             autoCorrect={false}
+            autoCapitalize="sentences"
             editable={!isLoading}
+            maxLength={50}
+            inputRef={refLastName}
+            onEndEditing={() => refEmail.current?.focus()}
           />
           <FormInput
             name="email"
@@ -184,46 +306,56 @@ export function SignUpFirstStep() {
             placeholder="E-mail"
             error={errors.email && errors.email.message}
             iconName="mail"
-            iconSize={24}
+            keyboardType="email-address"
             autoCorrect={false}
             editable={!isLoading}
+            inputRef={refEmail}
+            onEndEditing={() => refCpf.current?.focus()}
           />
           <FormInput
             type={TextInputTypeEnum.mask}
             name="cpf"
             control={control}
             placeholder="CPF"
-            error={errors.email && errors.email.message}
+            error={errors.cpf && errors.cpf.message}
             iconName="credit-card"
-            iconSize={24}
+            iconColor={theme.colors.blue_catalina_dark_shade}
             autoCorrect={false}
             editable={!isLoading}
             mask="[000].[000].[000]-[00]"
+            keyboardType="numeric"
+            inputRef={refCpf}
+            onEndEditing={() => refRg.current?.focus()}
           />
           <FormInput
             type={TextInputTypeEnum.mask}
             name="rg"
             control={control}
             placeholder="RG"
-            error={errors.email && errors.email.message}
+            error={errors.rg && errors.rg.message}
             iconName="credit-card"
-            iconSize={24}
+            iconColor={theme.colors.success_chateau}
             autoCorrect={false}
             editable={!isLoading}
-            mask="[00].[000].[000]-[00]"
+            mask="[00].[000].[000]-[0]"
+            keyboardType="numeric"
+            inputRef={refRg}
+            onEndEditing={() => refGenre.current?.focus()}
           />
           <SelectedPicker
             title="Sexo registrado no seu documento"
-            items={itensGender}
-            selected={selectedGender}
-            setSelected={setSelectedGender}
+            items={itensGenre}
+            selected={selectedGenre}
+            setSelected={handleChangeSelectedGenre}
+            error={errors.genre && errors.genre.message}
+            selectedRef={refGenre}
           />
           <FormInput
             type={TextInputTypeEnum.button}
-            name="rg"
+            name="birth_date"
             control={control}
             placeholder="Data de nascimento"
-            error={errors.email && errors.email.message}
+            error={errors.birth_date && errors.birth_date.message}
             iconName="calendar"
             iconSize={24}
             iconButtonName="external-link"
@@ -231,19 +363,21 @@ export function SignUpFirstStep() {
             autoCorrect={false}
             editable={!isLoading}
             mask="[00]/[00]/[0000]"
-            functionOnPress={showDatepicker}
+            functionOnPress={handleShowDatePicker}
+            keyboardType="numeric"
+            inputRef={refBirthDate}
+            onEndEditing={() => refPassword.current?.focus()}
           />
-          {show && (
-            <DateTimePicker
-              testID="dateTimePicker"
-              value={date}
+          {showDatePicker && (
+            <DatePicker
+              testID="datePicker"
+              value={birthDate}
               maximumDate={sub(new Date(), {
                 years: 18,
               })}
-              mode={mode}
               is24Hour
               display="default"
-              onChange={onChange}
+              onChange={onChangeBirthDate}
               locale="pt-BR"
             />
           )}
@@ -257,10 +391,12 @@ export function SignUpFirstStep() {
             iconSize={24}
             password
             editable={!isLoading}
+            inputRef={refPassword}
+            onEndEditing={() => refConfirmPassword.current?.focus()}
           />
           <FormInput
             type={TextInputTypeEnum.password}
-            name="confirmation_password"
+            name="password_confirm"
             control={control}
             placeholder="Senha"
             error={errors.password && errors.password.message}
@@ -268,6 +404,7 @@ export function SignUpFirstStep() {
             iconSize={24}
             password
             editable={!isLoading}
+            inputRef={refConfirmPassword}
           />
           <TermsUseArea>
             <ButtonIcon
@@ -279,14 +416,14 @@ export function SignUpFirstStep() {
               buttonColor={theme.colors.bon_jour_light_shade}
               textColor={theme.colors.background_primary}
               iconColor={theme.colors.background_primary}
-              onPress={() => setModalVisible(true)}
+              onPress={() => handleModalTerm(true)}
             />
 
             <CheckBox
               active={checkTerm}
               iconName="file-text"
               title=""
-              disabled={isLoading || openTerm}
+              disabled={isLoading}
               loading={isLoading}
               light
               buttonColor={theme.colors.background_primary}
@@ -295,33 +432,65 @@ export function SignUpFirstStep() {
               onPress={() => setCheckTerm(!checkTerm)}
             />
           </TermsUseArea>
-        </Form>
-        <Footer>
-          <ButtonIcons>
+          <TermsUseArea>
             <ButtonIcon
-              iconPosition="left"
-              iconName="x-circle"
-              title="Cancelar"
+              iconName="file-text"
+              title={`Quero trabalhar \n Termos de uso`}
               disabled={isLoading}
               loading={isLoading}
               light
-              buttonColor={theme.colors.red_ku_crimson}
-              textColor={theme.colors.shape}
-              iconColor={theme.colors.shape}
-              onPress={handleNewAccount}
-              titleSize={20}
+              buttonColor={theme.colors.bon_jour_light_shade}
+              textColor={theme.colors.background_primary}
+              iconColor={theme.colors.background_primary}
+              onPress={() => handleModalTermWork(true)}
             />
-            <ButtonIcon
-              iconName="chevron-right"
-              title="Enviar"
-              buttonColor={theme.colors.success}
-              textColor={theme.colors.shape}
-              iconColor={theme.colors.shape}
+            <CheckBox
+              active={checkTermWork}
+              iconName="file-text"
+              title=""
               disabled={isLoading}
               loading={isLoading}
-              titleSize={20}
+              light
+              buttonColor={theme.colors.background_primary}
+              textColor={theme.colors.background_primary}
+              iconColor={theme.colors.main_light}
+              onPress={() => setCheckTermWork(!checkTermWork)}
             />
-          </ButtonIcons>
+          </TermsUseArea>
+        </Form>
+        <Footer>
+          {isLoading ? (
+            <AreaLoad>
+              <Load color={theme.colors.background_secondary} />
+            </AreaLoad>
+          ) : (
+            <ButtonIcons>
+              <ButtonIcon
+                iconPosition="left"
+                iconName="x-circle"
+                title="Cancelar"
+                disabled={isLoading}
+                loading={isLoading}
+                light
+                buttonColor={theme.colors.red_ku_crimson}
+                textColor={theme.colors.shape}
+                iconColor={theme.colors.shape}
+                onPress={handleBack}
+                titleSize={20}
+              />
+              <ButtonIcon
+                iconName="chevron-right"
+                title="Enviar"
+                buttonColor={theme.colors.success}
+                textColor={theme.colors.shape}
+                iconColor={theme.colors.shape}
+                disabled={isLoading}
+                loading={isLoading}
+                titleSize={20}
+                onPress={handleSubmit(handleSignIn)}
+              />
+            </ButtonIcons>
+          )}
         </Footer>
       </Container>
     </TouchableWithoutFeedback>

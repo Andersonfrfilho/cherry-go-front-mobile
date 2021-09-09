@@ -12,6 +12,8 @@ export default {
 
     line: '#45090E',
 
+    blue_catalina_dark_shade: '#081871',
+
     main: '#D86593',
     main_light: '#FFFFFF',
     success: '#1CCF84',
@@ -27,6 +29,8 @@ export default {
     bon_jour: '#E4DBDC',
     bon_jour_dark_shade: '#C1B6B7',
     bon_jour_dark_shadow: '#9F9293',
+
+    desative_shade: '#444',
 
     red_ryb: '#F32013',
     red_ku_crimson: '#EA0016',

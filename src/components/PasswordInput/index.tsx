@@ -13,25 +13,24 @@ import {
 import { colorFunction } from '../../utils/getColorInput';
 
 interface Props extends TextInputProps {
-  loading?: boolean;
   iconName: React.ComponentProps<typeof Feather>['name'];
   iconSize?: number;
   error?: string;
+  inputRef?: React.RefObject<unknown>;
 }
 
 export function PasswordInput({
-  iconName,
   iconSize = 24,
-  loading = false,
   error,
   value,
+  onChangeText,
+  inputRef,
+  editable,
   ...rest
 }: Props) {
   const [isPasswordVisible, setIsPasswordVisible] = useState(true);
   const [isFocused, setIsFocused] = useState(false);
   const [isFilled, setIsFilled] = useState(false);
-
-  const theme = useTheme();
 
   function handleInputFocus() {
     setIsFocused(true);
@@ -47,7 +46,7 @@ export function PasswordInput({
   }
 
   return (
-    <Container>
+    <Container editable={editable}>
       <AreaIcon isFocused={isFocused} isFilled={isFilled} error={!!error}>
         <Feather
           name="lock"
@@ -57,13 +56,15 @@ export function PasswordInput({
       </AreaIcon>
       <AreaInput isFocused={isFocused} isFilled={isFilled} error={!!error}>
         <TextInputSC
-          editable={!loading}
           {...rest}
+          onChangeText={onChangeText}
+          value={value}
           onBlur={handleInputBlur}
           onFocus={handleInputFocus}
           error={!!error}
           isFilled={isFilled}
           secureTextEntry={isPasswordVisible}
+          ref={inputRef}
         />
       </AreaInput>
       <AreaIconEyes
