@@ -1,10 +1,6 @@
-import styled, { css } from 'styled-components/native';
+import styled from 'styled-components/native';
 import { getStatusBarHeight } from 'react-native-iphone-x-helper';
 import { RFValue } from 'react-native-responsive-fontsize';
-
-interface Props {
-  error: boolean;
-}
 
 export const Container = styled.ScrollView`
   background-color: ${({ theme }) => theme.colors.background_primary};
@@ -17,12 +13,6 @@ export const Header = styled.View`
   justify-content: center;
 `;
 
-export const AreaLogoTitle = styled.View`
-  height: ${RFValue(300)}px;
-  width: ${RFValue(300)}px;
-  margin-top: 10px;
-`;
-
 export const AreaTitle = styled.View`
   align-items: center;
 `;
@@ -31,23 +21,6 @@ export const Title = styled.Text`
   font-size: ${RFValue(35)}px;
   font-family: ${({ theme }) => theme.fonts.primary_700};
   color: ${({ theme }) => theme.colors.text};
-`;
-
-export const SubTitle = styled.Text<Props>`
-  color: ${({ theme, error }) =>
-    error ? theme.colors.red_devil : theme.colors.shape};
-  font-family: ${({ theme }) => theme.fonts.secondary_400};
-  font-size: ${RFValue(18)}px;
-  margin-top: 14px;
-
-  ${({ theme, error }) =>
-    error &&
-    css`
-      border-radius: 4px;
-      background-color: ${theme.colors.warning_buttercup_light_shade};
-      padding-left: 30px;
-      padding-right: 30px;
-    `}
 `;
 
 export const Form = styled.View`

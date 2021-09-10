@@ -1,14 +1,15 @@
 import React, { createContext, ReactNode, useContext, useState } from 'react';
+import { Q } from '@nozbe/watermelondb';
+import { GENDER_ENUM } from '../enums/genderType.enum';
 import { AppError } from '../errors/AppError';
 import { api } from '../services/api';
+import { UserClientRegisterDTO } from './dtos';
 import { database } from '../databases';
 import { User as ModelUser } from '../databases/model/User';
-import { UserClientDTO } from './dtos/UserClient.dto';
-import { GENDER_ENUM } from '../enums/genderType.enum';
 
 type ClientUserContextData = {
   userClient: UserClient;
-  registerClient: (userData: UserClientDTO) => Promise<void>;
+  registerClient: (userData: UserClientRegisterDTO) => Promise<void>;
 };
 interface ClientUserProviderProps {
   children: ReactNode;
@@ -32,26 +33,44 @@ type UserClient = {
 function ClientUserProvider({ children }: ClientUserProviderProps) {
   const [userClient, setUserClient] = useState<UserClient>({} as UserClient);
 
-  async function registerClient(userData: UserClientDTO) {
+  async function registerClient(userData: UserClientRegisterDTO) {
     try {
-      // console.log(userData);
+      const { data: user } = await api.post('/v1/users/clients', userData);
 
-      // const { data } = await api.post('/v1/users/clients', userData);
       const userCollection = database.get<ModelUser>('users');
 
       await database.write(async () => {
+        const [userExist] = await userCollection
+          .query(Q.where('user_id', user.id))
+          .fetch();
+
+        if (userExist) {
+          await userExist.update(userExistDb => {
+            userExistDb.user_id = user.id;
+            userExistDb.name = user.name;
+            userExistDb.email = user.email;
+            userExistDb.last_name = user.last_name;
+            userExistDb.cpf = user.cpf;
+            userExistDb.rg = user.rg;
+            userExistDb.gender = user.gender;
+            userExistDb.active = user.active;
+          });
+        }
+
         await userCollection.create(newUser => {
-          newUser.user_id = 'user.id';
-          newUser.name = 'user.name';
-          newUser.email = 'user.email';
-          newUser.driver_license = 'user.driver_license';
-          newUser.avatar = 'user.avatar';
-          newUser.token = 'token';
+          newUser.user_id = user.id;
+          newUser.name = user.name;
+          newUser.email = user.email;
+          newUser.last_name = user.last_name;
+          newUser.cpf = user.cpf;
+          newUser.rg = user.rg;
+          newUser.gender = user.gender;
+          newUser.active = user.active;
         });
       });
-      // setUserClient(data);
+
+      setUserClient(user);
     } catch (err) {
-      console.log(err.response.data);
       throw new AppError({
         message: err.response.data.message,
         status_code: err.response.status,

@@ -12,20 +12,28 @@ const userSchema = tableSchema({
       type: 'string',
     },
     {
+      name: 'last_name',
+      type: 'string',
+    },
+    {
+      name: 'cpf',
+      type: 'string',
+    },
+    {
+      name: 'rg',
+      type: 'string',
+    },
+    {
       name: 'email',
       type: 'string',
     },
     {
-      name: 'driver_license',
+      name: 'gender',
       type: 'string',
     },
     {
-      name: 'avatar',
-      type: 'string',
-    },
-    {
-      name: 'token',
-      type: 'string',
+      name: 'active',
+      type: 'boolean',
     },
   ],
 });

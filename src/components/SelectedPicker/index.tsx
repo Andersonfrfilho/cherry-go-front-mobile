@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 import { Picker } from '@react-native-picker/picker';
+import { useTheme } from 'styled-components';
 import { Container, AreaTitle, Title, AreaPicker, Error } from './styles';
 
 interface Item {
@@ -15,6 +16,7 @@ interface Props {
   selected: string;
   error: string;
   selectedRef: React.RefObject<unknown>;
+  enabled: boolean;
 }
 
 export function SelectedPicker({
@@ -24,14 +26,16 @@ export function SelectedPicker({
   selected,
   error,
   selectedRef,
+  enabled,
 }: Props) {
+  const theme = useTheme();
   return (
     <Container error={!!error}>
       <AreaTitle>
         <Title>{title}</Title>
       </AreaTitle>
       {!!error && <Error>{error}</Error>}
-      <AreaPicker>
+      <AreaPicker enabled={enabled}>
         <Picker
           selectedValue={selected}
           onValueChange={itemValue => setSelected(itemValue)}
@@ -46,6 +50,12 @@ export function SelectedPicker({
                     label={element.label}
                     value={element.value}
                     enabled={false}
+                    style={{
+                      color: enabled
+                        ? theme.colors.background_primary
+                        : theme.colors.main_light,
+                      fontFamily: theme.fonts.primary_400,
+                    }}
                   />
                 );
               }
@@ -54,6 +64,13 @@ export function SelectedPicker({
                   key={element.value}
                   label={element.label}
                   value={element.value}
+                  enabled={enabled}
+                  style={{
+                    color: enabled
+                      ? theme.colors.background_primary
+                      : theme.colors.main_light,
+                    fontFamily: theme.fonts.primary_400,
+                  }}
                 />
               );
             })}

@@ -21,7 +21,6 @@ import {
   Form,
   Footer,
   ButtonIcons,
-  SubTitle,
   TermsUseArea,
   AreaLoad,
 } from './styles';
@@ -36,7 +35,7 @@ import { Modal } from '../../../components/Modal';
 import { term } from '../../../constant/term.const';
 import { termWork } from '../../../constant/termWork.const';
 import { useClientUser } from '../../../hooks/clientUser';
-import { UserClientDTO } from '../../../hooks/dtos';
+import { UserProviderRegisterDTO } from '../../../hooks/dtos';
 import { appErrorVerifyError } from '../../../errors/appErrorVerify';
 import {
   formattedDate,
@@ -47,6 +46,8 @@ import {
 import { GENDER_ENUM } from '../../../enums/genderType.enum';
 import { Load } from '../../../components/Load';
 import { WarningText } from '../../../components/WarningText';
+import { UserClientRegisterDTO } from '../../../hooks/dtos/UserClient.dto';
+import { useProviderUser } from '../../../hooks/providerUser';
 
 interface FormData {
   name: string;
@@ -104,7 +105,9 @@ const schema = Yup.object().shape({
   gender: Yup.string()
     .oneOf(['male', 'female'], 'selecione um genero valido')
     .required('Genero é obrigatório'),
-  birth_date: Yup.string().required('Data é obrigatória'),
+  birth_date: Yup.string()
+    .ageValidation('Sua idade não é permitida')
+    .required('Data é obrigatória'),
   password: Yup.string().required('Senha é obrigatória'),
   password_confirm: Yup.string().oneOf(
     [Yup.ref('password'), null],
@@ -155,6 +158,7 @@ export function SignUpFirstStep() {
   const theme = useTheme();
   const { isLoading, setIsLoading, appError, setAppError } = useCommon();
   const { registerClient } = useClientUser();
+  const { registerProvider } = useProviderUser();
   const navigation = useNavigation<ScreenNavigationProp>();
 
   async function handleSignIn(form: FormData) {
@@ -171,7 +175,7 @@ export function SignUpFirstStep() {
       password_confirm,
     } = form;
 
-    const data: UserClientDTO = {
+    const data: UserClientRegisterDTO = {
       name,
       last_name,
       email,
@@ -181,21 +185,31 @@ export function SignUpFirstStep() {
       birth_date: formattedDate(birth_date),
       password,
       password_confirm,
+      term_client: checkTerm,
     };
     try {
-      // if (checkTerm && checkTermWork) {
-      //   await registerWorker(form);
-      // return;
-      // }
+      if (checkTerm && checkTermWork) {
+        const providerData: UserProviderRegisterDTO = {
+          ...data,
+          term_provider: checkTermWork,
+        };
+        await registerProvider(providerData);
+        setIsLoading(false);
+        navigation.replace('SignUpSecondStep');
+        return;
+      }
 
       if (!checkTerm) {
         setAppError(appErrorVerifyError({ status_code: 'app', code: '0001' }));
         Alert.alert('Aceite os termos para terminar o cadastro');
+        setIsLoading(false);
         return;
       }
 
       setAppError({});
       await registerClient(data);
+      setIsLoading(false);
+      navigation.replace('SignUpSecondStep');
     } catch (error) {
       console.log(error);
       setAppError(appErrorVerifyError(error));
@@ -205,7 +219,7 @@ export function SignUpFirstStep() {
   }
 
   function handleBack() {
-    navigation.navigate('SignIn');
+    navigation.replace('SignIn');
   }
 
   const onChangeBirthDate = (event: Event, selectedDate?: Date | undefined) => {
@@ -241,6 +255,7 @@ export function SignUpFirstStep() {
   useEffect(() => {
     setIsLoading(false);
     setAppError({});
+    refName.current?.focus();
   }, []);
 
   return (
@@ -349,6 +364,7 @@ export function SignUpFirstStep() {
             setSelected={handleChangeSelectedGenre}
             error={errors.genre && errors.genre.message}
             selectedRef={refGenre}
+            enabled={!isLoading}
           />
           <FormInput
             type={TextInputTypeEnum.button}

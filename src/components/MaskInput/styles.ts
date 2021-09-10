@@ -118,7 +118,7 @@ export const AreaInput = styled.View<PropsArea>`
 
 export const TextInputSC = styled(TextInputMask).attrs({
   placeholderTextColor: themeFile.colors.bon_jour_dark_shade,
-})<TextInputMaskProps>`
+})<TextInputMaskProps | TextInputProps>`
   width: 100%;
   height: 100%;
 

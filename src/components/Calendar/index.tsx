@@ -53,7 +53,7 @@ export function Calendar({ markedDates, onDayPress }: CalendarProps) {
       }}
       theme={{
         textDayFontFamily: theme.fonts.primary_400,
-        textDayHeaderFontFamily: theme.fonts.primary_500,
+        textDayHeaderFontFamily: theme.fonts.primary_400,
         textDayHeaderFontSize: 10,
         textMonthFontFamily: theme.fonts.secondary_400,
         textMonthFontSize: 20,

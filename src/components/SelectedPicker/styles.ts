@@ -1,11 +1,12 @@
-import styled from 'styled-components/native';
+import styled, { css } from 'styled-components/native';
 import { RFValue } from 'react-native-responsive-fontsize';
-import { RectButton } from 'react-native-gesture-handler';
 
 interface ButtonTextProps {
   error: boolean;
 }
-
+interface AreaProps {
+  enabled: boolean;
+}
 export const Container = styled.View<ButtonTextProps>`
   width: 100%;
   height: ${({ error }) => (error ? 100 : 80)}px;
@@ -25,13 +26,19 @@ export const Title = styled.Text`
   font-size: ${RFValue(16)}px;
 `;
 
-export const AreaPicker = styled.View`
+export const AreaPicker = styled.View<AreaProps>`
   height: 60px;
   background-color: ${({ theme }) => theme.colors.background_secondary};
   border: solid;
   border-width: 3px;
   border-color: ${({ theme }) => theme.colors.shape};
   border-radius: 15px;
+
+  ${({ theme, enabled }) =>
+    !enabled &&
+    css`
+      background-color: ${theme.colors.desative_shade};
+    `}
 `;
 
 export const Error = styled.Text`

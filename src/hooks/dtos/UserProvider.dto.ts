@@ -1,6 +1,6 @@
 import { GENDER_ENUM } from '../../enums/genderType.enum';
 
-export interface UserClientRegisterDTO {
+export interface UserProviderRegisterDTO {
   name: string;
   last_name: string;
   cpf: string;
@@ -11,4 +11,5 @@ export interface UserClientRegisterDTO {
   birth_date: Date;
   gender: GENDER_ENUM;
   term_client: boolean;
+  term_provider: boolean;
 }

@@ -10,17 +10,23 @@ class User extends Model {
   @field('name')
   name!: string;
 
+  @field('last_name')
+  last_name!: string;
+
+  @field('cpf')
+  cpf!: string;
+
+  @field('rg')
+  rg!: string;
+
+  @field('gender')
+  gender!: string;
+
   @field('email')
   email!: string;
 
-  @field('driver_license')
-  driver_license!: string;
-
-  @field('avatar')
-  avatar!: string;
-
-  @field('token')
-  token!: string;
+  @field('active')
+  active!: boolean;
 }
 
 export { User };
