@@ -53,7 +53,7 @@ export const AppointmentsTitle = styled.Text`
 
 export const AppointmentsQuantity = styled.Text`
   color: ${({ theme }) => theme.colors.text};
-  font-family: ${({ theme }) => theme.fonts.primary_500};
+  font-family: ${({ theme }) => theme.fonts.primary_400};
   font-size: ${RFValue(15)}px;
 `;
 

@@ -1,8 +1,10 @@
 import React, { createContext, ReactNode, useContext, useState } from 'react';
-import { GENRE_ENUM } from '../enums/genreType.enum';
 import { AppError } from '../errors/AppError';
 import { api } from '../services/api';
-import { UserClientDTO } from './dtos';
+import { database } from '../databases';
+import { User as ModelUser } from '../databases/model/User';
+import { UserClientDTO } from './dtos/UserClient.dto';
+import { GENDER_ENUM } from '../enums/genderType.enum';
 
 type ClientUserContextData = {
   userClient: UserClient;
@@ -24,7 +26,7 @@ type UserClient = {
   password: string;
   password_confirm: string;
   birth_date: string;
-  gender: GENRE_ENUM;
+  gender: GENDER_ENUM;
 };
 
 function ClientUserProvider({ children }: ClientUserProviderProps) {
@@ -32,9 +34,22 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
 
   async function registerClient(userData: UserClientDTO) {
     try {
-      console.log(userData);
-      const { data } = await api.post('/v1/users/clients', userData);
-      setUserClient(data);
+      // console.log(userData);
+
+      // const { data } = await api.post('/v1/users/clients', userData);
+      const userCollection = database.get<ModelUser>('users');
+
+      await database.write(async () => {
+        await userCollection.create(newUser => {
+          newUser.user_id = 'user.id';
+          newUser.name = 'user.name';
+          newUser.email = 'user.email';
+          newUser.driver_license = 'user.driver_license';
+          newUser.avatar = 'user.avatar';
+          newUser.token = 'token';
+        });
+      });
+      // setUserClient(data);
     } catch (err) {
       console.log(err.response.data);
       throw new AppError({

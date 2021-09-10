@@ -13,7 +13,7 @@ export const Container = styled(RectButton)`
 `;
 
 export const Title = styled.Text`
-  font-family: ${({ theme }) => theme.fonts.primary_500};
+  font-family: ${({ theme }) => theme.fonts.primary_400};
   color: ${({ theme }) => theme.colors.shape};
   font-size: ${RFValue(15)}px;
 `;

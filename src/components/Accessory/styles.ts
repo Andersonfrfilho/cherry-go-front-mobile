@@ -13,7 +13,7 @@ export const Container = styled.View`
   margin-bottom: 8px;
 `;
 export const Name = styled.Text`
-  font-family: ${({ theme }) => theme.fonts.primary_500};
+  font-family: ${({ theme }) => theme.fonts.primary_400};
   color: ${({ theme }) => theme.colors.text};
   font-size: ${RFValue(13)}px;
 `;
