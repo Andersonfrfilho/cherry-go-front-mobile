@@ -1,18 +1,16 @@
 import React, { useState, createRef, useEffect } from 'react';
-import { format, sub } from 'date-fns';
 import * as Yup from 'yup';
 import {
   StatusBar,
   TouchableWithoutFeedback,
   Keyboard,
-  Platform,
   Alert,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from 'styled-components';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import DatePicker from '@react-native-community/datetimepicker';
+import axios from 'axios';
 import {
   Container,
   Header,
@@ -21,9 +19,8 @@ import {
   Form,
   Footer,
   ButtonIcons,
-  SubTitle,
-  TermsUseArea,
   AreaLoad,
+  SubTitle,
 } from './styles';
 import { ScreenNavigationProp } from '../../../routes/app.stack.routes';
 import { FormInput } from '../../../components/FormInput';
@@ -31,36 +28,57 @@ import { ButtonIcon } from '../../../components/ButtonIcon';
 import { useCommon } from '../../../hooks/common';
 import { SelectedPicker } from '../../../components/SelectedPicker';
 import { TextInputTypeEnum } from '../../../enums/TextInputType.enum';
-import { CheckBox } from '../../../components/CheckBox';
-import { Modal } from '../../../components/Modal';
-import { term } from '../../../constant/term.const';
-import { termWork } from '../../../constant/termWork.const';
 import { useClientUser } from '../../../hooks/clientUser';
-import { UserClientDTO } from '../../../hooks/dtos';
 import { appErrorVerifyError } from '../../../errors/appErrorVerify';
 import {
   formattedDate,
   removeCharacterSpecial,
-  validationCpf,
-  verifyAge,
 } from '../../../utils/validations';
 import { GENDER_ENUM } from '../../../enums/genderType.enum';
 import { Load } from '../../../components/Load';
 import { WarningText } from '../../../components/WarningText';
+import {
+  UserClientAddressRegisterDTO,
+  UserClientRegisterDTO,
+} from '../../../hooks/dtos';
+import { Focusable } from '../FirstStep';
+import { ibgeApi } from '../../../services/ibge';
+import { SearchAbleDropDown } from '../../../components/SearchAbleDropDown';
+import { api } from '../../../services/api';
 
+interface StateInterface {
+  value: string;
+  label: string;
+  id: string;
+}
 interface FormData {
-  phone: string;
+  zipcode: string;
+  address: string;
+  number: string;
+  district: string;
+  state: string;
+  complement: string;
+  reference: string;
+  country: string;
 }
 
 const schema = Yup.object().shape({
-  phone: Yup.string()
-    .required('Nome é obrigatório')
-    .min(3, 'Insira um nome válido')
-    .max(50, 'Insira um nome válido'),
+  zipcode: Yup.string()
+    .length(10, 'Cep inválido')
+    .required('Cep é obrigatório'),
+  street: Yup.string()
+    .max(100, 'Descrição de endereço muito longa')
+    .required('Endereço obrigatório'),
+  number: Yup.string()
+    .max(6, 'Digite um número valido')
+    .required('Número é obrigatório'),
+  district: Yup.string()
+    .max(100, 'Descrição de bairro muito longa')
+    .required('Bairro é obrigatório'),
+  state: Yup.string().required('Selecione um estado'),
+  complement: Yup.string().max(30, 'Descrição de complemento muito longa'),
+  reference: Yup.string().max(30, 'Descrição de referencia muito longa'),
 });
-export interface Focusable {
-  focus(): void;
-}
 
 export function SignUpSecondStep() {
   const {
@@ -68,82 +86,51 @@ export function SignUpSecondStep() {
     handleSubmit,
     setValue,
     clearErrors,
+    getValues,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
   });
-  const [selectedGenre, setSelectedGenre] = useState('');
-  const [birthDate, setBirthDate] = useState(
-    sub(new Date(), {
-      years: 18,
-    }),
-  );
-  const [checkTerm, setCheckTerm] = useState(false);
-  const [checkTermWork, setCheckTermWork] = useState(false);
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const [modalVisibleTerm, setModalVisibleTerm] = useState(false);
-  const [modalVisibleTermWork, setModalVisibleTermWork] = useState(false);
+  const [states, setStates] = useState([
+    {
+      id: '',
+      value: '',
+      label: 'Selecione seu estado',
+    } as StateInterface,
+  ]);
+  const [stateSelected, setStateSelected] = useState('');
+  const [cities, setCities] = useState<string[]>([]);
+  const [filteredCities, setFilteredCities] = useState<string[]>([]);
+  const [cityFind, setCityFind] = useState('');
+  const [subTitle, setSubTitle] = useState('');
+  const [foundCep, setFoundCep] = useState(false);
 
-  const refName = createRef<Focusable>();
-  const refLastName = createRef<Focusable>();
-  const refEmail = createRef<Focusable>();
-  const refCpf = createRef<Focusable>();
-  const refRg = createRef<Focusable>();
-  const refGenre = createRef<Focusable>();
-  const refBirthDate = createRef<Focusable>();
-  const refPassword = createRef<Focusable>();
-  const refConfirmPassword = createRef<Focusable>();
+  const refZipCode = createRef<Focusable>();
+  const refAddress = createRef<Focusable>();
+  const refNumber = createRef<Focusable>();
+  const refDistrict = createRef<Focusable>();
+  const refCity = createRef<Focusable>();
+  const refState = createRef<Focusable>();
+  const refComplement = createRef<Focusable>();
+  const refReference = createRef<Focusable>();
 
-  const itensGenre = [
-    { label: 'Selecione seu genero', value: '' },
-    { label: 'Masculino', value: GENDER_ENUM.MALE },
-    { label: 'Feminino', value: GENDER_ENUM.FEMALE },
-  ];
   const theme = useTheme();
   const { isLoading, setIsLoading, appError, setAppError } = useCommon();
-  const { registerClient } = useClientUser();
+  const { registerAddressClient, userClient } = useClientUser();
   const navigation = useNavigation<ScreenNavigationProp>();
 
-  async function handleSignIn(form: FormData) {
+  async function handleRegisterAddress(form: FormData) {
     setIsLoading(true);
     setAppError({});
-    const {
-      name,
-      last_name,
-      email,
-      cpf,
-      rg,
-      gender,
-      birth_date,
-      password,
-      password_confirm,
-    } = form;
 
-    const data: UserClientDTO = {
-      name,
-      last_name,
-      email,
-      cpf: removeCharacterSpecial(cpf),
-      rg: removeCharacterSpecial(rg),
-      gender,
-      birth_date: formattedDate(birth_date),
-      password,
-      password_confirm,
-    };
     try {
-      if (checkTerm && checkTermWork) {
-        await registerWorker(form);
-        navigation.navigate('SignUpSecondStep');
-        return;
-      }
-
-      if (!checkTerm) {
-        setAppError(appErrorVerifyError({ status_code: 'app', code: '0001' }));
-        Alert.alert('Aceite os termos para terminar o cadastro');
-        return;
-      }
-      await registerClient(data);
-      navigation.navigate('SignUpSecondStep');
+      await registerAddressClient({
+        ...form,
+        zipcode: removeCharacterSpecial(form.zipcode),
+        user_id: userClient && userClient.id,
+        country: 'brazil',
+      });
+      navigation.navigate('SignUpThirdStep');
     } catch (error) {
       console.log(error);
       setAppError(appErrorVerifyError(error));
@@ -156,66 +143,147 @@ export function SignUpSecondStep() {
     navigation.navigate('SignIn');
   }
 
-  const onChangeBirthDate = (event: Event, selectedDate?: Date | undefined) => {
-    if (selectedDate) {
-      const currentBirthDate = format(selectedDate, 'dd/MM/yyyy');
-      setShowDatePicker(Platform.OS === 'ios');
-      setValue('birth_date', currentBirthDate);
-      setBirthDate(selectedDate);
-      clearErrors('birth_date');
-      refConfirmPassword.current?.focus();
+  function handleChangeValuesCityName(value: string) {
+    setCityFind(value);
+  }
+  function handleSetCity(value: string) {
+    setCityFind(value);
+    setFilteredCities([]);
+  }
+  async function handleSelectState(value: string) {
+    setIsLoading(true);
+    try {
+      const state = states.find(stateParam => stateParam.value === value);
+      if (!state) {
+        setAppError(appErrorVerifyError({ status_code: 'app', code: '0002' }));
+        return;
+      }
+
+      setStateSelected(value);
+      const { data: citiesIbge } = await ibgeApi.get<
+        { sigla: string; nome: string }[]
+      >(`/localidades/estados/${state.id}/municipios`);
+      const citiesFormatted = citiesIbge.map(cityParam => cityParam.nome);
+
+      setCities(citiesFormatted);
+      setFilteredCities(citiesFormatted);
+      refCity.current?.focus();
+    } catch (error) {
+      setAppError(appErrorVerifyError(error));
+    } finally {
+      setIsLoading(false);
     }
-  };
-
-  const handleShowDatePicker = () => {
-    setShowDatePicker(true);
-  };
-
-  function handleModalTerm(param: boolean) {
-    setModalVisibleTerm(param);
   }
 
-  function handleModalTermWork(param: boolean) {
-    setModalVisibleTermWork(param);
-  }
+  async function handleFindCep() {
+    setIsLoading(true);
+    setSubTitle('Buscando cep 👀 ...');
+    const cep = removeCharacterSpecial(getValues('zipcode'));
 
-  function handleChangeSelectedGenre(value: string) {
-    setSelectedGenre(value);
-    setValue('gender', value);
-    clearErrors('gender');
-    refBirthDate.current?.focus();
+    try {
+      const { data: address } = await axios.get(
+        `https://ws.apicep.com/cep.json?code=${cep}`,
+      );
+      setValue('street', address.address);
+      setValue('city', address.city);
+      setValue('district', address.district);
+      setValue('state', address.state);
+      setStateSelected(address.state);
+      setCityFind(address.city);
+      setSubTitle('');
+      setFoundCep(true);
+    } catch (error) {
+      setFoundCep(false);
+      setSubTitle(`Cep não encontrado 🤔 \n vai ter que digitar seu endereço`);
+    } finally {
+      setIsLoading(false);
+    }
   }
-
+  function handleNumberOnEndEditing() {
+    if (
+      getValues('street') &&
+      getValues('district') &&
+      getValues('state') &&
+      getValues('city')
+    ) {
+      refComplement.current?.focus();
+      return;
+    }
+    refDistrict.current?.focus();
+  }
   useEffect(() => {
-    setIsLoading(false);
-    setAppError({});
+    async function getInformationLocation() {
+      setIsLoading(true);
+      try {
+        const { data: statesIbge } = await ibgeApi.get<
+          { sigla: string; nome: string; id: string }[]
+        >('/localidades/estados');
+
+        const statesFormatted = statesIbge
+          .map(state => ({
+            id: state.id,
+            value: state.sigla,
+            label: state.nome,
+          }))
+          .sort((a, b) => {
+            if (a.label < b.label) {
+              return -1;
+            }
+            if (a.label > b.label) {
+              return 1;
+            }
+            return 0;
+          });
+        setStates([
+          {
+            id: '',
+            value: '',
+            label: 'Selecione seu estado',
+          },
+          ...statesFormatted,
+        ]);
+      } catch (error) {
+        setAppError(appErrorVerifyError(error));
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    getInformationLocation();
+    refZipCode.current?.focus();
   }, []);
 
+  useEffect(() => {
+    if (cityFind.length === 0) {
+      setFilteredCities(cities);
+    } else {
+      const citiesFound = cities.filter((cityParam: string) =>
+        cityParam.toLowerCase().includes(cityFind.toLowerCase()),
+      );
+      setFilteredCities(citiesFound);
+    }
+  }, [cityFind]);
+
+  useEffect(() => {
+    if (getValues('zipcode') && foundCep) {
+      refNumber.current?.focus();
+    } else if (getValues('zipcode')) {
+      refAddress.current?.focus();
+    }
+  }, [foundCep]);
+  console.log(errors);
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <Container>
+      <Container contentContainerStyle={{ flexGrow: 1 }} scrollEnabled>
         <StatusBar
           barStyle="light-content"
           translucent
           backgroundColor="transparent"
         />
-        <Modal
-          title="Termos de uso"
-          text={term}
-          modalVisible={modalVisibleTerm}
-          onPress={() => handleModalTerm(false)}
-          titleButton="Fechar"
-        />
-        <Modal
-          title="Termos de uso para trabalhar"
-          text={termWork}
-          modalVisible={modalVisibleTermWork}
-          onPress={() => handleModalTermWork(false)}
-          titleButton="Fechar"
-        />
+
         <Header>
           <AreaTitle>
-            <Title>Vincular celular</Title>
+            <Title>Vincular endereço</Title>
+            {!!subTitle && <SubTitle>{subTitle}</SubTitle>}
             {appError && appError.message && (
               <WarningText title={appError.message} />
             )}
@@ -224,18 +292,99 @@ export function SignUpSecondStep() {
         <Form>
           <FormInput
             type={TextInputTypeEnum.mask}
-            name="cpf"
+            name="zipcode"
             control={control}
-            placeholder="CPF"
-            error={errors.cpf && errors.cpf.message}
-            iconName="credit-card"
-            iconColor={theme.colors.blue_catalina_dark_shade}
+            placeholder="CEP"
+            error={errors.zipcode && errors.zipcode.message}
+            iconName="navigation"
             autoCorrect={false}
             editable={!isLoading}
-            mask="[000].[000].[000]-[00]"
+            mask="[00].[000]-[000]"
+            inputRef={refZipCode}
             keyboardType="numeric"
-            inputRef={refCpf}
-            onEndEditing={() => refRg.current?.focus()}
+            onEndEditing={handleFindCep}
+          />
+
+          <FormInput
+            name="street"
+            control={control}
+            placeholder="Rua"
+            error={errors.street && errors.street.message}
+            iconName="map-pin"
+            iconColor={theme.colors.success_chateau}
+            autoCorrect={false}
+            editable={!isLoading}
+            inputRef={refAddress}
+            onEndEditing={() => refNumber.current?.focus()}
+            maxLength={100}
+          />
+          <FormInput
+            name="number"
+            control={control}
+            placeholder="Número"
+            error={errors.number && errors.number.message}
+            iconName="hash"
+            iconColor={theme.colors.success_chateau}
+            autoCorrect={false}
+            editable={!isLoading}
+            inputRef={refNumber}
+            keyboardType="numeric"
+            onEndEditing={() => handleNumberOnEndEditing()}
+            maxLength={6}
+          />
+          <FormInput
+            name="district"
+            control={control}
+            placeholder="Bairro"
+            error={errors.district && errors.district.message}
+            iconName="map-pin"
+            iconColor={theme.colors.success_chateau}
+            autoCorrect={false}
+            editable={!isLoading}
+            inputRef={refDistrict}
+            onEndEditing={() => refState.current?.focus()}
+            maxLength={100}
+          />
+          <SelectedPicker
+            title="Selecione seu estado"
+            items={states}
+            selected={stateSelected}
+            setSelected={handleSelectState}
+            error={errors.genre && errors.genre.message}
+            selectedRef={refState}
+            enabled={!isLoading}
+          />
+          <SearchAbleDropDown
+            placeholder="Selecione sua cidade"
+            onTextChange={handleChangeValuesCityName}
+            setItemSelected={handleSetCity}
+            selectedFindItem={cityFind}
+            inputRef={refCity}
+            items={filteredCities}
+            error={errors.city && errors.city.message}
+          />
+          <FormInput
+            name="complement"
+            control={control}
+            placeholder="Complemento"
+            error={errors.complement && errors.complement.message}
+            iconName="home"
+            iconColor={theme.colors.success_chateau}
+            editable={!isLoading}
+            inputRef={refComplement}
+            onEndEditing={() => refReference.current?.focus()}
+            maxLength={30}
+          />
+          <FormInput
+            name="reference"
+            control={control}
+            placeholder="Referencia"
+            error={errors.reference && errors.reference.message}
+            iconName="info"
+            iconColor={theme.colors.success_chateau}
+            editable={!isLoading}
+            inputRef={refReference}
+            maxLength={30}
           />
         </Form>
         <Footer>
@@ -267,7 +416,7 @@ export function SignUpSecondStep() {
                 disabled={isLoading}
                 loading={isLoading}
                 titleSize={20}
-                onPress={handleSubmit(handleSignIn)}
+                onPress={handleSubmit(handleRegisterAddress)}
               />
             </ButtonIcons>
           )}

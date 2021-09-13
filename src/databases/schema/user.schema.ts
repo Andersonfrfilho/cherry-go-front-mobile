@@ -4,7 +4,7 @@ const userSchema = tableSchema({
   name: 'users',
   columns: [
     {
-      name: 'user_id',
+      name: 'external_id',
       type: 'string',
     },
     {

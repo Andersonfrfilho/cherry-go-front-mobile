@@ -11,6 +11,7 @@ type UserContextData = {
 interface UserProviderProps {
   children: ReactNode;
 }
+
 const UserContext = createContext<UserContextData>({} as UserContextData);
 
 function UserProvider({ children }: UserProviderProps) {

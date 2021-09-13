@@ -30,7 +30,12 @@ export default {
     bon_jour_dark_shade: '#C1B6B7',
     bon_jour_dark_shadow: '#9F9293',
 
+    shape_medium: '#bbb',
+
     desative_shade: '#444',
+    desative_darkness: '#222',
+
+    white_medium: '#ddd',
 
     red_ryb: '#F32013',
     red_ku_crimson: '#EA0016',

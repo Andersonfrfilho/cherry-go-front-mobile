@@ -11,8 +11,8 @@ interface Item {
 
 interface Props {
   title: string;
-  items: Item[];
-  setSelected: (param: string) => void;
+  items: Array<Item>;
+  setSelected: (param: string) => void | Promise<void>;
   selected: string;
   error: string;
   selectedRef: React.RefObject<unknown>;
@@ -31,9 +31,6 @@ export function SelectedPicker({
   const theme = useTheme();
   return (
     <Container error={!!error}>
-      <AreaTitle>
-        <Title>{title}</Title>
-      </AreaTitle>
       {!!error && <Error>{error}</Error>}
       <AreaPicker enabled={enabled}>
         <Picker

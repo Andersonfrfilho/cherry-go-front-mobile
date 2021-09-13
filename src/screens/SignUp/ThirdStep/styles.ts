@@ -6,7 +6,8 @@ interface Props {
   error: boolean;
 }
 
-export const Container = styled.ScrollView`
+export const Container = styled.View.attrs({})`
+  flex: 1;
   background-color: ${({ theme }) => theme.colors.background_primary};
 `;
 
@@ -15,6 +16,7 @@ export const Header = styled.View`
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  background-color: ${({ theme }) => theme.colors.background_primary};
 `;
 
 export const AreaLogoTitle = styled.View`

@@ -9,6 +9,7 @@ import { Splash } from '../screens/Splash';
 import { SignIn } from '../screens/SignIn';
 import { SignUpFirstStep } from '../screens/SignUp/FirstStep';
 import { SignUpSecondStep } from '../screens/SignUp/SecondStep';
+import { SignUpThirdStep } from '../screens/SignUp/ThirdStep';
 
 const { Navigator, Screen } = createNativeStackNavigator();
 
@@ -37,12 +38,13 @@ export function AuthRoutes() {
         gestureEnabled: true,
         ...TransitionPresets.ModalPresentationIOS,
       }}
-      initialRouteName="SignUpFirstStep"
+      initialRouteName="SignUpThirdStep"
     >
       <Screen name="Splash" component={Splash} />
       <Screen name="SignIn" component={SignIn} />
       <Screen name="SignUpFirstStep" component={SignUpFirstStep} />
       <Screen name="SignUpSecondStep" component={SignUpSecondStep} />
+      <Screen name="SignUpThirdStep" component={SignUpThirdStep} />
       <Screen name="Confirmation" component={Confirmation} />
     </Navigator>
   );

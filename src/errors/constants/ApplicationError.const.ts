@@ -5,5 +5,15 @@ export const APPLICATION_ERROR = {
       code: '0001',
       status_code: 'app',
     },
+    '0002': {
+      message: 'Estado não encontrado !!!',
+      code: '0002',
+      status_code: 'app',
+    },
+    '0003': {
+      message: 'Usuario não encontrado !!!',
+      code: '0003',
+      status_code: 'app',
+    },
   },
 };

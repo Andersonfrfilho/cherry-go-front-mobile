@@ -9,9 +9,8 @@ interface AreaProps {
 }
 export const Container = styled.View<ButtonTextProps>`
   width: 100%;
-  height: ${({ error }) => (error ? 100 : 80)}px;
-
-  margin-bottom: 20px;
+  height: ${({ error }) => (error ? 80 : 60)}px;
+  margin-bottom: 10px;
 `;
 
 export const AreaTitle = styled.View`

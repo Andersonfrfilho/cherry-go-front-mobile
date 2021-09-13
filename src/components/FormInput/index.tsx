@@ -1,15 +1,13 @@
 import React from 'react';
 import { Control, Controller } from 'react-hook-form';
-import { TextInput, TextInputProps } from 'react-native';
+import { TextInputProps } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { Input } from '../Input';
 import { Container, Error } from './styles';
 import { PasswordInput } from '../PasswordInput';
 import { MaskInput } from '../MaskInput';
-import { ButtonIcon } from '../ButtonIcon';
 import { ButtonInput } from '../ButtonInput';
 import { TextInputTypeEnum } from '../../enums/TextInputType.enum';
-import { Focusable } from '../../screens/SignUp/FirstStep';
 
 interface Props extends TextInputProps {
   control: Control;

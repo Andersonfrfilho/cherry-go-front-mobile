@@ -12,7 +12,7 @@ export enum HTTP_ERROR_CODES_ENUM {
 
 interface ErrorParametersDTO {
   message: string;
-  status_code?: number;
+  status_code?: number | 'app';
   code?: string;
 }
 
