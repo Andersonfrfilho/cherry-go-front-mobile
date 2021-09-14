@@ -51,15 +51,6 @@ export const AreaIcon = styled.View<PropsArea>`
   border-top-left-radius: 15px;
   border-bottom-left-radius: 15px;
 
-  ${({ theme, error }) =>
-    error &&
-    css`
-      border-style: solid;
-      border-bottom-width: 4px;
-      border-right-width: 1.5px;
-      border-color: ${theme.colors.red_ku_crimson};
-    `}
-
   ${({ theme, isFocused }) =>
     isFocused &&
     css`
@@ -69,10 +60,19 @@ export const AreaIcon = styled.View<PropsArea>`
       border-color: ${theme.colors.main};
     `}
 
-${({ theme, isFilled }) =>
+  ${({ theme, isFilled }) =>
     isFilled &&
     css`
       border-color: ${theme.colors.background_primary};
+    `}
+
+  ${({ theme, error }) =>
+    error &&
+    css`
+      border-style: solid;
+      border-bottom-width: 4px;
+      border-right-width: 1.5px;
+      border-color: ${theme.colors.red_ku_crimson};
     `}
 `;
 
@@ -85,14 +85,6 @@ export const AreaInput = styled.View<PropsArea>`
   border-left-width: 1.5px;
   border-color: ${({ theme }) => theme.colors.bon_jour_dark_shade};
 
-  ${({ theme, error }) =>
-    error &&
-    css`
-      border-style: solid;
-      border-bottom-width: 4px;
-      border-color: ${theme.colors.red_ku_crimson};
-    `}
-
   ${({ theme, isFocused }) =>
     isFocused &&
     css`
@@ -102,10 +94,18 @@ export const AreaInput = styled.View<PropsArea>`
       border-color: ${theme.colors.main};
     `}
 
-${({ theme, isFilled }) =>
+  ${({ theme, isFilled }) =>
     isFilled &&
     css`
       border-color: ${theme.colors.background_primary};
+    `}
+
+  ${({ theme, error }) =>
+    error &&
+    css`
+      border-style: solid;
+      border-bottom-width: 4px;
+      border-color: ${theme.colors.red_ku_crimson};
     `}
 `;
 
@@ -124,14 +124,6 @@ export const AreaIconButton = styled.TouchableOpacity<PropsArea>`
   border-left-width: 3px;
   border-color: ${({ theme }) => theme.colors.bon_jour_dark_shade};
 
-  ${({ theme, error }) =>
-    error &&
-    css`
-      border-style: solid;
-      border-bottom-width: 4px;
-      border-color: ${theme.colors.red_ku_crimson};
-    `}
-
   ${({ theme, isFocused }) =>
     isFocused &&
     css`
@@ -144,6 +136,14 @@ export const AreaIconButton = styled.TouchableOpacity<PropsArea>`
     isFilled &&
     css`
       border-color: ${theme.colors.background_primary};
+    `}
+
+  ${({ theme, error }) =>
+    error &&
+    css`
+      border-style: solid;
+      border-bottom-width: 4px;
+      border-color: ${theme.colors.red_ku_crimson};
     `}
 `;
 

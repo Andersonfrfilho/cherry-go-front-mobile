@@ -1,11 +1,6 @@
 import React, { useState, createRef, useEffect } from 'react';
 import * as Yup from 'yup';
-import {
-  StatusBar,
-  TouchableWithoutFeedback,
-  Keyboard,
-  Alert,
-} from 'react-native';
+import { StatusBar, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from 'styled-components';
 import { useForm } from 'react-hook-form';
@@ -30,10 +25,7 @@ import { SelectedPicker } from '../../../components/SelectedPicker';
 import { TextInputTypeEnum } from '../../../enums/TextInputType.enum';
 import { useClientUser } from '../../../hooks/clientUser';
 import { appErrorVerifyError } from '../../../errors/appErrorVerify';
-import {
-  formattedDate,
-  removeCharacterSpecial,
-} from '../../../utils/validations';
+import { removeCharacterSpecial } from '../../../utils/validations';
 import { GENDER_ENUM } from '../../../enums/genderType.enum';
 import { Load } from '../../../components/Load';
 import { WarningText } from '../../../components/WarningText';
@@ -45,6 +37,8 @@ import { Focusable } from '../FirstStep';
 import { ibgeApi } from '../../../services/ibge';
 import { SearchAbleDropDown } from '../../../components/SearchAbleDropDown';
 import { api } from '../../../services/api';
+import { BAD_REQUEST } from '../../../errors/constants/BadRequest.const';
+import { HTTP_ERROR_CODES_ENUM } from '../../../errors/AppError';
 
 interface StateInterface {
   value: string;
@@ -103,10 +97,10 @@ export function SignUpSecondStep() {
   const [filteredCities, setFilteredCities] = useState<string[]>([]);
   const [cityFind, setCityFind] = useState('');
   const [subTitle, setSubTitle] = useState('');
-  const [foundCep, setFoundCep] = useState(false);
+  const [foundCep, setFoundCep] = useState(undefined);
 
   const refZipCode = createRef<Focusable>();
-  const refAddress = createRef<Focusable>();
+  const refStreet = createRef<Focusable>();
   const refNumber = createRef<Focusable>();
   const refDistrict = createRef<Focusable>();
   const refCity = createRef<Focusable>();
@@ -152,6 +146,7 @@ export function SignUpSecondStep() {
   }
   async function handleSelectState(value: string) {
     setIsLoading(true);
+    setSubTitle('Estamos buscando as cidades do estado selecionado 🧐');
     try {
       const state = states.find(stateParam => stateParam.value === value);
       if (!state) {
@@ -167,8 +162,12 @@ export function SignUpSecondStep() {
 
       setCities(citiesFormatted);
       setFilteredCities(citiesFormatted);
+      setSubTitle('Pronto sua cidade 😎');
       refCity.current?.focus();
     } catch (error) {
+      setSubTitle(
+        'Tivemos algum problema em trazer as cidades você pode digitar o nome dela',
+      );
       setAppError(appErrorVerifyError(error));
     } finally {
       setIsLoading(false);
@@ -184,6 +183,15 @@ export function SignUpSecondStep() {
       const { data: address } = await axios.get(
         `https://ws.apicep.com/cep.json?code=${cep}`,
       );
+
+      if (address.status === HTTP_ERROR_CODES_ENUM.BAD_REQUEST) {
+        setFoundCep(false);
+        setSubTitle(
+          `Cep não encontrado 🤔 \n vai ter que digitar seu endereço`,
+        );
+        return;
+      }
+
       setValue('street', address.address);
       setValue('city', address.city);
       setValue('district', address.district);
@@ -253,7 +261,7 @@ export function SignUpSecondStep() {
   }, []);
 
   useEffect(() => {
-    if (cityFind.length === 0) {
+    if (cityFind && cityFind.length === 0) {
       setFilteredCities(cities);
     } else {
       const citiesFound = cities.filter((cityParam: string) =>
@@ -266,11 +274,12 @@ export function SignUpSecondStep() {
   useEffect(() => {
     if (getValues('zipcode') && foundCep) {
       refNumber.current?.focus();
-    } else if (getValues('zipcode')) {
-      refAddress.current?.focus();
+    }
+    if (getValues('zipcode') && !foundCep) {
+      refStreet.current?.focus();
     }
   }, [foundCep]);
-  console.log(errors);
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <Container contentContainerStyle={{ flexGrow: 1 }} scrollEnabled>
@@ -314,7 +323,7 @@ export function SignUpSecondStep() {
             iconColor={theme.colors.success_chateau}
             autoCorrect={false}
             editable={!isLoading}
-            inputRef={refAddress}
+            inputRef={refStreet}
             onEndEditing={() => refNumber.current?.focus()}
             maxLength={100}
           />

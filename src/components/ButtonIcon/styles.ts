@@ -1,10 +1,12 @@
-import styled from 'styled-components/native';
+import styled, { css } from 'styled-components/native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { RFValue } from 'react-native-responsive-fontsize';
+import { TouchableOpacityProps } from 'react-native';
 
-interface Props {
+interface Props extends TouchableOpacityProps {
   color?: string;
   size?: number;
+  disabled?: boolean;
 }
 
 export const Button = styled(TouchableOpacity)<Props>`
@@ -14,6 +16,12 @@ export const Button = styled(TouchableOpacity)<Props>`
   border-radius: 12px;
   background-color: ${({ theme, color }) =>
     color || theme.colors.background_secondary};
+
+  ${({ theme, disabled }) =>
+    disabled &&
+    css`
+      background-color: ${theme.colors.desative_shade};
+    `}
 `;
 
 export const IconContainer = styled.View`

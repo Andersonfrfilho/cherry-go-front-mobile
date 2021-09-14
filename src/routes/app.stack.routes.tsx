@@ -10,20 +10,9 @@ import { Scheduling } from '../screens/Scheduling';
 import { SchedulingDetails } from '../screens/SchedulingDetails';
 import { Confirmation } from '../screens/Confirmation';
 import { MyCars } from '../screens/MyCars';
+import { RootStackParamList } from '.';
 
 const { Navigator, Screen } = createNativeStackNavigator();
-
-export type RootStackParamList = {
-  Home: undefined;
-  CarDetails: undefined;
-  Scheduling: undefined;
-  SchedulingComplete: undefined;
-  SchedulingDetails: undefined;
-  Splash: undefined;
-  SignIn: undefined;
-  SignUpFirstStep: undefined;
-  SignUpSecondStep: undefined;
-};
 
 export type ScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,

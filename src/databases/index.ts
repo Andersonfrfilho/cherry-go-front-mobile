@@ -5,6 +5,8 @@ import { schemas } from './schema';
 import { User } from './model/User';
 import { Address } from './model/Address';
 import { UserAddress } from './model/UserAddress';
+import { Phone } from './model/Phone';
+import { Token } from './model/Token';
 
 const adapter = new SQLiteAdapter({
   schema: schemas,
@@ -12,7 +14,7 @@ const adapter = new SQLiteAdapter({
 
 export const database = new Database({
   adapter,
-  modelClasses: [User, Address, UserAddress],
+  modelClasses: [User, Address, Phone, UserAddress, Token],
 });
 
 console.log(database);

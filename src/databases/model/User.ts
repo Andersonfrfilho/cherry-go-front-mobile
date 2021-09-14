@@ -40,18 +40,18 @@ class User extends Model {
     .get('addresses')
     .query(Q.on('users_addresses', 'user_id', this.id));
 
-  // getUser() {
-  //   return {
-  //     user_id: this.external_id,
-  //     name: this.name,
-  //     last_name: this.last_name,
-  //     cpf: this.cpf,
-  //     rg: this.rg,
-  //     gender: this.gender,
-  //     email: this.email,
-  //     active: this.active,
-  //   };
-  // }
+  getUser() {
+    return {
+      user_id: this.external_id,
+      name: this.name,
+      last_name: this.last_name,
+      cpf: this.cpf,
+      rg: this.rg,
+      gender: this.gender,
+      email: this.email,
+      active: this.active,
+    };
+  }
 
   // async addAddress(address: Address, user: User) {
   //   return this.collections

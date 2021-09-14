@@ -2,7 +2,6 @@ import { Q } from '@nozbe/watermelondb';
 import { database } from '..';
 import { User as ModelUser } from '../model/User';
 import { Address, Address as ModelAddress } from '../model/Address';
-import { UserClient } from '../../hooks/clientUser';
 
 async function createOrUpdate(address: Address): Promise<ModelAddress> {
   const addressCollection = database.get<ModelAddress>('addresses');
@@ -50,7 +49,7 @@ async function createOrUpdate(address: Address): Promise<ModelAddress> {
 }
 
 async function findById(id: string): Promise<ModelUser> {
-  const userCollection = database.get<ModelUser>('users');
+  const userCollection = database.get<ModelUser>('addresses');
 
   const user = await database.write(async () => {
     const [userDatabase] = await userCollection
@@ -63,13 +62,21 @@ async function findById(id: string): Promise<ModelUser> {
 }
 
 async function findAll(): Promise<ModelUser[]> {
-  const allUser = database.get<ModelUser>('users').query().fetch();
+  const allUser = database.get<ModelUser>('addresses').query().fetch();
 
   return allUser;
+}
+
+async function removeAll(): Promise<void> {
+  const addressCollection = database.get<ModelAddress>('addresses');
+  await database.write(async () => {
+    await addressCollection.query().destroyAllPermanently();
+  });
 }
 
 export const addressRepository = {
   findById,
   findAll,
   createOrUpdate,
+  removeAll,
 };

@@ -10,20 +10,10 @@ import { SignIn } from '../screens/SignIn';
 import { SignUpFirstStep } from '../screens/SignUp/FirstStep';
 import { SignUpSecondStep } from '../screens/SignUp/SecondStep';
 import { SignUpThirdStep } from '../screens/SignUp/ThirdStep';
+import { RootStackParamList } from '.';
+import { SignUpFourthStep } from '../screens/SignUp/FourthStep';
 
 const { Navigator, Screen } = createNativeStackNavigator();
-
-export type RootStackParamList = {
-  Home: undefined;
-  CarDetails: undefined;
-  Scheduling: undefined;
-  SchedulingComplete: undefined;
-  SchedulingDetails: undefined;
-  Splash: undefined;
-  SignIn: undefined;
-  SignUpFirstStep: undefined;
-  SignUpSecondStep: undefined;
-};
 
 export type ScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -45,6 +35,7 @@ export function AuthRoutes() {
       <Screen name="SignUpFirstStep" component={SignUpFirstStep} />
       <Screen name="SignUpSecondStep" component={SignUpSecondStep} />
       <Screen name="SignUpThirdStep" component={SignUpThirdStep} />
+      <Screen name="SignUpFourthStep" component={SignUpFourthStep} />
       <Screen name="Confirmation" component={Confirmation} />
     </Navigator>
   );

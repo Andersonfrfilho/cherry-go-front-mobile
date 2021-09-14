@@ -8,12 +8,10 @@ async function createOrUpdate(user: UserClient): Promise<ModelUser> {
   const userCollection = database.get<ModelUser>('users');
 
   const userCreateUpdated = await database.write(async () => {
-    console.log('asdfasdfasdf');
     const [userDatabase] = await userCollection
       .query(Q.where('external_id', user.id))
       .fetch();
-    console.log(userDatabase);
-    console.log('parte 2');
+
     if (userDatabase) {
       const userUpdated = await userDatabase.update(userExistDb => {
         userExistDb.external_id = user.id;
@@ -27,7 +25,7 @@ async function createOrUpdate(user: UserClient): Promise<ModelUser> {
       });
       return userUpdated;
     }
-    console.log(userCollection.schema);
+
     const userCreate = await userCollection.create(newUser => {
       newUser.external_id = user.id;
       newUser.name = user.name;
@@ -59,13 +57,26 @@ async function findByUserId(id: string): Promise<ModelUser> {
 }
 
 async function findAll(): Promise<ModelUser[]> {
-  const allUser = database.get<ModelUser>('users').query().fetch();
-
+  const allUser = await database.get<ModelUser>('users').query().fetch();
+  console.log(allUser);
   return allUser;
+}
+
+async function removeAll(): Promise<void> {
+  const usersCollection = database.get<ModelUser>('users');
+  await database.write(async () => {
+    await usersCollection.query().destroyAllPermanently();
+  });
+}
+
+async function removeAllDatabase(): Promise<void> {
+  await database.unsafeResetDatabase();
 }
 
 export const userRepository = {
   findByUserId,
   findAll,
   createOrUpdate,
+  removeAll,
+  removeAllDatabase,
 };

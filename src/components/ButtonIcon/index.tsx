@@ -15,6 +15,7 @@ interface Props extends TouchableOpacityProps {
   textColor?: string;
   iconPosition?: 'left' | 'right';
   titleSize?: number;
+  disabled: boolean;
 }
 
 export function ButtonIcon({
@@ -28,11 +29,12 @@ export function ButtonIcon({
   buttonColor,
   textColor,
   iconPosition = 'right',
+  disabled = false,
   ...rest
 }: Props) {
   const theme = useTheme();
   return (
-    <Button color={buttonColor} {...rest}>
+    <Button color={buttonColor} {...rest} disabled={disabled}>
       <IconContainer>
         {iconPosition === 'left' && (
           <Feather

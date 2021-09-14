@@ -1,11 +1,12 @@
-import React, { useState, createRef } from 'react';
+import React, { useState, createRef, useEffect } from 'react';
 import * as Yup from 'yup';
-import { StatusBar, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { StatusBar, Keyboard } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from 'styled-components';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import {
+  KeyboardDismiss,
   Container,
   Header,
   AreaTitle,
@@ -14,6 +15,7 @@ import {
   Footer,
   ButtonIcons,
   AreaLoad,
+  AreaCount,
   SubTitle,
 } from './styles';
 import { ScreenNavigationProp } from '../../../routes/app.stack.routes';
@@ -28,55 +30,121 @@ import { Load } from '../../../components/Load';
 import { WarningText } from '../../../components/WarningText';
 
 import { Focusable } from '../FirstStep';
+import { Button } from '../../../components/Button';
 
 interface FormData {
-  zipcode: string;
-  address: string;
-  number: string;
-  district: string;
-  state: string;
-  complement: string;
-  reference: string;
-  country: string;
+  phone: string;
 }
 
-const schema = Yup.object().shape({
-  phone: Yup.string().length(10, 'Cep inválido').required('Cep é obrigatório'),
+interface FormCodeData {
+  code: string;
+}
+
+const schemaPhone = Yup.object().shape({
+  phone: Yup.string()
+    .length(20, 'Celular inválido')
+    .required('Celular é obrigatório'),
+});
+const schemaCode = Yup.object().shape({
+  code: Yup.string()
+    .length(4, 'Código inválido')
+    .required('Celular é obrigatório'),
 });
 
 export function SignUpThirdStep() {
   const {
     control,
     handleSubmit,
-    setValue,
-    clearErrors,
-    getValues,
     formState: { errors },
   } = useForm({
-    resolver: yupResolver(schema),
+    resolver: yupResolver(schemaPhone),
+  });
+
+  const {
+    control: controlCode,
+    handleSubmit: handleSubmitCode,
+    formState: { errors: errorsCode },
+  } = useForm({
+    resolver: yupResolver(schemaCode),
   });
 
   const [subTitle, setSubTitle] = useState('');
+  const [phoneConfirmation, setPhoneConfirmation] = useState(false);
+  const [resendCode, setResendCode] = React.useState(false);
+  const [seconds, setSeconds] = React.useState(0);
 
   const refPhone = createRef<Focusable>();
+  const refCode = createRef<Focusable>();
 
   const theme = useTheme();
   const { isLoading, setIsLoading, appError, setAppError } = useCommon();
-  const { registerAddressClient, userClient } = useClientUser();
+  const {
+    userClient,
+    registerPhoneClient,
+    resendCodePhoneClient,
+    confirmCodePhoneClient,
+    token,
+  } = useClientUser();
   const navigation = useNavigation<ScreenNavigationProp>();
 
-  async function handleRegisterAddress(form: FormData) {
+  async function handleRegisterPhones(form: FormData) {
     setIsLoading(true);
     setAppError({});
-    const { zipcode, address, number, district, state } = form;
-
+    const { phone } = form;
+    const [country_code, ddd, digit, number] = phone.split(' ');
     try {
-      await registerAddressClient({
-        ...form,
-        zipcode: removeCharacterSpecial(form.zipcode),
-        user_id: userClient && userClient.id,
-        country: 'brazil',
+      await registerPhoneClient({
+        user_id: userClient.id,
+        country_code,
+        ddd: removeCharacterSpecial(ddd),
+        number: `${digit}${removeCharacterSpecial(number)}`,
       });
+      setPhoneConfirmation(true);
+      setResendCode(false);
+      setSeconds(60 * 3);
+      navigation.navigate('SignUpSecondStep');
+    } catch (error) {
+      console.log(error);
+      setAppError(appErrorVerifyError(error));
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function handleResendCodePhones() {
+    setIsLoading(true);
+    setAppError({});
+    try {
+      await resendCodePhoneClient(userClient.id);
+      setPhoneConfirmation(true);
+      setResendCode(false);
+      setSeconds(60 * 3);
+      // navigation.navigate('SignUpSecondStep');
+    } catch (error) {
+      console.log(error);
+      setAppError(appErrorVerifyError(error));
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function handleConfirmCodePhone(form: FormCodeData) {
+    setIsLoading(true);
+    setAppError({});
+    try {
+      console.log(form);
+      if (!token.token) {
+        setAppError(appErrorVerifyError({ status_code: 'app', code: '0002' }));
+        return;
+      }
+      await confirmCodePhoneClient({
+        id: userClient.id,
+        token: token.token,
+        code: form.code,
+      });
+      setPhoneConfirmation(true);
+      setResendCode(false);
+      setSeconds(60 * 3);
       // navigation.navigate('SignUpSecondStep');
     } catch (error) {
       console.log(error);
@@ -90,8 +158,20 @@ export function SignUpThirdStep() {
     navigation.navigate('SignIn');
   }
 
+  useEffect(() => {
+    if (seconds > 0) {
+      setTimeout(() => setSeconds(seconds - 1), 1000);
+    } else {
+      setResendCode(true);
+    }
+  }, [seconds]);
+
+  useEffect(() => {
+    refPhone.current?.focus();
+  }, []);
+  console.log(errorsCode);
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+    <KeyboardDismiss onPress={Keyboard.dismiss}>
       <Container>
         <StatusBar
           barStyle="light-content"
@@ -109,19 +189,56 @@ export function SignUpThirdStep() {
           </AreaTitle>
         </Header>
         <Form>
-          <FormInput
-            type={TextInputTypeEnum.mask}
-            name="phone"
-            control={control}
-            placeholder="celular"
-            error={errors.phone && errors.phone.message}
-            iconName="phone"
-            autoCorrect={false}
-            editable={!isLoading}
-            mask="[55+] ([00]) [9] [0000]-[0000]"
-            inputRef={refPhone}
-            keyboardType="numeric"
-          />
+          {phoneConfirmation && (
+            <>
+              <FormInput
+                name="code"
+                control={controlCode}
+                placeholder="código"
+                error={errorsCode.code && errorsCode.code.message}
+                iconName="send"
+                autoCorrect={false}
+                editable={!isLoading}
+                keyboardType="numeric"
+                maxLength={4}
+              />
+              {seconds === 0 ? (
+                <Button
+                  title="Reenviar"
+                  onPress={handleResendCodePhones}
+                  enabled={!isLoading}
+                  loading={isLoading}
+                />
+              ) : (
+                <AreaCount>
+                  <Title>{seconds}</Title>
+                </AreaCount>
+              )}
+            </>
+          )}
+          {!phoneConfirmation && (
+            <>
+              <FormInput
+                type={TextInputTypeEnum.mask}
+                name="phone"
+                control={control}
+                placeholder="celular"
+                error={errors.phone && errors.phone.message}
+                iconName="phone"
+                autoCorrect={false}
+                editable={!isLoading}
+                mask="+55 ([00]) [0] [0000]-[0000]"
+                inputRef={refPhone}
+                keyboardType="numeric"
+              />
+              <Button
+                title="Confirmar"
+                onPress={handleSubmit(handleRegisterPhones)}
+                enabled={!isLoading}
+                loading={isLoading}
+              />
+            </>
+          )}
         </Form>
         <Footer>
           {isLoading ? (
@@ -149,15 +266,15 @@ export function SignUpThirdStep() {
                 buttonColor={theme.colors.success}
                 textColor={theme.colors.shape}
                 iconColor={theme.colors.shape}
-                disabled={isLoading}
+                disabled={isLoading || !phoneConfirmation}
                 loading={isLoading}
                 titleSize={20}
-                onPress={handleSubmit(handleRegisterAddress)}
+                onPress={handleSubmitCode(handleConfirmCodePhone)}
               />
             </ButtonIcons>
           )}
         </Footer>
       </Container>
-    </TouchableWithoutFeedback>
+    </KeyboardDismiss>
   );
 }

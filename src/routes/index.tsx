@@ -5,6 +5,20 @@ import { AppTabRoutes } from './app.tab.routes';
 import { AuthRoutes } from './auth.routes';
 import { LoadAnimation } from '../components/LoadAnimation';
 
+export type RootStackParamList = {
+  Home: undefined;
+  CarDetails: undefined;
+  Scheduling: undefined;
+  SchedulingComplete: undefined;
+  SchedulingDetails: undefined;
+  Splash: undefined;
+  SignIn: undefined;
+  SignUpFirstStep: undefined;
+  SignUpSecondStep: undefined;
+  SignUpThirdStep: undefined;
+  SignUpFourthStep: undefined;
+};
+
 export function Routes() {
   const { user, loading } = useAuth();
   return loading ? (

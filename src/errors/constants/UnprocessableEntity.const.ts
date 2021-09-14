@@ -4,10 +4,10 @@ const status_code = HTTP_ERROR_CODES_ENUM.UNPROCESSABLE_ENTITY;
 
 export const UNPROCESSABLE_ENTITY = {
   '422': {
-    '22001': {
+    '220001': {
       message: 'Código incorreto',
       status_code,
-      code: '22001',
+      code: '220001',
     },
   },
 };
