@@ -3,7 +3,7 @@ import { Q } from '@nozbe/watermelondb';
 import { GENDER_ENUM } from '../enums/genderType.enum';
 import { AppError } from '../errors/AppError';
 import { api } from '../services/api';
-import { UserClientAddressRegisterDTO, UserClientPhoneCodeConfirmDTO, UserClientPhoneDTO, UserClientRegisterDTO } from './dtos';
+import { UploadUserClientImageDocumentDTO, UploadUserClientImageProfileDTO, UserClientAddressRegisterDTO, UserClientPhoneCodeConfirmDTO, UserClientPhoneDTO, UserClientRegisterDTO } from './dtos';
 import { database } from '../databases';
 import { User as ModelUser } from '../databases/model/User';
 import { Address as ModelAddress } from '../databases/model/Address';
@@ -13,6 +13,10 @@ import { addressRepository } from '../databases/repository/address.repository';
 import { phoneRepository } from '../databases/repository/phone.repository';
 import { tokenRepository } from '../databases/repository/token.repository';
 import { NOT_FOUND } from '../errors/constants/NotFound.const';
+import { Buffer } from 'buffer';
+import { USER_DOCUMENT_VALUE_ENUM } from '../enums/UserDocumentValue.enum';
+import { Platform } from 'react-native';
+import { AxiosError } from 'axios';
 
 type ClientUserContextData = {
   userClient: UserClient;
@@ -23,6 +27,8 @@ type ClientUserContextData = {
   registerPhoneClient: (phoneData:UserClientPhoneDTO) =>Promise<void>;
   resendCodePhoneClient: (id:string)=>Promise<void>;
   confirmCodePhoneClient: (phoneConfirm:UserClientPhoneCodeConfirmDTO)=>Promise<void>;
+  uploadUserClientImageDocument:(uploadDocumentData:UploadUserClientImageDocumentDTO)=>Promise<void>;
+  uploadUserClientImageProfile:(uploadImageProfileData:UploadUserClientImageProfileDTO)=>Promise<void>;
   token:Token;
 };
 interface ClientUserProviderProps {
@@ -97,6 +103,21 @@ export type Token = {
   refresh_token?:string;
 }
 
+function DataURIToBlob(dataURI: string) {
+  const splitDataURI = dataURI.split(',');
+  const byteString =
+    splitDataURI[0].indexOf('base64') >= 0
+      ? Buffer.from(splitDataURI[1], 'base64').toString()
+      : decodeURI(splitDataURI[1]);
+  const mimeString = splitDataURI[0].split(':')[1].split(';')[0];
+
+  const ia = new Uint8Array(byteString.length);
+  for (let i = 0; i < byteString.length; i += 1)
+    ia[i] = byteString.charCodeAt(i);
+
+  return new Blob([ia], { type: mimeString });
+}
+
 function ClientUserProvider({ children }: ClientUserProviderProps) {
   const [userClient, setUserClient] = useState<UserClient>({} as UserClient);
   const [token, setToken] = useState<Token>({} as Token);
@@ -128,7 +149,7 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
           throw new AppError({
             message: '',
             status_code:'app',
-            code:'0004' ,
+            code:'0003' ,
           });
         }
 
@@ -162,7 +183,6 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
   ) {
     try {
       if (!phoneData.user_id) {
-        console.log("###### - 0")
         const [user] = await userRepository.findAll()
 
 
@@ -170,11 +190,10 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
           throw new AppError({
             message: '',
             status_code:'app',
-            code:'0004' ,
+            code:'0003' ,
           });
         }
 
-        console.log(user.getUser())
         phoneData.user_id = user.external_id;
       }
       const { data: { user, token } } = await api.post(
@@ -214,7 +233,7 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
           throw new AppError({
             message: '',
             status_code:'app',
-            code:'0004' ,
+            code:'0003' ,
           });
         }
 
@@ -229,7 +248,7 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
       setToken({token})
 
       await tokenRepository.createOrUpdate({token})
-    } catch (err) {
+    } catch (err:unknown | AxiosError ) {
       if(NOT_FOUND[404][4001].code===err.response.data.code&&NOT_FOUND[404][4001].status_code===err.response.status&&NOT_FOUND[404][4001].message===err.response.data.message){
         await userRepository.removeAllDatabase();
       }
@@ -256,14 +275,13 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
            throw new AppError({
              message: '',
              status_code:'app',
-             code:'0004' ,
+             code:'0003' ,
            });
          }
 
          user_id = user.external_id;
          token_db = token.token;
        }
-       console.log( {code,token,user_id})
        await api.post(
          '/v1/users/confirm/phone',
          {code,token:token||token_db,user_id},
@@ -272,8 +290,130 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
        if(NOT_FOUND[404][4001].code===err.response.data.code&&NOT_FOUND[404][4001].status_code===err.response.status&&NOT_FOUND[404][4001].message===err.response.data.message){
         await userRepository.removeAllDatabase();
        }
-       console.log("####################")
-       console.log(err.response.data)
+
+       throw new AppError({
+         message: err.response.data.message,
+         status_code: err.response.status,
+         code: err.response.data.code,
+       });
+     }
+   }
+
+   async function uploadUserClientImageDocument(
+    {image_uri,user_id,description}:UploadUserClientImageDocumentDTO
+   ) {
+
+     try {
+       if (!user_id) {
+         const [user] = await userRepository.findAll()
+
+         if(!user){
+           throw new AppError({
+             message: '',
+             status_code:'app',
+             code:'0003' ,
+           });
+         }
+
+         user_id = user.external_id;
+       }
+       const fileName = image_uri.split('/').pop()
+
+       if(!fileName){
+        throw new AppError({
+          message: '',
+          status_code:'app',
+          code:'0004' ,
+        });
+       }
+
+       let match = /\.(\w+)$/.exec(fileName);
+
+       let type = match ? `image/${match[1]}` : `image`;
+
+       const formData = new FormData();
+
+       formData.append('document', {
+         uri: Platform.OS === "android" ? image_uri : image_uri.replace("file://", ""),
+         name: fileName,
+         type
+       });
+
+       formData.append('description', description);
+       formData.append('user_id', user_id);
+       const config = {
+        headers: {
+            'content-type': 'multipart/form-data'
+        }
+      }
+        await api.post('/v1/users/documents/image', formData, config);
+     } catch (err) {
+      console.log(err)
+       if(NOT_FOUND[404][4001].code===err.response.data.code&&NOT_FOUND[404][4001].status_code===err.response.status&&NOT_FOUND[404][4001].message===err.response.data.message){
+        await userRepository.removeAllDatabase();
+       }
+
+       throw new AppError({
+         message: err.response.data.message,
+         status_code: err.response.status,
+         code: err.response.data.code,
+       });
+     }
+   }
+
+   async function uploadUserClientImageProfile(
+    {image_uri,user_id}:UploadUserClientImageProfileDTO
+   ) {
+
+     try {
+       if (!user_id) {
+         const [user] = await userRepository.findAll()
+
+         if(!user){
+           throw new AppError({
+             message: '',
+             status_code:'app',
+             code:'0003' ,
+           });
+         }
+
+         user_id = user.external_id;
+       }
+       const fileName = image_uri.split('/').pop()
+
+       if(!fileName){
+        throw new AppError({
+          message: '',
+          status_code:'app',
+          code:'0004' ,
+        });
+       }
+
+       let match = /\.(\w+)$/.exec(fileName);
+
+       let type = match ? `image/${match[1]}` : `image`;
+
+       const formData = new FormData();
+
+       formData.append('image_profile', {
+         uri: Platform.OS === "android" ? image_uri : image_uri.replace("file://", ""),
+         name: fileName,
+         type
+       });
+
+       formData.append('user_id', 'b83d1b74-4015-4b27-95dd-86110dbcff32');
+       const config = {
+        headers: {
+            'content-type': 'multipart/form-data'
+        }
+      }
+        await api.post('/v1/users/profiles/images', formData, config);
+     } catch (err) {
+      console.log(err)
+       if(NOT_FOUND[404][4001].code===err.response.data.code&&NOT_FOUND[404][4001].status_code===err.response.status&&NOT_FOUND[404][4001].message===err.response.data.message){
+        await userRepository.removeAllDatabase();
+       }
+
        throw new AppError({
          message: err.response.data.message,
          status_code: err.response.status,
@@ -284,7 +424,7 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
 
   return (
     <ClientUserContext.Provider
-      value={{ registerClient, registerAddressClient, userClient, registerPhoneClient, resendCodePhoneClient,confirmCodePhoneClient, token }}
+      value={{ registerClient, registerAddressClient,uploadUserClientImageProfile, userClient,uploadUserClientImageDocument, registerPhoneClient, resendCodePhoneClient,confirmCodePhoneClient, token }}
     >
       {children}
     </ClientUserContext.Provider>

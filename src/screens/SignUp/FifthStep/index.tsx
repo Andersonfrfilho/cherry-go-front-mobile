@@ -49,12 +49,13 @@ export interface TakePicture {
   resumePreview(): void;
 }
 
-export function SignUpFourthStep() {
+export function SignUpFifthStep() {
   const [subTitle, setSubTitle] = useState(
-    'Retire uma foto de seu documento frente',
+    'Retire uma foto de seu documento traseira',
   );
   const [isPreview, setIsPreview] = useState(false);
   const [imagePreview, setImagePreview] = useState('');
+  const [imageFile, setImageFile] = useState(null);
   const [flashMode, setFlashMode] = React.useState('off');
 
   const cameraRef = useRef<TakePicture>();
@@ -65,7 +66,7 @@ export function SignUpFourthStep() {
   const navigation = useNavigation<ScreenNavigationProp>();
 
   function handleBack() {
-    navigation.replace('SignIn');
+    navigation.navigate('SignIn');
   }
 
   function handleBackCam() {
@@ -132,9 +133,9 @@ export function SignUpFourthStep() {
       await uploadUserClientImageDocument({
         image_uri: imageUri,
         user_id: userClient.id,
-        description: USER_DOCUMENT_VALUE_ENUM.FRONT,
+        description: USER_DOCUMENT_VALUE_ENUM.BACK,
       });
-      navigation.replace('SignUpFifthStep');
+      navigation.replace('SignUpSixthStep');
     } catch (error) {
       setAppError(appErrorVerifyError(error));
     } finally {

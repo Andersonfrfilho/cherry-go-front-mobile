@@ -58,7 +58,6 @@ async function findByUserId(id: string): Promise<ModelUser> {
 
 async function findAll(): Promise<ModelUser[]> {
   const allUser = await database.get<ModelUser>('users').query().fetch();
-  console.log(allUser);
   return allUser;
 }
 

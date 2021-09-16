@@ -20,10 +20,17 @@ export default {
     success_chateau_green: '#098036',
     success_chateau: '#7DBD59',
 
+    spring_green: '#69CC31',
+
     warning_buttercup_light_shade: '#FDC53B',
+
+    yellow_own: '#fcd703',
+
+    yellow_orange: '#D3AF38',
 
     shape: '#E1E1E8',
     shape_dark: '#29292E',
+    shape_dark_light: 'rgba(41, 41, 46, 0.1)',
 
     bon_jour_light_shade: '#FCF4F5',
     bon_jour: '#E4DBDC',
@@ -40,6 +47,7 @@ export default {
     red_ryb: '#F32013',
     red_ku_crimson: '#EA0016',
     red_devil: '#880013',
+    red_closed: '#FF0000',
   },
   fonts: {
     primary_300: 'AveriaSansLibre_300Light',

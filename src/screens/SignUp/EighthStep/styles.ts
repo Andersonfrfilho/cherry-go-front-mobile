@@ -45,10 +45,22 @@ export const SubTitle = styled.Text`
 `;
 
 export const AreaCamera = styled.View`
-  flex: 5;
+  flex: 12;
   justify-content: center;
   margin: 10px 0;
   padding: 10px 20px;
+`;
+
+export const AreaCamAndOptions = styled.View`
+  flex: 1;
+`;
+export const CamBorder = styled.View`
+  flex: 4;
+  margin: 15px;
+
+  border-radius: 250px;
+
+  overflow: hidden;
 `;
 export const Cam = styled(Camera)`
   flex: 1;

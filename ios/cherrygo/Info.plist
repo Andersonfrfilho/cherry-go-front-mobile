@@ -4,6 +4,10 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
+  <key>NSCameraUsageDescription</key>
+  <string>Allow $(PRODUCT_NAME) to use the camera</string>
+  <key>NSMicrophoneUsageDescription</key>
+  <string>Allow $(PRODUCT_NAME) to use the microphone</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>

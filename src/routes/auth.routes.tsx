@@ -12,6 +12,10 @@ import { SignUpSecondStep } from '../screens/SignUp/SecondStep';
 import { SignUpThirdStep } from '../screens/SignUp/ThirdStep';
 import { RootStackParamList } from '.';
 import { SignUpFourthStep } from '../screens/SignUp/FourthStep';
+import { SignUpFifthStep } from '../screens/SignUp/FifthStep';
+import { SignUpSixthStep } from '../screens/SignUp/SixthStep';
+import { SignUpSevenStep } from '../screens/SignUp/SevenStep';
+import { SignUpEighthStep } from '../screens/SignUp/EighthStep';
 
 const { Navigator, Screen } = createNativeStackNavigator();
 
@@ -28,7 +32,7 @@ export function AuthRoutes() {
         gestureEnabled: true,
         ...TransitionPresets.ModalPresentationIOS,
       }}
-      initialRouteName="SignUpThirdStep"
+      initialRouteName="SignUpSevenStep"
     >
       <Screen name="Splash" component={Splash} />
       <Screen name="SignIn" component={SignIn} />
@@ -36,6 +40,10 @@ export function AuthRoutes() {
       <Screen name="SignUpSecondStep" component={SignUpSecondStep} />
       <Screen name="SignUpThirdStep" component={SignUpThirdStep} />
       <Screen name="SignUpFourthStep" component={SignUpFourthStep} />
+      <Screen name="SignUpFifthStep" component={SignUpFifthStep} />
+      <Screen name="SignUpSixthStep" component={SignUpSixthStep} />
+      <Screen name="SignUpSevenStep" component={SignUpSevenStep} />
+      <Screen name="SignUpEighthStep" component={SignUpEighthStep} />
       <Screen name="Confirmation" component={Confirmation} />
     </Navigator>
   );

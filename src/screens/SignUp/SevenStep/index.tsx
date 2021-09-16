@@ -11,6 +11,7 @@ import {
 import * as ImagePicker from 'expo-image-picker';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { RFValue } from 'react-native-responsive-fontsize';
+import { CameraType } from 'expo-camera/build/Camera.types';
 import {
   Container,
   Header,
@@ -29,6 +30,8 @@ import {
   AreaButtons,
   AreaButtonIcon,
   AreaButtonsCam,
+  CamBorder,
+  AreaCamAndOptions,
 } from './styles';
 import { ScreenNavigationProp } from '../../../routes/app.stack.routes';
 import { ButtonIcon } from '../../../components/ButtonIcon';
@@ -49,12 +52,13 @@ export interface TakePicture {
   resumePreview(): void;
 }
 
-export function SignUpFourthStep() {
-  const [subTitle, setSubTitle] = useState(
-    'Retire uma foto de seu documento frente',
-  );
+export function SignUpSevenStep() {
+  const [subTitle, setSubTitle] = useState(`Retire uma foto para seu perfil`);
   const [isPreview, setIsPreview] = useState(false);
   const [imagePreview, setImagePreview] = useState('');
+  const [camMode, setCamMode] = useState<CameraType>(
+    Camera.Constants.Type.front,
+  );
   const [flashMode, setFlashMode] = React.useState('off');
 
   const cameraRef = useRef<TakePicture>();
@@ -81,6 +85,7 @@ export function SignUpFourthStep() {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
+        aspect: [2, 2],
         quality: 0.7,
         base64: true,
       });
@@ -106,7 +111,7 @@ export function SignUpFourthStep() {
     setAppError({});
     try {
       if (cameraRef.current) {
-        const options = { quality: 0.7, base64: true };
+        const options = { quality: 0.7, base64: true, aspect: [2, 2] };
         const data = await cameraRef.current?.takePictureAsync(options);
 
         const source = data.uri;
@@ -132,17 +137,23 @@ export function SignUpFourthStep() {
       await uploadUserClientImageDocument({
         image_uri: imageUri,
         user_id: userClient.id,
-        description: USER_DOCUMENT_VALUE_ENUM.FRONT,
+        description: USER_DOCUMENT_VALUE_ENUM.SELF_DOCUMENT_FRONT,
       });
-      navigation.replace('SignUpFifthStep');
     } catch (error) {
       setAppError(appErrorVerifyError(error));
     } finally {
       setIsLoading(false);
     }
   }
-  async function handleFlashOnOff(stateFlash: 'on' | 'off') {
+  function handleFlashOnOff(stateFlash: 'on' | 'off') {
     setFlashMode(stateFlash);
+  }
+  function handleModeCam(camModeParam: CameraType) {
+    setCamMode(
+      Camera.Constants.Type.back === camModeParam
+        ? Camera.Constants.Type.front
+        : Camera.Constants.Type.back,
+    );
   }
   return (
     <Container>
@@ -154,7 +165,7 @@ export function SignUpFourthStep() {
 
       <Header>
         <AreaTitle>
-          <Title>Documento</Title>
+          <Title>Perfil</Title>
           {!!subTitle && !appError.message && <SubTitle>{subTitle}</SubTitle>}
           {appError && appError.message && (
             <WarningText title={appError.message} />
@@ -206,41 +217,67 @@ export function SignUpFourthStep() {
           </AreaImagePreviewIcon>
         )}
         {!isPreview && (
-          <Cam
-            type={Camera.Constants.Type.back}
-            ref={cameraRef}
-            flashMode={Camera.Constants.FlashMode.on}
-          >
+          <AreaCamAndOptions>
             <AreaOptionsButtonsCam>
               <AreaOptions>
                 <AreaButtonsCam>
                   <AreaButtonIcon />
-                  <AreaButtonIcon />
+                  <AreaButtonIcon>
+                    <AreaButton
+                      disabled={isLoading}
+                      onPress={() => handleModeCam(camMode)}
+                      color={
+                        camMode === Camera.Constants.Type.back
+                          ? theme.colors.shape
+                          : theme.colors.shape_dark_light
+                      }
+                    >
+                      <Icon
+                        style={{ transform: [{ rotate: '15deg' }] }}
+                        name="refresh-ccw"
+                        size={RFValue(30)}
+                        color={
+                          camMode === Camera.Constants.Type.back
+                            ? theme.colors.yellow_orange
+                            : theme.colors.shape
+                        }
+                      />
+                    </AreaButton>
+                  </AreaButtonIcon>
                   <AreaButtonIcon>
                     <AreaButton
                       disabled={isLoading}
                       onPress={() => {
-                        console.log('Loading');
                         handleFlashOnOff(flashMode === 'on' ? 'off' : 'on');
-                        console.log(flashMode);
                       }}
                       color={
-                        isLoading
-                          ? theme.colors.shape_dark
-                          : theme.colors.white_medium
+                        camMode === Camera.Constants.Type.back
+                          ? theme.colors.shape
+                          : theme.colors.shape_dark_light
                       }
                     >
                       <Icon
                         style={{ transform: [{ rotate: '15deg' }] }}
                         name="zap"
                         size={RFValue(30)}
-                        color={theme.colors.yellow_orange}
+                        color={
+                          camMode === Camera.Constants.Type.back
+                            ? theme.colors.yellow_orange
+                            : theme.colors.shape
+                        }
                       />
                     </AreaButton>
                   </AreaButtonIcon>
                 </AreaButtonsCam>
               </AreaOptions>
             </AreaOptionsButtonsCam>
+            <CamBorder>
+              <Cam
+                type={camMode}
+                ref={cameraRef}
+                flashMode={Camera.Constants.FlashMode.on}
+              />
+            </CamBorder>
             <AreaButtonsCam>
               <AreaButtonIcon>
                 <AreaButton
@@ -292,7 +329,7 @@ export function SignUpFourthStep() {
                 </AreaButton>
               </AreaButtonIcon>
             </AreaButtonsCam>
-          </Cam>
+          </AreaCamAndOptions>
         )}
       </AreaCamera>
     </Container>

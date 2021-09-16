@@ -169,7 +169,7 @@ export function SignUpThirdStep() {
   useEffect(() => {
     refPhone.current?.focus();
   }, []);
-  console.log(errorsCode);
+
   return (
     <KeyboardDismiss onPress={Keyboard.dismiss}>
       <Container>

@@ -15,5 +15,10 @@ export const APPLICATION_ERROR = {
       code: '0003',
       status_code: 'app',
     },
+    '0004': {
+      message: 'Imagem invalida !!!',
+      code: '0004',
+      status_code: 'app',
+    },
   },
 };

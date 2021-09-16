@@ -17,6 +17,9 @@ export type RootStackParamList = {
   SignUpSecondStep: undefined;
   SignUpThirdStep: undefined;
   SignUpFourthStep: undefined;
+  SignUpFifthStep: undefined;
+  SignUpSixthStep: undefined;
+  SignUpSevenStep: undefined;
 };
 
 export function Routes() {

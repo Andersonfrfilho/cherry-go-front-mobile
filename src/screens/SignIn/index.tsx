@@ -55,7 +55,6 @@ export function SignIn() {
   const navigation = useNavigation<ScreenNavigationProp>();
 
   async function handleSignIn(form: FormData) {
-    console.log('################');
     setIsLoading(true);
     setTimeout(() => {}, 3000);
     setIsLoading(false);
@@ -78,8 +77,6 @@ export function SignIn() {
   function handleNewAccount() {
     navigation.navigate('SignUpFirstStep');
   }
-  console.log(isLoading);
-  console.log(errors);
   return (
     <KeyboardAvoidingView behavior="position" enabled style={{ flex: 1 }}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
