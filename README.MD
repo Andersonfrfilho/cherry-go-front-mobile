@@ -43,5 +43,22 @@ start project
   - jest.config.ts
   - prettier.config.js
   - metro.config.js
-run
-- cd android;./gradlew clean;cd ..;npx react-native run-android;yarn start
+
+run project android
+```powershell
+  cd android;./gradlew clean;cd ..;npx react-native run-android;yarn start
+```
+run open ports
+adb reverse:
+```powershell
+adb reverse tcp:3333 tcp:3333
+```
+adb connect your device
+```powershell
+  adb reverse tcp:8081 tcp:5555
+  adb connect YOUR.PHONE.IP.ADDRESS:5555
+```
+run connections
+```powershell
+adb kill-server && adb start-server
+```

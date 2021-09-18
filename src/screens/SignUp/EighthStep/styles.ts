@@ -1,15 +1,16 @@
-import styled, { css } from 'styled-components/native';
+import styled from 'styled-components/native';
 import { getStatusBarHeight } from 'react-native-iphone-x-helper';
 import { RFValue } from 'react-native-responsive-fontsize';
-import { Camera } from 'expo-camera';
 import { Feather } from '@expo/vector-icons';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import { FlatList } from 'react-native';
+import FastImage from 'react-native-fast-image';
+import { TagSelected } from '.';
 
 interface Props {
-  error: boolean;
+  selected: boolean;
 }
-interface PropsAreaButton {
-  color?: string;
-}
+
 export const Container = styled.View.attrs({})`
   flex: 1;
   justify-content: space-around;
@@ -44,110 +45,106 @@ export const SubTitle = styled.Text`
   text-align: center;
 `;
 
-export const AreaCamera = styled.View`
-  flex: 12;
+export const AreaList = styled.View`
+  flex: 6;
+  justify-content: center;
+  margin: 10px 0;
+  padding: 5px 10px;
+`;
+
+export const List = styled(FlatList as new () => FlatList<TagSelected>)`
+  flex: 1;
+`;
+
+export const AreaBoxTag = styled.View<Props>`
+  flex: 1;
+  height: 150px;
+
+  border-width: 5px;
+  border-color: ${({ theme, selected }) =>
+    selected ? theme.colors.success_chateau : theme.colors.shape};
+
+  background-color: ${({ theme }) => theme.colors.main_light};
+
+  border-radius: 12px;
+
+  margin: 5px;
+`;
+
+export const AreaButtonTag = styled(TouchableOpacity)`
+  width: 100%;
+  height: 100%;
+  top: -20px;
+`;
+
+export const TitleTag = styled.Text`
+  align-items: center;
+`;
+
+export const AreaTitleTag = styled.View`
+  height: 20px;
+  width: 100%;
+
+  background-color: ${({ theme }) => theme.colors.main_light};
+
+  border-bottom-right-radius: 12px;
+  border-bottom-left-radius: 12px;
+
+  top: -20px;
+
+  align-items: center;
+`;
+
+export const AreaImageTag = styled.View`
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+`;
+
+export const ImageTag = styled(FastImage)`
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  z-index: 1;
+`;
+export const AreaIcon = styled.View`
+  flex-direction: row;
+
+  justify-content: flex-end;
+
+  height: 20px;
+
+  top: -10px;
+  left: 10px;
+`;
+
+export const ButtonIconClosed = styled(TouchableOpacity)`
+  justify-content: center;
+  align-items: center;
+
+  height: 30px;
+  width: 30px;
+
+  background-color: ${({ theme }) => theme.colors.red_ku_crimson};
+
+  border-radius: 15px;
+
+  z-index: 2;
+`;
+export const Icon = styled(Feather)``;
+
+export const AreaFooter = styled.View`
+  flex: 1;
   justify-content: center;
   margin: 10px 0;
   padding: 10px 20px;
 `;
 
-export const AreaCamAndOptions = styled.View`
-  flex: 1;
-`;
-export const CamBorder = styled.View`
-  flex: 4;
-  margin: 15px;
-
-  border-radius: 250px;
-
-  overflow: hidden;
-`;
-export const Cam = styled(Camera)`
-  flex: 1;
-
-  justify-content: space-around;
-  align-items: center;
-`;
-
-export const AreaOptionsButtonsCam = styled.View`
-  flex: 1;
-  width: 100%;
-`;
-
-export const AreaOptions = styled.View`
-  height: 120px;
-  width: 100%;
-`;
-
-export const AreaImagePreviewIcon = styled.View`
-  flex: 1;
-`;
-
-export const AreaImagePreview = styled.View`
-  width: 100%;
-  height: 100%;
-`;
-
-export const ImagePreview = styled.Image`
-  width: 100%;
-  height: 100%;
-  justify-content: flex-end;
-  align-items: center;
-`;
-
-export const Footer = styled.View`
-  justify-content: center;
-
-  width: 100%;
-  flex: 1;
-
-  padding: 0px 20px;
-`;
-
 export const ButtonIcons = styled.View`
-  width: 100%;
+  flex: 1;
 
   flex-direction: row;
+  align-items: center;
   justify-content: space-between;
-
-  margin-top: 0px;
 `;
-
-export const AreaLoad = styled.View`
-  justify-content: center;
-  align-items: center;
-`;
-
-export const AreaButtons = styled.View`
-  top: -100px;
-  flex-direction: row;
-  justify-content: space-evenly;
-  align-items: center;
-`;
-export const AreaButtonIcon = styled.View`
-  width: 80px;
-  height: 80px;
-`;
-
-export const AreaButtonsCam = styled.View`
-  height: 120px;
-  width: 100%;
-  flex-direction: row;
-  justify-content: space-evenly;
-  align-items: center;
-`;
-
-export const AreaButton = styled.TouchableOpacity<PropsAreaButton>`
-  width: 100%;
-  height: 100%;
-
-  justify-content: center;
-  align-items: center;
-
-  border-radius: 40px;
-
-  background-color: ${({ theme, color }) => color || theme.colors.main};
-  margin-bottom: 15px;
-`;
-
-export const Icon = styled(Feather)``;

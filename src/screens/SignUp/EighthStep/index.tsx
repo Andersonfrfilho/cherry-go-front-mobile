@@ -1,70 +1,53 @@
-import React, { useState, useRef } from 'react';
-import { StatusBar } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { ListRenderItemInfo, StatusBar } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from 'styled-components';
 
-import {
-  Camera,
-  CameraCapturedPicture,
-  CameraPictureOptions,
-} from 'expo-camera';
-import * as ImagePicker from 'expo-image-picker';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 import { RFValue } from 'react-native-responsive-fontsize';
-import { CameraType } from 'expo-camera/build/Camera.types';
 import {
   Container,
   Header,
   AreaTitle,
   Title,
-  AreaOptionsButtonsCam,
-  AreaOptions,
   SubTitle,
-  AreaCamera,
-  AreaButton,
-  ImagePreview,
-  Cam,
+  AreaList,
+  List,
+  AreaBoxTag,
+  AreaFooter,
   Icon,
-  AreaImagePreviewIcon,
-  AreaImagePreview,
-  AreaButtons,
-  AreaButtonIcon,
-  AreaButtonsCam,
-  CamBorder,
-  AreaCamAndOptions,
+  ImageTag,
+  TitleTag,
+  AreaImageTag,
+  AreaIcon,
+  AreaTitleTag,
+  ButtonIconClosed,
+  AreaButtonTag,
+  ButtonIcons,
 } from './styles';
 import { ScreenNavigationProp } from '../../../routes/app.stack.routes';
-import { ButtonIcon } from '../../../components/ButtonIcon';
 import { useCommon } from '../../../hooks/common';
-import { useClientUser } from '../../../hooks/clientUser';
-import { Load } from '../../../components/Load';
-import { WarningText } from '../../../components/WarningText';
-import { ButtonOnlyIcon } from '../../../components/ButtonOnlyIcon';
-import { appErrorVerifyError } from '../../../errors/appErrorVerify';
-import { api } from '../../../services/api';
-import { USER_DOCUMENT_VALUE_ENUM } from '../../../enums/UserDocumentValue.enum';
 
-export interface TakePicture {
-  takePictureAsync(
-    options?: CameraPictureOptions,
-  ): Promise<CameraCapturedPicture>;
-  pausePreview(): void;
-  resumePreview(): void;
+import { WarningText } from '../../../components/WarningText';
+import { ButtonIcon } from '../../../components/ButtonIcon';
+import { Tag, useTag } from '../../../hooks/tag';
+import { appErrorVerifyError } from '../../../errors/appErrorVerify';
+import { Load } from '../../../components/Load';
+import { useClientUser } from '../../../hooks/clientUser';
+
+export interface TagSelected extends Tag {
+  select?: boolean;
 }
 
 export function SignUpEighthStep() {
-  const [subTitle, setSubTitle] = useState(`Retire uma foto para seu perfil`);
-  const [isPreview, setIsPreview] = useState(false);
-  const [imagePreview, setImagePreview] = useState('');
-  const [camMode, setCamMode] = useState<CameraType>(
-    Camera.Constants.Type.front,
+  const [subTitle, setSubTitle] = useState('Selecione as favoritas tags');
+  const [tagsSelected, setTagsSelected] = useState<TagSelected[]>(
+    [] as TagSelected[],
   );
-  const [flashMode, setFlashMode] = React.useState('off');
 
-  const cameraRef = useRef<TakePicture>();
   const theme = useTheme();
   const { isLoading, setIsLoading, appError, setAppError } = useCommon();
-  const { userClient, uploadUserClientImageDocument } = useClientUser();
+  const { userClient } = useClientUser();
+  const { getTags, linkUserTags } = useTag();
 
   const navigation = useNavigation<ScreenNavigationProp>();
 
@@ -72,32 +55,26 @@ export function SignUpEighthStep() {
     navigation.replace('SignIn');
   }
 
-  function handleBackCam() {
-    setIsPreview(false);
-    setImagePreview('');
-    cameraRef.current?.resumePreview();
+  function handleSelected(item: Tag) {
+    const tag = tagsSelected.map(tagParam => {
+      if (item.id === tagParam.id) {
+        return { ...tagParam, select: !tagParam.select };
+      }
+      return tagParam;
+    });
+
+    setTagsSelected(tag);
   }
 
-  async function handleImageSelect() {
+  async function handleLinkTags(tags: TagSelected[]) {
     setIsLoading(true);
     setAppError({});
     try {
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [2, 2],
-        quality: 0.7,
-        base64: true,
+      await linkUserTags({
+        tagsParams: tags,
+        userId: userClient.id || '094860d4-3247-4379-a691-b9a7c8131ea6',
       });
-
-      if (result.cancelled) {
-        return;
-      }
-
-      if (result.uri) {
-        setImagePreview(result.uri);
-        setIsPreview(true);
-      }
+      navigation.navigate('SignIn');
     } catch (error) {
       console.log(error);
       setAppError(appErrorVerifyError(error));
@@ -106,55 +83,42 @@ export function SignUpEighthStep() {
     }
   }
 
-  async function handleCaptureDocumentFront() {
-    setIsLoading(true);
-    setAppError({});
-    try {
-      if (cameraRef.current) {
-        const options = { quality: 0.7, base64: true, aspect: [2, 2] };
-        const data = await cameraRef.current?.takePictureAsync(options);
-
-        const source = data.uri;
-        if (source) {
-          setImagePreview(source);
-          cameraRef.current.pausePreview();
-          setIsPreview(true);
-        }
+  useEffect(() => {
+    async function foundTags() {
+      setIsLoading(true);
+      setAppError({});
+      try {
+        const tagsResults = await getTags({});
+        setTagsSelected(tagsResults.map(tag => ({ ...tag, select: false })));
+      } catch (error) {
+        console.log(error);
+        setAppError(appErrorVerifyError(error));
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      console.log(error);
-      setAppError(appErrorVerifyError(error));
-    } finally {
-      setIsLoading(false);
     }
-  }
+    foundTags().then(() => {});
+  }, []);
 
-  async function handleSendImage(imageUri: string) {
-    setIsLoading(true);
-    setAppError({});
-
-    try {
-      await uploadUserClientImageDocument({
-        image_uri: imageUri,
-        user_id: userClient.id,
-        description: USER_DOCUMENT_VALUE_ENUM.SELF_DOCUMENT_FRONT,
-      });
-    } catch (error) {
-      setAppError(appErrorVerifyError(error));
-    } finally {
-      setIsLoading(false);
-    }
-  }
-  function handleFlashOnOff(stateFlash: 'on' | 'off') {
-    setFlashMode(stateFlash);
-  }
-  function handleModeCam(camModeParam: CameraType) {
-    setCamMode(
-      Camera.Constants.Type.back === camModeParam
-        ? Camera.Constants.Type.front
-        : Camera.Constants.Type.back,
+  if (isLoading) {
+    return (
+      <Container>
+        <StatusBar
+          barStyle="light-content"
+          translucent
+          backgroundColor="transparent"
+        />
+        <Header>
+          <AreaTitle>
+            <Title>Tags</Title>
+            <SubTitle>carregando...</SubTitle>
+          </AreaTitle>
+        </Header>
+        <Load />
+      </Container>
     );
   }
+
   return (
     <Container>
       <StatusBar
@@ -165,173 +129,71 @@ export function SignUpEighthStep() {
 
       <Header>
         <AreaTitle>
-          <Title>Perfil</Title>
+          <Title>Tags</Title>
           {!!subTitle && !appError.message && <SubTitle>{subTitle}</SubTitle>}
           {appError && appError.message && (
             <WarningText title={appError.message} />
           )}
         </AreaTitle>
       </Header>
-      <AreaCamera>
-        {isPreview && (
-          <AreaImagePreviewIcon>
-            <AreaImagePreview>
-              <ImagePreview source={{ uri: imagePreview }} />
-            </AreaImagePreview>
-            <AreaButtons>
-              <AreaButtonIcon>
-                <AreaButton
-                  onPress={handleBackCam}
-                  color={
-                    isLoading
-                      ? theme.colors.shape_dark
-                      : theme.colors.red_ku_crimson
-                  }
-                  disabled={isLoading}
-                >
-                  <Icon
-                    name="x"
-                    size={RFValue(30)}
-                    color={theme.colors.main_light}
-                  />
-                </AreaButton>
-              </AreaButtonIcon>
-              <AreaButtonIcon>
-                <AreaButton
-                  onPress={() => handleSendImage(imagePreview)}
-                  color={
-                    isLoading
-                      ? theme.colors.shape_dark
-                      : theme.colors.spring_green
-                  }
-                  disabled={isLoading}
-                >
-                  <Icon
-                    name="send"
-                    size={RFValue(30)}
-                    color={theme.colors.main_light}
-                  />
-                </AreaButton>
-              </AreaButtonIcon>
-            </AreaButtons>
-          </AreaImagePreviewIcon>
-        )}
-        {!isPreview && (
-          <AreaCamAndOptions>
-            <AreaOptionsButtonsCam>
-              <AreaOptions>
-                <AreaButtonsCam>
-                  <AreaButtonIcon />
-                  <AreaButtonIcon>
-                    <AreaButton
-                      disabled={isLoading}
-                      onPress={() => handleModeCam(camMode)}
-                      color={
-                        camMode === Camera.Constants.Type.back
-                          ? theme.colors.shape
-                          : theme.colors.shape_dark_light
-                      }
-                    >
-                      <Icon
-                        style={{ transform: [{ rotate: '15deg' }] }}
-                        name="refresh-ccw"
-                        size={RFValue(30)}
-                        color={
-                          camMode === Camera.Constants.Type.back
-                            ? theme.colors.yellow_orange
-                            : theme.colors.shape
-                        }
-                      />
-                    </AreaButton>
-                  </AreaButtonIcon>
-                  <AreaButtonIcon>
-                    <AreaButton
-                      disabled={isLoading}
-                      onPress={() => {
-                        handleFlashOnOff(flashMode === 'on' ? 'off' : 'on');
-                      }}
-                      color={
-                        camMode === Camera.Constants.Type.back
-                          ? theme.colors.shape
-                          : theme.colors.shape_dark_light
-                      }
-                    >
-                      <Icon
-                        style={{ transform: [{ rotate: '15deg' }] }}
-                        name="zap"
-                        size={RFValue(30)}
-                        color={
-                          camMode === Camera.Constants.Type.back
-                            ? theme.colors.yellow_orange
-                            : theme.colors.shape
-                        }
-                      />
-                    </AreaButton>
-                  </AreaButtonIcon>
-                </AreaButtonsCam>
-              </AreaOptions>
-            </AreaOptionsButtonsCam>
-            <CamBorder>
-              <Cam
-                type={camMode}
-                ref={cameraRef}
-                flashMode={Camera.Constants.FlashMode.on}
-              />
-            </CamBorder>
-            <AreaButtonsCam>
-              <AreaButtonIcon>
-                <AreaButton
-                  onPress={handleBack}
-                  color={
-                    isLoading
-                      ? theme.colors.shape_dark
-                      : theme.colors.red_ku_crimson
-                  }
-                  disabled={isLoading}
-                >
-                  <Icon
-                    name="x"
-                    size={RFValue(40)}
-                    color={theme.colors.main_light}
-                  />
-                </AreaButton>
-              </AreaButtonIcon>
-              <AreaButtonIcon>
-                <AreaButton
-                  onPress={handleImageSelect}
-                  color={
-                    isLoading
-                      ? theme.colors.shape_dark
-                      : theme.colors.yellow_own
-                  }
-                  disabled={isLoading}
-                >
-                  <Icon
-                    name="folder"
-                    size={RFValue(40)}
-                    color={theme.colors.main_light}
-                  />
-                </AreaButton>
-              </AreaButtonIcon>
-              <AreaButtonIcon>
-                <AreaButton
-                  disabled={isLoading}
-                  onPress={handleCaptureDocumentFront}
-                  color={
-                    isLoading ? theme.colors.shape_dark : theme.colors.main
-                  }
-                >
-                  <Icon
-                    name="camera"
-                    size={RFValue(40)}
-                    color={theme.colors.main_light}
-                  />
-                </AreaButton>
-              </AreaButtonIcon>
-            </AreaButtonsCam>
-          </AreaCamAndOptions>
-        )}
-      </AreaCamera>
+      <AreaList>
+        <List
+          data={tagsSelected}
+          renderItem={({ item, index }) => (
+            <AreaBoxTag selected={!!item.select}>
+              <AreaIcon />
+              <AreaButtonTag onPress={() => handleSelected(item)}>
+                <AreaButtonTag>
+                  <AreaImageTag>
+                    <ImageTag
+                      source={{ uri: item.image.link }}
+                      resizeMode="stretch"
+                    />
+                  </AreaImageTag>
+                </AreaButtonTag>
+                <AreaTitleTag>
+                  <TitleTag>{item.name}</TitleTag>
+                </AreaTitleTag>
+              </AreaButtonTag>
+            </AreaBoxTag>
+          )}
+          keyExtractor={(item, index) => String(index)}
+          getItemLayout={(data, index) => ({
+            length: 10,
+            offset: 10 * index,
+            index,
+          })}
+          numColumns={3}
+        />
+      </AreaList>
+      <AreaFooter>
+        <ButtonIcons>
+          <ButtonIcon
+            iconPosition="left"
+            iconName="x-circle"
+            title="Cancelar"
+            disabled={isLoading}
+            loading={isLoading}
+            light
+            buttonColor={theme.colors.red_ku_crimson}
+            textColor={theme.colors.shape}
+            iconColor={theme.colors.shape}
+            onPress={handleBack}
+            titleSize={20}
+          />
+          <ButtonIcon
+            iconName="chevron-right"
+            title="Enviar"
+            buttonColor={theme.colors.success}
+            textColor={theme.colors.shape}
+            iconColor={theme.colors.shape}
+            disabled={isLoading}
+            loading={isLoading}
+            titleSize={20}
+            onPress={() => handleLinkTags(tagsSelected)}
+          />
+        </ButtonIcons>
+      </AreaFooter>
     </Container>
   );
 }

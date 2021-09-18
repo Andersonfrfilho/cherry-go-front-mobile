@@ -5,6 +5,7 @@ import { CommonProvider } from './common';
 import { ClientUserProvider } from './clientUser';
 import { ProviderUserProvider } from './providerUser';
 import { UserProvider } from './user';
+import { TagProvider } from './tag';
 
 interface AppProviderProps {
   children: ReactNode;
@@ -16,7 +17,9 @@ function AppProvider({ children }: AppProviderProps) {
       <UserProvider>
         <ClientUserProvider>
           <ProviderUserProvider>
-            <AuthProvider>{children}</AuthProvider>
+            <TagProvider>
+              <AuthProvider>{children}</AuthProvider>
+            </TagProvider>
           </ProviderUserProvider>
         </ClientUserProvider>
       </UserProvider>
