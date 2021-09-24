@@ -1,13 +1,7 @@
 import React, { createContext, ReactNode, useContext, useState } from 'react';
-import { Q } from '@nozbe/watermelondb';
 import { GENDER_ENUM } from '../enums/genderType.enum';
 import { AppError } from '../errors/AppError';
 import { api } from '../services/api';
-import { UploadUserClientImageDocumentDTO, UploadUserClientImageProfileDTO, UserClientAddressRegisterDTO, UserClientPhoneCodeConfirmDTO, UserClientPhoneDTO, UserClientRegisterDTO } from './dtos';
-import { database } from '../databases';
-import { User as ModelUser } from '../databases/model/User';
-import { Address as ModelAddress } from '../databases/model/Address';
-import { UserAddress as ModelUserAddress, UserAddress } from '../databases/model/UserAddress';
 import { userRepository } from '../databases/repository/user.repository';
 import { addressRepository } from '../databases/repository/address.repository';
 import { phoneRepository } from '../databases/repository/phone.repository';
@@ -17,20 +11,39 @@ import { Buffer } from 'buffer';
 import { USER_DOCUMENT_VALUE_ENUM } from '../enums/UserDocumentValue.enum';
 import { Platform } from 'react-native';
 import { AxiosError } from 'axios';
+import { UploadUserClientImageDocumentDTO, UploadUserClientImageProfileDTO, UserClientAddressRegisterDTO, UserClientPhoneCodeConfirmDTO, UserClientPhoneDTO, UserClientRegisterDTO } from './dtos/users';
+import { Dispatch, SetStateAction } from 'hoist-non-react-statics/node_modules/@types/react';
 
 type ClientUserContextData = {
   userClient: UserClient;
+  setUserClient: Dispatch<SetStateAction<UserClient>>;
   registerClient: (userData: UserClientRegisterDTO) => Promise<void>;
   registerAddressClient: (
     addressData: UserClientAddressRegisterDTO,
   ) => Promise<void>;
-  registerPhoneClient: (phoneData:UserClientPhoneDTO) =>Promise<void>;
-  resendCodePhoneClient: (id:string)=>Promise<void>;
-  confirmCodePhoneClient: (phoneConfirm:UserClientPhoneCodeConfirmDTO)=>Promise<void>;
-  uploadUserClientImageDocument:(uploadDocumentData:UploadUserClientImageDocumentDTO)=>Promise<void>;
-  uploadUserClientImageProfile:(uploadImageProfileData:UploadUserClientImageProfileDTO)=>Promise<void>;
-  token:Token;
+  registerPhoneClient: (phoneData: UserClientPhoneDTO) => Promise<void>;
+  resendCodePhoneClient: (id: string) => Promise<void>;
+  confirmCodePhoneClient: (phoneConfirm: UserClientPhoneCodeConfirmDTO) => Promise<void>;
+  uploadUserClientImageDocument: (uploadDocumentData: UploadUserClientImageDocumentDTO) => Promise<void>;
+  uploadUserClientImageProfile: (uploadImageProfileData: UploadUserClientImageProfileDTO) => Promise<void>;
+  token: Token;
+  forgotPasswordMail(email: string): Promise<void>;
+  forgotPasswordPhone(phoneData: Ommit<UserClientPhoneDTO,'user_id'>): Promise<ForgotPasswordPhoneResponse>;
+  countdown: string;
+  phone:string;
+  setPhone:Dispatch<SetStateAction<string>>;
+  userIdResetPassword:string;
+  resetPassword(dataResetPassword: ResetPasswordProps): Promise<void>;
 };
+
+interface ResetPasswordProps{
+  password:string;
+  token:string;
+}
+interface ForgotPasswordPhoneResponse{
+  countdown:Number;
+  userId:string;
+}
 interface ClientUserProviderProps {
   children: ReactNode;
 }
@@ -85,8 +98,8 @@ export type UserClient = {
   rg: string;
   email: string;
   active: boolean;
-  password: string;
-  password_confirm: string;
+  password?: string;
+  password_confirm?: string;
   birth_date: string;
   gender: GENDER_ENUM;
   details?: any;
@@ -98,29 +111,20 @@ export type UserClient = {
 };
 
 export type Token = {
-  id?:string;
-  token?:string;
-  refresh_token?:string;
+  id?: string;
+  token?: string;
+  refresh_token?: string;
+  user_id?:string;
 }
 
-function DataURIToBlob(dataURI: string) {
-  const splitDataURI = dataURI.split(',');
-  const byteString =
-    splitDataURI[0].indexOf('base64') >= 0
-      ? Buffer.from(splitDataURI[1], 'base64').toString()
-      : decodeURI(splitDataURI[1]);
-  const mimeString = splitDataURI[0].split(':')[1].split(';')[0];
 
-  const ia = new Uint8Array(byteString.length);
-  for (let i = 0; i < byteString.length; i += 1)
-    ia[i] = byteString.charCodeAt(i);
-
-  return new Blob([ia], { type: mimeString });
-}
 
 function ClientUserProvider({ children }: ClientUserProviderProps) {
   const [userClient, setUserClient] = useState<UserClient>({} as UserClient);
   const [token, setToken] = useState<Token>({} as Token);
+  const [countdown, setCountdown] = useState(0);
+  const [phone, setPhone] = useState('');
+  const [userIdResetPassword, setUserIdResetPassword] = useState('');
 
   async function registerClient(userData: UserClientRegisterDTO) {
     try {
@@ -145,11 +149,11 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
       if (!addressData.user_id) {
         const [user] = await userRepository.findAll()
 
-        if(!user){
+        if (!user) {
           throw new AppError({
             message: '',
-            status_code:'app',
-            code:'0003' ,
+            status_code: 'app',
+            code: '0003',
           });
         }
 
@@ -166,7 +170,7 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
       await addressRepository.createOrUpdate(address)
 
     } catch (err) {
-      if(NOT_FOUND[404][4001].code===err.response.data.code&&NOT_FOUND[404][4001].status_code===err.response.status&&NOT_FOUND[404][4001].message===err.response.data.message){
+      if (NOT_FOUND[404][4001].code === err.response.data.code && NOT_FOUND[404][4001].status_code === err.response.status && NOT_FOUND[404][4001].message === err.response.data.message) {
         await userRepository.removeAllDatabase();
       }
 
@@ -186,11 +190,11 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
         const [user] = await userRepository.findAll()
 
 
-        if(!user){
+        if (!user) {
           throw new AppError({
             message: '',
-            status_code:'app',
-            code:'0003' ,
+            status_code: 'app',
+            code: '0003',
           });
         }
 
@@ -200,16 +204,16 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
         '/v1/users/clients/phones',
         phoneData,
       );
-      setToken({token})
+      setToken({ token })
 
       const [phone] = user.phones;
 
       await phoneRepository.createOrUpdate(phone)
-      await tokenRepository.createOrUpdate({token})
+      await tokenRepository.createOrUpdate({ token })
 
     } catch (err) {
 
-      if(NOT_FOUND[404][4001].code===err.response.data.code&&NOT_FOUND[404][4001].status_code===err.response.status){
+      if (NOT_FOUND[404][4001].code === err.response.data.code && NOT_FOUND[404][4001].status_code === err.response.status) {
         await userRepository.removeAllDatabase();
       }
 
@@ -222,18 +226,18 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
   }
 
   async function resendCodePhoneClient(
-   id:string
+    id: string
   ) {
     let user_id = id;
     try {
       if (!user_id) {
         const [user] = await userRepository.findAll()
 
-        if(!user){
+        if (!user) {
           throw new AppError({
             message: '',
-            status_code:'app',
-            code:'0003' ,
+            status_code: 'app',
+            code: '0003',
           });
         }
 
@@ -242,14 +246,14 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
 
       const { data: { user, token } } = await api.post(
         '/v1/users/clients/phones/resend/code',
-        {user_id},
+        { user_id },
       );
       setUserClient(user)
-      setToken({token})
+      setToken({ token })
 
-      await tokenRepository.createOrUpdate({token})
-    } catch (err:unknown | AxiosError ) {
-      if(NOT_FOUND[404][4001].code===err.response.data.code&&NOT_FOUND[404][4001].status_code===err.response.status&&NOT_FOUND[404][4001].message===err.response.data.message){
+      await tokenRepository.createOrUpdate({ token })
+    } catch (err: unknown | AxiosError) {
+      if (NOT_FOUND[404][4001].code === err.response.data.code && NOT_FOUND[404][4001].status_code === err.response.status && NOT_FOUND[404][4001].message === err.response.data.message) {
         await userRepository.removeAllDatabase();
       }
 
@@ -262,169 +266,217 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
   }
 
   async function confirmCodePhoneClient(
-    {code,token,id}:UserClientPhoneCodeConfirmDTO
-   ) {
-     let user_id = id;
-     let token_db;
-     try {
-       if (!user_id) {
-         const [user] = await userRepository.findAll()
-         const [token] = await tokenRepository.findAll()
+    { code, token, id }: UserClientPhoneCodeConfirmDTO
+  ) {
+    let token_db;
+    let user_id = id;
+    try {
+      if (!user_id) {
+        const [user] = await userRepository.findAll()
+        const [token] = await tokenRepository.findAll()
 
-         if(!user){
-           throw new AppError({
-             message: '',
-             status_code:'app',
-             code:'0003' ,
-           });
-         }
+        if (!user) {
+          throw new AppError({
+            message: '',
+            status_code: 'app',
+            code: '0003',
+          });
+        }
 
-         user_id = user.external_id;
-         token_db = token.token;
-       }
-       await api.post(
-         '/v1/users/confirm/phone',
-         {code,token:token||token_db,user_id},
-       );
-     } catch (err) {
-       if(NOT_FOUND[404][4001].code===err.response.data.code&&NOT_FOUND[404][4001].status_code===err.response.status&&NOT_FOUND[404][4001].message===err.response.data.message){
+        user_id = user.external_id;
+        token_db = token.token;
+      }
+
+      await api.post(
+        '/v1/users/confirm/phone',
+        { code, token: token || token_db, user_id },
+      );
+      setUserIdResetPassword(user_id)
+    } catch (err) {
+      if (NOT_FOUND[404][4001].code === err.response.data.code && NOT_FOUND[404][4001].status_code === err.response.status && NOT_FOUND[404][4001].message === err.response.data.message) {
         await userRepository.removeAllDatabase();
-       }
+      }
 
-       throw new AppError({
-         message: err.response.data.message,
-         status_code: err.response.status,
-         code: err.response.data.code,
-       });
-     }
-   }
+      throw new AppError({
+        message: err.response.data.message,
+        status_code: err.response.status,
+        code: err.response.data.code,
+      });
+    }
+  }
 
-   async function uploadUserClientImageDocument(
-    {image_uri,user_id,description}:UploadUserClientImageDocumentDTO
-   ) {
 
-     try {
-       if (!user_id) {
-         const [user] = await userRepository.findAll()
+  async function uploadUserClientImageDocument(
+    { image_uri, user_id, description }: UploadUserClientImageDocumentDTO
+  ) {
 
-         if(!user){
-           throw new AppError({
-             message: '',
-             status_code:'app',
-             code:'0003' ,
-           });
-         }
+    try {
+      if (!user_id) {
+        const [user] = await userRepository.findAll()
 
-         user_id = user.external_id;
-       }
-       const fileName = image_uri.split('/').pop()
+        if (!user) {
+          throw new AppError({
+            message: '',
+            status_code: 'app',
+            code: '0003',
+          });
+        }
 
-       if(!fileName){
+        user_id = user.external_id;
+      }
+      const fileName = image_uri.split('/').pop()
+
+      if (!fileName) {
         throw new AppError({
           message: '',
-          status_code:'app',
-          code:'0004' ,
+          status_code: 'app',
+          code: '0004',
         });
-       }
+      }
 
-       let match = /\.(\w+)$/.exec(fileName);
+      let match = /\.(\w+)$/.exec(fileName);
 
-       let type = match ? `image/${match[1]}` : `image`;
+      let type = match ? `image/${match[1]}` : `image`;
 
-       const formData = new FormData();
+      const formData = new FormData();
 
-       formData.append('document', {
-         uri: Platform.OS === "android" ? image_uri : image_uri.replace("file://", ""),
-         name: fileName,
-         type
-       });
+      formData.append('document', {
+        uri: Platform.OS === "android" ? image_uri : image_uri.replace("file://", ""),
+        name: fileName,
+        type
+      });
 
-       formData.append('description', description);
-       formData.append('user_id', user_id);
-       const config = {
+      formData.append('description', description);
+      formData.append('user_id', user_id);
+      const config = {
         headers: {
-            'content-type': 'multipart/form-data'
+          'content-type': 'multipart/form-data'
         }
       }
-        await api.post('/v1/users/documents/image', formData, config);
-     } catch (err) {
+      await api.post('/v1/users/documents/image', formData, config);
+    } catch (err) {
       console.log(err)
-       if(NOT_FOUND[404][4001].code===err.response.data.code&&NOT_FOUND[404][4001].status_code===err.response.status&&NOT_FOUND[404][4001].message===err.response.data.message){
+      if (NOT_FOUND[404][4001].code === err.response.data.code && NOT_FOUND[404][4001].status_code === err.response.status && NOT_FOUND[404][4001].message === err.response.data.message) {
         await userRepository.removeAllDatabase();
-       }
+      }
 
-       throw new AppError({
-         message: err.response.data.message,
-         status_code: err.response.status,
-         code: err.response.data.code,
-       });
-     }
-   }
+      throw new AppError({
+        message: err.response.data.message,
+        status_code: err.response.status,
+        code: err.response.data.code,
+      });
+    }
+  }
 
-   async function uploadUserClientImageProfile(
-    {image_uri,user_id}:UploadUserClientImageProfileDTO
-   ) {
+  async function uploadUserClientImageProfile(
+    { image_uri, user_id }: UploadUserClientImageProfileDTO
+  ) {
 
-     try {
-       if (!user_id) {
-         const [user] = await userRepository.findAll()
+    try {
+      if (!user_id) {
+        const [user] = await userRepository.findAll()
 
-         if(!user){
-           throw new AppError({
-             message: '',
-             status_code:'app',
-             code:'0003' ,
-           });
-         }
+        if (!user) {
+          throw new AppError({
+            message: '',
+            status_code: 'app',
+            code: '0003',
+          });
+        }
 
-         user_id = user.external_id;
-       }
-       const fileName = image_uri.split('/').pop()
+        user_id = user.external_id;
+      }
+      const fileName = image_uri.split('/').pop()
 
-       if(!fileName){
+      if (!fileName) {
         throw new AppError({
           message: '',
-          status_code:'app',
-          code:'0004' ,
+          status_code: 'app',
+          code: '0004',
         });
-       }
+      }
 
-       let match = /\.(\w+)$/.exec(fileName);
+      let match = /\.(\w+)$/.exec(fileName);
 
-       let type = match ? `image/${match[1]}` : `image`;
+      let type = match ? `image/${match[1]}` : `image`;
 
-       const formData = new FormData();
+      const formData = new FormData();
 
-       formData.append('image_profile', {
-         uri: Platform.OS === "android" ? image_uri : image_uri.replace("file://", ""),
-         name: fileName,
-         type
-       });
+      formData.append('image_profile', {
+        uri: Platform.OS === "android" ? image_uri : image_uri.replace("file://", ""),
+        name: fileName,
+        type
+      });
 
-       formData.append('user_id', 'b83d1b74-4015-4b27-95dd-86110dbcff32');
-       const config = {
+      formData.append('user_id', 'b83d1b74-4015-4b27-95dd-86110dbcff32');
+      const config = {
         headers: {
-            'content-type': 'multipart/form-data'
+          'content-type': 'multipart/form-data'
         }
       }
-        await api.post('/v1/users/profiles/images', formData, config);
-     } catch (err) {
+      await api.post('/v1/users/profiles/images', formData, config);
+    } catch (err) {
       console.log(err)
-       if(NOT_FOUND[404][4001].code===err.response.data.code&&NOT_FOUND[404][4001].status_code===err.response.status&&NOT_FOUND[404][4001].message===err.response.data.message){
+      if (NOT_FOUND[404][4001].code === err.response.data.code && NOT_FOUND[404][4001].status_code === err.response.status && NOT_FOUND[404][4001].message === err.response.data.message) {
         await userRepository.removeAllDatabase();
-       }
+      }
 
-       throw new AppError({
-         message: err.response.data.message,
-         status_code: err.response.status,
-         code: err.response.data.code,
-       });
-     }
-   }
+      throw new AppError({
+        message: err.response.data.message,
+        status_code: err.response.status,
+        code: err.response.data.code,
+      });
+    }
+  }
+
+  async function forgotPasswordMail(email: string) {
+    try {
+      console.log(email)
+      await api.post('/v1/users/password/forgot', {
+        email,
+        platform: Platform.OS
+      });
+    } catch (err) {
+      throw new AppError({
+        message: err.response.data.message,
+        status_code: err.response.status,
+        code: err.response.data.code,
+      });
+    }
+  }
+
+  async function forgotPasswordPhone({ country_code, ddd, number }: Omit<UserClientPhoneDTO, 'user_id'>): Promise<ForgotPasswordPhoneResponse>{
+    try {
+
+      const { data:{token, countdown,user_id} } = await api.post('/v1/users/password/forgot/phone', { country_code, ddd, number });
+      setToken({ token })
+      setCountdown(Number(countdown))
+      return {countdown:Number(countdown), userId:user_id }
+    } catch (err) {
+      throw new AppError({
+        message: err.response.data.message,
+        status_code: err.response.status,
+        code: err.response.data.code,
+      });
+    }
+  }
+
+  async function resetPassword({ password,token }: ResetPasswordProps): Promise<void>{
+    try {
+      await api.post('/v1/users/password/reset', { password,token });
+      setToken({})
+    } catch (err) {
+      throw new AppError({
+        message: err.response.data.message,
+        status_code: err.response.status,
+        code: err.response.data.code,
+      });
+    }
+  }
 
   return (
     <ClientUserContext.Provider
-      value={{ registerClient, registerAddressClient,uploadUserClientImageProfile, userClient,uploadUserClientImageDocument, registerPhoneClient, resendCodePhoneClient,confirmCodePhoneClient, token }}
+      value={{ registerClient,userIdResetPassword,resetPassword,setUserClient, phone, setPhone, registerAddressClient, uploadUserClientImageProfile, userClient, uploadUserClientImageDocument, registerPhoneClient, resendCodePhoneClient, confirmCodePhoneClient, forgotPasswordMail, token, forgotPasswordPhone, countdown }}
     >
       {children}
     </ClientUserContext.Provider>

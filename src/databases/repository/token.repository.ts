@@ -17,6 +17,7 @@ async function createOrUpdate(token: Token): Promise<ModelToken> {
           tokenExistDb.external_id = token.id;
           tokenExistDb.token = token.token;
           tokenExistDb.refresh_token = token.refresh_token;
+          tokenExistDb.user_id = token.user_id;
         });
       }
     } else {
@@ -24,6 +25,7 @@ async function createOrUpdate(token: Token): Promise<ModelToken> {
         newToken.external_id = token.id;
         newToken.token = token.token;
         newToken.refresh_token = token.refresh_token;
+        newToken.user_id = token.user_id;
       });
     }
 
@@ -34,7 +36,7 @@ async function createOrUpdate(token: Token): Promise<ModelToken> {
 }
 
 async function findAll(): Promise<ModelToken[]> {
-  const allToken = database.get<ModelToken>('tokens').query().fetch();
+  const allToken = await database.get<ModelToken>('tokens').query().fetch();
 
   return allToken;
 }

@@ -62,3 +62,8 @@ run connections
 ```powershell
 adb kill-server && adb start-server
 ```
+
+deeplinking -flag <android | ios>
+```powershell
+npx uri-scheme open cherry-go://app/splash/123 --android
+```

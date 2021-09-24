@@ -7,7 +7,19 @@ import React, {
 } from 'react';
 import { database } from '../databases';
 import { api } from '../services/api';
+import { TypeUser as ModelTypeUser } from '../databases/model/TypeUser';
 import { User as ModelUser } from '../databases/model/User';
+import { userRepository } from '../databases/repository/user.repository';
+import { tokenRepository } from '../databases/repository/token.repository';
+import { useClientUser } from './clientUser';
+import { useCommon } from './common';
+import { phoneRepository } from '../databases/repository/phone.repository';
+import { addressRepository } from '../databases/repository/address.repository';
+import { imagesRepository } from '../databases/repository/image.repository';
+import { termRepository } from '../databases/repository/term.repository';
+import { UserTypeUser } from '../databases/model/UserTypeUser';
+import { typeUserSchema } from '../databases/schema/typeUser.schema';
+import { typeUserRepository } from '../databases/repository/typeUser.repository';
 
 interface User {
   id: string;
@@ -25,11 +37,7 @@ interface SignInCredentials {
 }
 
 interface AuthContextData {
-  user: User;
   signIn: (credentials: SignInCredentials) => Promise<void>;
-  signOut: () => Promise<void>;
-  updatedUser: (user: User) => Promise<void>;
-  loading: boolean;
 }
 
 interface AuthProviderProps {
@@ -38,9 +46,34 @@ interface AuthProviderProps {
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
 function AuthProvider({ children }: AuthProviderProps) {
-  const [data, setData] = useState<User>({} as User);
-  const [loading, setLoading] = useState(false);
+  const { setIsLoading } = useCommon();
+  const { setUserClient } = useClientUser();
 
+  useEffect(() => {
+    async function loadUserData() {
+      setIsLoading(true);
+
+      const userDatabase = await userRepository.getUser();
+      console.log(userDatabase);
+      // if (userDatabase) {
+      //   api.defaults.headers.authorization = `Bearer ${responseToken.token}`;
+      //   const { active, rg, name, last_name, gender, cpf, email, user_id } =
+      //     responseUser.getUser();
+      //   setUserClient({
+      //     active,
+      //     email,
+      //     cpf,
+      //     gender,
+      //     id: user_id,
+      //     last_name,
+      //     name,
+      //     rg,
+      //   });
+      // }
+    }
+    loadUserData();
+    setIsLoading(false);
+  }, []);
   // useEffect(() => {
   //   async function loadUserData() {
   //     const userCollection = database.get<ModelUser>('users');
@@ -55,75 +88,115 @@ function AuthProvider({ children }: AuthProviderProps) {
   //   loadUserData();
   // }, []);
 
-  async function signIn({ email, password }: SignInCredentials) {
+  async function signIn({ email, password }: SignInCredentials): Promise<void> {
     try {
-      const response = await api.post('/sessions', {
+      await userRepository.removeAll();
+
+      const { data } = await api.post('/v1/users/sessions', {
         email,
         password,
       });
-
-      const { token, user } = response.data;
+      const { token, refresh_token, user } = data;
 
       api.defaults.headers.authorization = `Bearer ${token}`;
-
-      const userCollection = database.get<ModelUser>('users');
-
-      await database.write(async () => {
-        await userCollection.create(newUser => {
-          newUser.user_id = user.id;
-          newUser.name = user.name;
-          newUser.email = user.email;
-          newUser.driver_license = user.driver_license;
-          newUser.avatar = user.avatar;
-          newUser.token = token;
+      const userDatabase = await userRepository.createOrUpdate(user);
+      await tokenRepository.createOrUpdate({
+        token,
+        refresh_token,
+        user_id: userDatabase.id,
+      });
+      if (user.phones && user.phones.length > 0) {
+        const phoneDatabase = await phoneRepository.createOrUpdate(
+          user.phones[0],
+        );
+        await userRepository.createUserPhone({
+          user: userDatabase,
+          phone: phoneDatabase,
         });
-      });
-      setData({ ...user, token });
-    } catch (error) {
-      console.log(error);
-      throw new Error(String(error));
-    }
-  }
-
-  async function signOut() {
-    try {
-      const userCollection = database.get<ModelUser>('users');
-      await database.write(async () => {
-        const userSelected = await userCollection.find(data.id);
-        await userSelected.destroyPermanently();
-      });
-      setData({} as User);
-    } catch (error) {
-      console.log(error);
-      throw new Error(String(error));
-    }
-  }
-
-  async function updatedUser(user: User) {
-    try {
-      const userCollection = database.get<ModelUser>('users');
-      await database.write(async () => {
-        const userSelected = await userCollection.find(user.id);
-        await userSelected.update(userData => {
-          userData.name = user.name;
-          userData.driver_license = user.driver_license;
-          userData.avatar = user.avatar;
+      }
+      if (user.addresses && user.addresses.length > 0) {
+        const addressDatabase = await addressRepository.createOrUpdate(
+          user.addresses[0],
+        );
+        await userRepository.createUserAddress({
+          user: userDatabase,
+          address: addressDatabase,
         });
-        console.log(user);
-        setData(user);
-      });
+      }
+      if (user.image_profile && user.image_profile.length > 0) {
+        const imageProfileDatabase = await imagesRepository.createOrUpdate(
+          user.image_profile[0],
+        );
+        await userRepository.createUserImageProfile({
+          user: userDatabase,
+          imageProfile: imageProfileDatabase,
+        });
+      }
+      if (user.types && user.types.length > 0) {
+        const registerTypeUser = user.types.map((userType: ModelTypeUser) => {
+          async function registerUserType() {
+            const typeUserDatabase = await typeUserRepository.createOrUpdate(
+              userType,
+            );
+            await userRepository.createUserTypeUser({
+              user: userDatabase,
+              userType: typeUserDatabase,
+            });
+          }
+          return registerUserType();
+        });
+
+        await Promise.all(registerTypeUser);
+      }
+      if (user.term && user.term.length > 0) {
+        const termDatabase = await termRepository.createOrUpdate(user.term[0]);
+        await userRepository.createUserTerm({
+          user: userDatabase,
+          term: termDatabase,
+        });
+      }
+      setUserClient({ ...user, token });
     } catch (error) {
       console.log(error);
       throw new Error(String(error));
     }
   }
+
+  // async function signOut() {
+  //   try {
+  //     const userCollection = database.get<ModelUser>('users');
+  //     await database.write(async () => {
+  //       const userSelected = await userCollection.find(data.id);
+  //       await userSelected.destroyPermanently();
+  //     });
+  //     setData({} as User);
+  //   } catch (error) {
+  //     console.log(error);
+  //     throw new Error(String(error));
+  //   }
+  // }
+
+  // async function updatedUser(user: User) {
+  //   try {
+  //     const userCollection = database.get<ModelUser>('users');
+  //     await database.write(async () => {
+  //       const userSelected = await userCollection.find(user.id);
+  //       await userSelected.update(userData => {
+  //         userData.name = user.name;
+  //         userData.driver_license = user.driver_license;
+  //         userData.avatar = user.avatar;
+  //       });
+  //       console.log(user);
+  //       setData(user);
+  //     });
+  //   } catch (error) {
+  //     console.log(error);
+  //     throw new Error(String(error));
+  //   }
+  // }
 
   return (
-    <AuthContext.Provider
-      value={{ user: data, signIn, signOut, updatedUser, loading }}
-    >
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={{ signIn }}>{children}</AuthContext.Provider>
   );
 }
 

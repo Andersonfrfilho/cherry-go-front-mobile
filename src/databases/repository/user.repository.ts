@@ -3,6 +3,21 @@ import { database } from '..';
 import { User as ModelUser } from '../model/User';
 import { Address as ModelAddress } from '../model/Address';
 import { UserClient } from '../../hooks/clientUser';
+import { UserPhone as ModelUserPhone } from '../model/UserPhones';
+import { CreateUserPhoneDTO } from './dtos/CreateUserPhone.dto';
+import { UserAddress as ModelUserAddress } from '../model/UserAddress';
+import { CreateUserAddressDTO } from './dtos/CreateUserAddress.dto';
+import { CreateUserImageProfileDTO } from './dtos/CreateUserImageProfile.dto';
+import { UserImageProfile as ModelUserImageProfile } from '../model/UserImageProfile';
+import { UserTerm as ModelUserTerm } from '../model/UserTerm';
+import { CreateUserTermDTO } from './dtos/CreateUserTerm.dto';
+import { UserTypeUser as ModelUserTypeUser } from '../model/UserTypeUser';
+import { CreateUserTypeUserDTO } from './dtos/CreateUserTypeUser.dto';
+import { Token as ModelToken } from '../model/Token';
+import { Image as ModelImage } from '../model/Image';
+import { Phone as ModelPhone } from '../model/Phone';
+import { Term as ModelTerm } from '../model/Term';
+import { TypeUser as ModelTypeUser } from '../model/TypeUser';
 
 async function createOrUpdate(user: UserClient): Promise<ModelUser> {
   const userCollection = database.get<ModelUser>('users');
@@ -11,7 +26,6 @@ async function createOrUpdate(user: UserClient): Promise<ModelUser> {
     const [userDatabase] = await userCollection
       .query(Q.where('external_id', user.id))
       .fetch();
-
     if (userDatabase) {
       const userUpdated = await userDatabase.update(userExistDb => {
         userExistDb.external_id = user.id;
@@ -55,21 +69,117 @@ async function findByUserId(id: string): Promise<ModelUser> {
 
   return user;
 }
-
+async function getUser(): Promise<ModelUser> {
+  const [userDatabase] = await database.get<ModelUser>('users').query().fetch();
+  const user = await userDatabase.getUser();
+  return user;
+}
 async function findAll(): Promise<ModelUser[]> {
   const allUser = await database.get<ModelUser>('users').query().fetch();
   return allUser;
 }
 
 async function removeAll(): Promise<void> {
-  const usersCollection = database.get<ModelUser>('users');
+  const userCollection = database.get<ModelUser>('users');
+  const addressCollection = database.get<ModelAddress>('addresses');
+  const usersAddressCollection =
+    database.get<ModelUserAddress>('users_addresses');
+  const tokenCollection = database.get<ModelToken>('tokens');
+  const phoneCollection = database.get<ModelPhone>('phones');
+  const imageCollection = database.get<ModelImage>('images');
+  const termCollection = database.get<ModelTerm>('terms');
+  const typeUserCollection = database.get<ModelTypeUser>('types_users');
+  const userImageProfileCollection = database.get<ModelUserImageProfile>(
+    'users_images_profile',
+  );
+  const userTermCollection = database.get<ModelUserTerm>('users_terms');
+  const userPhoneCollection = database.get<ModelUserPhone>('users_phones');
+  const userTypeUserCollection =
+    database.get<ModelUserTypeUser>('users_type_users');
+
   await database.write(async () => {
-    await usersCollection.query().destroyAllPermanently();
+    await tokenCollection.query().destroyAllPermanently();
+    await usersAddressCollection.query().destroyAllPermanently();
+    await userPhoneCollection.query().destroyAllPermanently();
+    await userImageProfileCollection.query().destroyAllPermanently();
+    await userTypeUserCollection.query().destroyAllPermanently();
+    await userTermCollection.query().destroyAllPermanently();
+    await termCollection.query().destroyAllPermanently();
+    await typeUserCollection.query().destroyAllPermanently();
+    await phoneCollection.query().destroyAllPermanently();
+    await imageCollection.query().destroyAllPermanently();
+    await addressCollection.query().destroyAllPermanently();
+    await userCollection.query().destroyAllPermanently();
   });
 }
 
 async function removeAllDatabase(): Promise<void> {
-  await database.unsafeResetDatabase();
+  await database.write(async () => {
+    await database.unsafeClearDatabase();
+  });
+}
+
+async function createUserPhone({
+  user,
+  phone,
+}: CreateUserPhoneDTO): Promise<void> {
+  await database.write(async () => {
+    const userPhoneCollection = database.get<ModelUserPhone>('users_phones');
+    await userPhoneCollection.create(newUserPhone => {
+      newUserPhone.user.set(user);
+      newUserPhone.phone.set(phone);
+    });
+  });
+}
+
+async function createUserAddress({
+  user,
+  address,
+}: CreateUserAddressDTO): Promise<void> {
+  await database.write(async () => {
+    const usersAddressCollection =
+      database.get<ModelUserAddress>('users_addresses');
+    await usersAddressCollection.create(newUserAddress => {
+      newUserAddress.user.set(user);
+      newUserAddress.address.set(address);
+    });
+  });
+}
+
+async function createUserImageProfile({
+  user,
+  imageProfile,
+}: CreateUserImageProfileDTO): Promise<void> {
+  await database.write(async () => {
+    const userImageProfileCollection = database.get<ModelUserImageProfile>(
+      'users_images_profile',
+    );
+    await userImageProfileCollection.create(newUserImageProfile => {
+      newUserImageProfile.user.set(user);
+      newUserImageProfile.image.set(imageProfile);
+    });
+  });
+}
+
+async function createUserTerm({ term, user }: CreateUserTermDTO) {
+  await database.write(async () => {
+    const userTermCollection = database.get<ModelUserTerm>('users_terms');
+    await userTermCollection.create(newUserTerm => {
+      newUserTerm.user.set(user);
+      newUserTerm.term.set(term);
+    });
+  });
+}
+
+async function createUserTypeUser({ userType, user }: CreateUserTypeUserDTO) {
+  await database.write(async () => {
+    const userTypeUserCollection =
+      database.get<ModelUserTypeUser>('users_type_users');
+    await userTypeUserCollection.create(newUserTypeUser => {
+      newUserTypeUser.user.set(user);
+      newUserTypeUser.type_user.set(userType);
+    });
+  });
 }
 
 export const userRepository = {
@@ -78,4 +188,10 @@ export const userRepository = {
   createOrUpdate,
   removeAll,
   removeAllDatabase,
+  createUserPhone,
+  createUserAddress,
+  createUserImageProfile,
+  createUserTerm,
+  createUserTypeUser,
+  getUser,
 };

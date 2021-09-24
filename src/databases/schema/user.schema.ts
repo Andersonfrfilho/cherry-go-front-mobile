@@ -24,6 +24,11 @@ const userSchema = tableSchema({
       type: 'string',
     },
     {
+      name: 'details',
+      type: 'string',
+      isOptional: true,
+    },
+    {
       name: 'email',
       type: 'string',
     },

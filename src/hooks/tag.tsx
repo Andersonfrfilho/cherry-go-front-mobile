@@ -90,6 +90,7 @@ function TagProvider({ children }: TagProviderProps) {
       const queryParams = {
         params: { ...paginationProps },
       };
+
       const {
         data: { results, total },
       } = await api.get('/v1/tags', queryParams);

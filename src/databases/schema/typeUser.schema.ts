@@ -1,28 +1,24 @@
 import { tableSchema } from '@nozbe/watermelondb';
 
-const tokenSchema = tableSchema({
-  name: 'tokens',
+const typeUserSchema = tableSchema({
+  name: 'types_users',
+
   columns: [
     {
       name: 'external_id',
       type: 'string',
-      isOptional: true,
     },
     {
-      name: 'token',
+      name: 'name',
       type: 'string',
       isOptional: true,
     },
     {
-      name: 'refresh_token',
+      name: 'description',
       type: 'string',
       isOptional: true,
-    },
-    {
-      name: 'user_id',
-      type: 'string',
     },
   ],
 });
 
-export { tokenSchema };
+export { typeUserSchema };

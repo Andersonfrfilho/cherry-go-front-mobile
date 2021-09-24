@@ -4,15 +4,22 @@ import { useAuth } from '../hooks/auth';
 import { AppTabRoutes } from './app.tab.routes';
 import { AuthRoutes } from './auth.routes';
 import { LoadAnimation } from '../components/LoadAnimation';
+import { linking } from './linking';
+import { useClientUser } from '../hooks/clientUser';
+import { useCommon } from '../hooks/common';
 
 export type RootStackParamList = {
   Home: undefined;
+  HomeTab: undefined;
+  HomeTwo: undefined;
+  SelectArea: undefined;
   CarDetails: undefined;
   Scheduling: undefined;
   SchedulingComplete: undefined;
   SchedulingDetails: undefined;
   Splash: undefined;
   SignIn: undefined;
+  ForgotPassword: undefined;
   SignUpFirstStep: undefined;
   SignUpSecondStep: undefined;
   SignUpThirdStep: undefined;
@@ -23,12 +30,14 @@ export type RootStackParamList = {
 };
 
 export function Routes() {
-  const { user, loading } = useAuth();
-  return loading ? (
+  const { isLoading } = useCommon();
+  useAuth();
+  const { userClient } = useClientUser();
+  return isLoading ? (
     <LoadAnimation />
   ) : (
-    <NavigationContainer independent>
-      {user.id ? <AppTabRoutes /> : <AuthRoutes />}
+    <NavigationContainer linking={linking} independent>
+      {userClient.id ? <AppTabRoutes /> : <AuthRoutes />}
     </NavigationContainer>
   );
 }

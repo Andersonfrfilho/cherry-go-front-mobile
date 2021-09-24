@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, createRef, useEffect } from 'react';
 import * as Yup from 'yup';
 import {
   KeyboardAvoidingView,
@@ -29,6 +29,11 @@ import { FormInput } from '../../components/FormInput';
 import { ButtonIcon } from '../../components/ButtonIcon';
 import { useCommon } from '../../hooks/common';
 import { TextInputTypeEnum } from '../../enums/TextInputType.enum';
+import {
+  appErrorVerifyError,
+  VerifyErrorDTO,
+} from '../../errors/appErrorVerify';
+import { WarningText } from '../../components/WarningText';
 
 interface FormData {
   email: string;
@@ -40,6 +45,9 @@ const schema = Yup.object().shape({
     .email('Digite um e-mail válido'),
   password: Yup.string().required('A senha é obrigatória'),
 });
+export interface Focusable {
+  focus(): void;
+}
 export function SignIn() {
   const {
     control,
@@ -50,33 +58,39 @@ export function SignIn() {
     resolver: yupResolver(schema),
   });
   const theme = useTheme();
-  const { isLoading, setIsLoading, appError } = useCommon();
+  const { isLoading, setIsLoading, appError, setAppError } = useCommon();
   const { signIn } = useAuth();
   const navigation = useNavigation<ScreenNavigationProp>();
 
-  async function handleSignIn(form: FormData) {
+  const refMail = createRef<Focusable>();
+  const refPassword = createRef<Focusable>();
+
+  async function handleSignIn({ password, email }: FormData) {
     setIsLoading(true);
-    setTimeout(() => {}, 3000);
-    setIsLoading(false);
-    // try {
+    try {
+      await signIn({ email, password });
+    } catch (error) {
+      console.log(error);
+      setAppError(appErrorVerifyError(error as VerifyErrorDTO));
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
-    //   await schema.validate({ email, password });
-
-    //   await signIn({ email, password });
-    // } catch (error) {
-    //   if (error instanceof Yup.ValidationError) {
-    //     return Alert.alert('Opa', error.message);
-    //   }
-    //   Alert.alert(
-    //     'Erro na autenticação',
-    //     'Ocorreu um erro ao fazer login, verifique as credenciais',
-    //   );
-    // }
+  function handleForgotPassword() {
+    navigation.navigate('ForgotPassword');
   }
 
   function handleNewAccount() {
     navigation.navigate('SignUpFirstStep');
   }
+
+  useEffect(() => {
+    setIsLoading(false);
+    setAppError({});
+    refMail.current?.focus();
+  }, []);
+
   return (
     <KeyboardAvoidingView behavior="position" enabled style={{ flex: 1 }}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -93,7 +107,9 @@ export function SignIn() {
 
             <AreaTitle>
               <Title>Entrar</Title>
-              <SubTitle>{appError.message}</SubTitle>
+              {appError && appError.message && (
+                <WarningText title={appError.message} />
+              )}
             </AreaTitle>
           </Header>
           <Form>
@@ -106,6 +122,8 @@ export function SignIn() {
               iconSize={24}
               autoCorrect={false}
               editable={!isLoading}
+              inputRef={refMail}
+              onEndEditing={() => refPassword.current?.focus()}
             />
             <FormInput
               name="password"
@@ -116,6 +134,7 @@ export function SignIn() {
               iconSize={24}
               type={TextInputTypeEnum.password}
               editable={!isLoading}
+              inputRef={refPassword}
             />
           </Form>
           <Footer>
@@ -143,6 +162,7 @@ export function SignIn() {
                 buttonColor={theme.colors.warning_buttercup_light_shade}
                 disabled={isLoading}
                 loading={isLoading}
+                onPress={handleForgotPassword}
                 light
               />
             </ButtonIcons>

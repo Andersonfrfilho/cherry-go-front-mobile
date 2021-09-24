@@ -8,8 +8,6 @@ interface Props extends TouchableOpacityProps {
   title: string;
   iconColor?: string;
   loading?: boolean;
-  light?: boolean;
-  iconName: React.ComponentProps<typeof Feather>['name'];
   iconSize?: number;
   buttonColor?: string;
   textColor?: string;
@@ -20,8 +18,6 @@ export function CheckBox({
   title,
   iconColor,
   loading = false,
-  light = false,
-  iconName,
   iconSize = 24,
   buttonColor,
   textColor,

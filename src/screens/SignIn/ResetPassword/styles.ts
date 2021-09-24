@@ -1,23 +1,25 @@
-import styled from 'styled-components/native';
+import styled, { css } from 'styled-components/native';
 import { getStatusBarHeight } from 'react-native-iphone-x-helper';
 import { RFValue } from 'react-native-responsive-fontsize';
+import { TouchableWithoutFeedback } from 'react-native';
 
-export const Container = styled.View`
+export const KeyboardDismiss = styled(TouchableWithoutFeedback)`
+  flex: 1;
+`;
+
+export const Container = styled.View.attrs({})`
+  flex: 1;
+  justify-content: space-around;
   background-color: ${({ theme }) => theme.colors.background_primary};
-  margin-bottom: 20px;
 `;
 
 export const Header = styled.View`
-  margin-top: ${getStatusBarHeight()}px;
+  flex: 1;
+  margin-top: ${getStatusBarHeight() + 15}px;
+
   flex-direction: column;
   align-items: center;
   justify-content: center;
-`;
-
-export const AreaLogoTitle = styled.View`
-  height: ${RFValue(300)}px;
-  width: ${RFValue(300)}px;
-  margin-top: 10px;
 `;
 
 export const AreaTitle = styled.View`
@@ -33,26 +35,26 @@ export const Title = styled.Text`
 export const SubTitle = styled.Text`
   color: ${({ theme }) => theme.colors.shape};
   font-family: ${({ theme }) => theme.fonts.secondary_400};
-  background-color: ${({ theme }) =>
-    theme.colors.warning_buttercup_light_shade};
-  font-size: ${RFValue(15)}px;
+  font-size: ${RFValue(18)}px;
   margin-top: 14px;
 `;
 
 export const Form = styled.View`
-  width: 100%;
+  flex: 3;
+  justify-content: center;
   margin: 10px 0;
   padding: 0px 20px;
 `;
 
 export const Footer = styled.View`
-  flex-direction: column;
-  justify-content: flex-start;
+  justify-content: center;
 
   width: 100%;
-  height: 100%;
+  flex: 1;
 
   padding: 0px 20px;
+  margin-top: 20px;
+  margin-bottom: 20px;
 `;
 
 export const ButtonIcons = styled.View`
@@ -62,4 +64,18 @@ export const ButtonIcons = styled.View`
   justify-content: space-between;
 
   margin-top: 0px;
+`;
+
+export const TermsUseArea = styled.View`
+  flex-direction: row;
+
+  justify-content: space-around;
+  align-items: center;
+
+  margin-top: 10px;
+`;
+
+export const AreaLoad = styled.View`
+  justify-content: center;
+  align-items: center;
 `;

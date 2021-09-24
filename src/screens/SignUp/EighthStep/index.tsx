@@ -72,7 +72,7 @@ export function SignUpEighthStep() {
     try {
       await linkUserTags({
         tagsParams: tags,
-        userId: userClient.id || '094860d4-3247-4379-a691-b9a7c8131ea6',
+        userId: userClient.id,
       });
       navigation.navigate('SignIn');
     } catch (error) {
@@ -89,6 +89,7 @@ export function SignUpEighthStep() {
       setAppError({});
       try {
         const tagsResults = await getTags({});
+
         setTagsSelected(tagsResults.map(tag => ({ ...tag, select: false })));
       } catch (error) {
         console.log(error);

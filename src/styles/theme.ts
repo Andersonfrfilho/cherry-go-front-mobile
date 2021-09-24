@@ -12,6 +12,8 @@ export default {
 
     line: '#45090E',
 
+    purple_luxury: '#7646A5',
+
     blue_catalina_dark_shade: '#081871',
 
     main: '#D86593',

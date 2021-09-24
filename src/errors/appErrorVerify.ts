@@ -1,7 +1,7 @@
 import { AppError } from './AppError';
 import ConstantError from './constants';
 
-type VerifyErrorDTO = {
+export type VerifyErrorDTO = {
   status_code: number | 'app';
   code: string;
   message?: string;

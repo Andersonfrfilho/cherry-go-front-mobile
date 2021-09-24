@@ -1,14 +1,25 @@
 import { Model } from '@nozbe/watermelondb';
-import { field, lazy, children } from '@nozbe/watermelondb/decorators';
+import {
+  field,
+  lazy,
+  json,
+  children,
+  relation,
+} from '@nozbe/watermelondb/decorators';
 import { Q } from '@nozbe/watermelondb';
-import { Address } from './Address';
-import { UserAddress } from './UserAddress';
+import { sanitizeArrayString, sanitizeJson } from '..';
+import { Token } from './Token';
 
 class User extends Model {
   static table = 'users';
 
   static associations = {
     users_addresses: { type: 'has_many', foreignKey: 'user_id' },
+    users_phones: { type: 'has_many', foreignKey: 'user_id' },
+    tokens: { type: 'has_many', foreignKey: 'user_id' },
+    users_images_profile: { type: 'has_many', foreignKey: 'user_id' },
+    users_terms: { type: 'has_many', foreignKey: 'user_id' },
+    users_type_users: { type: 'has_many', foreignKey: 'user_id' },
   };
 
   @field('external_id')
@@ -29,19 +40,77 @@ class User extends Model {
   @field('gender')
   gender!: string;
 
+  @json('details', json => json)
+  details?: any;
+
   @field('email')
   email!: string;
 
   @field('active')
   active!: boolean;
 
+  @children('tokens')
+  tokens?: Token[];
+
   @lazy
   addresses = this.collections
     .get('addresses')
     .query(Q.on('users_addresses', 'user_id', this.id));
 
-  getUser() {
+  @lazy
+  phones = this.collections
+    .get('phones')
+    .query(Q.on('users_phones', 'user_id', this.id));
+
+  @lazy
+  image_profile = this.collections
+    .get('images')
+    .query(Q.on('users_images_profile', 'user_id', this.id));
+
+  @lazy
+  terms = this.collections
+    .get('terms')
+    .query(Q.on('users_terms', 'user_id', this.id));
+
+  @lazy
+  types = this.collections
+    .get('types_users')
+    .query(Q.on('users_type_users', 'user_id', this.id));
+
+  async getUser() {
+    const [address] = await this.collections
+      .get('addresses')
+      .query(Q.on('users_addresses', 'user_id', this.id))
+      .fetch();
+
+    const [phone] = await this.collections
+      .get('phones')
+      .query(Q.on('users_phones', 'user_id', this.id))
+      .fetch();
+
+    const [image_profile] = await this.collections
+      .get('images')
+      .query(Q.on('users_images_profile', 'user_id', this.id))
+      .fetch();
+
+    const typesDatabase = await this.collections
+      .get('types_users')
+      .query(Q.on('users_type_users', 'user_id', this.id))
+      .fetch();
+
+    const [terms] = await this.collections
+      .get('terms')
+      .query(Q.on('users_terms', 'user_id', this.id))
+      .fetch();
+
+    const tokensDatabase = await this.collections
+      .get('tokens')
+      .query(Q.where('user_id', this.id))
+      .fetch();
+    const tokens = tokensDatabase.map(token => token._raw);
+    const types = typesDatabase.map(type => type._raw);
     return {
+      id: this.id,
       user_id: this.external_id,
       name: this.name,
       last_name: this.last_name,
@@ -50,6 +119,13 @@ class User extends Model {
       gender: this.gender,
       email: this.email,
       active: this.active,
+      details: this.details,
+      types,
+      phones: phone._raw,
+      addresses: address._raw,
+      image_profile: image_profile._raw,
+      terms: terms._raw,
+      tokens,
     };
   }
 
