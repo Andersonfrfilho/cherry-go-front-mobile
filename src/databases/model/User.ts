@@ -7,7 +7,6 @@ import {
   relation,
 } from '@nozbe/watermelondb/decorators';
 import { Q } from '@nozbe/watermelondb';
-import { sanitizeArrayString, sanitizeJson } from '..';
 import { Token } from './Token';
 
 class User extends Model {
@@ -78,36 +77,21 @@ class User extends Model {
     .query(Q.on('users_type_users', 'user_id', this.id));
 
   async getUser() {
-    const [address] = await this.collections
-      .get('addresses')
-      .query(Q.on('users_addresses', 'user_id', this.id))
-      .fetch();
+    const [address] = await this.addresses.fetch();
 
-    const [phone] = await this.collections
-      .get('phones')
-      .query(Q.on('users_phones', 'user_id', this.id))
-      .fetch();
+    const [phone] = await this.phones.fetch();
 
-    const [image_profile] = await this.collections
-      .get('images')
-      .query(Q.on('users_images_profile', 'user_id', this.id))
-      .fetch();
+    const [image_profile] = await this.image_profile.fetch();
 
-    const typesDatabase = await this.collections
-      .get('types_users')
-      .query(Q.on('users_type_users', 'user_id', this.id))
-      .fetch();
+    const typesDatabase = await this.types.fetch();
 
-    const [terms] = await this.collections
-      .get('terms')
-      .query(Q.on('users_terms', 'user_id', this.id))
-      .fetch();
+    const [terms] = await this.terms.fetch();
 
     const tokensDatabase = await this.collections
       .get('tokens')
       .query(Q.where('user_id', this.id))
       .fetch();
-    const tokens = tokensDatabase.map(token => token._raw);
+    const [token] = tokensDatabase.map(tokenParam => tokenParam._raw);
     const types = typesDatabase.map(type => type._raw);
     return {
       id: this.id,
@@ -125,7 +109,8 @@ class User extends Model {
       addresses: address._raw,
       image_profile: image_profile._raw,
       terms: terms._raw,
-      tokens,
+      token: token?.token,
+      refresh_token: token?.refresh_token,
     };
   }
 

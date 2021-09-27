@@ -152,7 +152,7 @@ export function SelectArea() {
             newTypeUser.description = 'typeUser.description';
           },
         );
-        console.log('#############');
+
         const userTypeDatabase = await userTypeUserCollection.create(
           newUserTypeUser => {
             newUserTypeUser.user.set(userCreate);

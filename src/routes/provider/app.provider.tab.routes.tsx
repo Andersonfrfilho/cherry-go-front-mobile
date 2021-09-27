@@ -1,29 +1,29 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { TransitionPresets } from '@react-navigation/stack';
-import { useTheme } from 'styled-components';
-import { Profile } from '../screens/Profile';
-import { MyCars } from '../screens/MyCars';
+import { Feather } from '@expo/vector-icons';
+import { Profile } from '../../screens/Profile';
+import { MyCars } from '../../screens/MyCars';
 
-import CarSvg from '../assets/car.svg';
-import PeopleSvg from '../assets/people.svg';
-import { AppStackRoutes } from './app.stack.routes';
-import HomeSvg from '../assets/home.svg';
+import CarSvg from '../../assets/car.svg';
+import PeopleSvg from '../../assets/people.svg';
+import HomeSvg from '../../assets/home.svg';
+
+import { AppProviderStackRoutes } from './app.provider.stack.routes';
 
 const { Navigator, Screen } = createBottomTabNavigator();
-export function AppTabRoutes() {
-  const theme = useTheme();
+export function AppProviderTabRoutes() {
   return (
     <Navigator
       screenOptions={{
         headerShown: false,
         ...TransitionPresets.ModalPresentationIOS,
       }}
-      initialRouteName="HomeStack"
+      initialRouteName="HomeProviderStack"
     >
       <Screen
-        name="HomeStack"
-        component={AppStackRoutes}
+        name="HomeProviderStack"
+        component={AppProviderStackRoutes}
         options={{
           tabBarIcon: ({ color }) => (
             <HomeSvg width={24} height={24} fill={color} />
@@ -44,7 +44,7 @@ export function AppTabRoutes() {
         component={Profile}
         options={{
           tabBarIcon: ({ color }) => (
-            <PeopleSvg width={24} height={24} fill={color} />
+            <Feather name="settings" width={24} height={24} />
           ),
         }}
       />

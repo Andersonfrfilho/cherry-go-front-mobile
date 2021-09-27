@@ -1,51 +1,65 @@
-import { FlatList } from 'react-native';
-import { RectButton } from 'react-native-gesture-handler';
-import { RFValue } from 'react-native-responsive-fontsize';
 import styled from 'styled-components/native';
-import { Car } from '../../databases/model/Car';
+import { getStatusBarHeight } from 'react-native-iphone-x-helper';
+import { RFValue } from 'react-native-responsive-fontsize';
 
 export const Container = styled.View`
-  flex: 1;
   background-color: ${({ theme }) => theme.colors.background_primary};
+  margin-bottom: 20px;
 `;
 
 export const Header = styled.View`
-  width: 100%;
-  height: 113px;
-  background-color: ${({ theme }) => theme.colors.header};
-
-  justify-content: flex-end;
-  padding: 32px 24px;
-`;
-
-export const HeaderContent = styled.View`
-  flex-direction: row;
+  margin-top: ${getStatusBarHeight()}px;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
 `;
 
-export const TotalCars = styled.Text`
-  font-size: ${RFValue(15)}px;
-  font-family: ${({ theme }) => theme.fonts.primary_400};
+export const AreaLogoTitle = styled.View`
+  height: ${RFValue(300)}px;
+  width: ${RFValue(300)}px;
+  margin-top: 10px;
+`;
+
+export const AreaTitle = styled.View`
+  align-items: center;
+`;
+
+export const Title = styled.Text`
+  font-size: ${RFValue(35)}px;
+  font-family: ${({ theme }) => theme.fonts.primary_700};
   color: ${({ theme }) => theme.colors.text};
 `;
 
-export const CarsList = styled(FlatList as new () => FlatList<Car>).attrs({
-  contentContainerStyle: {
-    padding: 24,
-  },
-  showVerticalScrollIndicator: false,
-})``;
+export const SubTitle = styled.Text`
+  color: ${({ theme }) => theme.colors.shape};
+  font-family: ${({ theme }) => theme.fonts.secondary_400};
+  background-color: ${({ theme }) =>
+    theme.colors.warning_buttercup_light_shade};
+  font-size: ${RFValue(15)}px;
+  margin-top: 14px;
+`;
 
-export const MyCarsButton = styled(RectButton)`
-  width: 60px;
-  height: 60px;
+export const Form = styled.View`
+  width: 100%;
+  margin: 10px 0;
+  padding: 0px 20px;
+`;
 
-  border-radius: 30px;
-  justify-content: center;
-  align-items: center;
-  background-color: ${({ theme }) => theme.colors.main};
-  position: absolute;
-  bottom: 13px;
-  right: 32px;
+export const Footer = styled.View`
+  flex-direction: column;
+  justify-content: flex-start;
+
+  width: 100%;
+  height: 100%;
+
+  padding: 0px 20px;
+`;
+
+export const ButtonIcons = styled.View`
+  width: 100%;
+
+  flex-direction: row;
+  justify-content: space-between;
+
+  margin-top: 0px;
 `;

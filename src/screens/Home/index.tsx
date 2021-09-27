@@ -1,126 +1,120 @@
-import { Alert, Button, StatusBar } from 'react-native';
-import React, { useEffect, useState } from 'react';
-import { RFValue } from 'react-native-responsive-fontsize';
+import React, { createRef, useEffect } from 'react';
+import * as Yup from 'yup';
+import {
+  KeyboardAvoidingView,
+  StatusBar,
+  TouchableWithoutFeedback,
+  Keyboard,
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { synchronize } from '@nozbe/watermelondb/sync';
-
-import { useNetInfo } from '@react-native-community/netinfo';
-import Logo from '../../assets/logo.svg';
+import { useTheme } from 'styled-components';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import LogoTitleSvg from '../../assets/logo_title.svg';
 import {
   Container,
   Header,
-  TotalCars,
-  HeaderContent,
-  CarsList,
+  AreaLogoTitle,
+  AreaTitle,
+  Title,
+  Form,
+  Footer,
+  ButtonIcons,
+  SubTitle,
 } from './styles';
-import { Car } from '../../components/Car';
-import { Car as ModelCar } from '../../databases/model/Car';
-import { LoadAnimation } from '../../components/LoadAnimation';
-import { api } from '../../services/api';
-import { CarDTO } from '../../dtos/CarDTO';
+import { useAuth } from '../../hooks/auth';
 import { ScreenNavigationProp } from '../../routes/app.stack.routes';
-import { database } from '../../databases';
+import { FormInput } from '../../components/FormInput';
+import { ButtonIcon } from '../../components/ButtonIcon';
+import { useCommon } from '../../hooks/common';
+import { TextInputTypeEnum } from '../../enums/TextInputType.enum';
+import {
+  appErrorVerifyError,
+  VerifyErrorDTO,
+} from '../../errors/appErrorVerify';
+import { WarningText } from '../../components/WarningText';
 
+interface FormData {
+  email: string;
+  password: string;
+}
+const schema = Yup.object().shape({
+  email: Yup.string()
+    .required('E-mail obrigatório')
+    .email('Digite um e-mail válido'),
+  password: Yup.string().required('A senha é obrigatória'),
+});
+export interface Focusable {
+  focus(): void;
+}
 export function Home() {
-  // const [loading, setLoading] = useState(false);
-  // const [cars, setCars] = useState<ModelCar[]>([]);
+  const {
+    control,
+    handleSubmit,
+    setFocus,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(schema),
+  });
+  const theme = useTheme();
+  const { isLoading, setIsLoading, appError, setAppError } = useCommon();
+  const { signIn } = useAuth();
+  const navigation = useNavigation<ScreenNavigationProp>();
 
-  // const netInfo = useNetInfo();
-  // const navigation = useNavigation<ScreenNavigationProp>();
+  const refMail = createRef<Focusable>();
+  const refPassword = createRef<Focusable>();
 
-  // function handleCarDetails(car: CarDTO) {
-  //   navigation.navigate('CarDetails', { car });
-  // }
+  async function handleSignIn({ password, email }: FormData) {
+    setIsLoading(true);
+    try {
+      await signIn({ email, password });
+    } catch (error) {
+      console.log(error);
+      setAppError(appErrorVerifyError(error as VerifyErrorDTO));
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
-  // async function offlineSynchronize() {
-  //   await synchronize({
-  //     database,
-  //     pullChanges: async ({ lastPulledAt }) => {
-  //       const response = await api.get(
-  //         `cars/sync/pull?lastPullVersion=${lastPulledAt || 0}`,
-  //       );
-  //       const { changes, latestVersion } = response.data;
-  //       console.log(response.data);
-  //       console.log('##### changes #####');
-  //       console.log(changes);
+  function handleForgotPassword() {
+    navigation.navigate('ForgotPassword');
+  }
 
-  //       return { changes, timestamp: latestVersion };
-  //     },
-  //     pushChanges: async ({ changes }) => {
-  //       try {
-  //         const user = changes.users;
-  //         await api.post('/users/sync', user);
-  //       } catch (error) {
-  //         console.log(error);
-  //       }
-  //     },
-  //   });
-  // }
+  function handleNewAccount() {
+    navigation.navigate('SignUpFirstStep');
+  }
 
-  // useEffect(() => {
-  //   let isMounted = true;
-  //   async function fetchCars() {
-  //     setLoading(true);
-  //     try {
-  //       const carCollection = database.get<ModelCar>('cars');
-  //       const carsFounded = await carCollection.query().fetch();
-
-  //       if (carsFounded.length === 0) {
-  //         const { data } = await api.get('/cars');
-  //         console.log(data);
-  //         console.log('$$$$$$$$$$$$$$$$$$');
-  //         await database.write(async () => {
-  //           await carCollection.create(newUser => data);
-  //         });
-  //         setCars(data);
-  //         console.log('$$$$$$$$$$$$$$$$$$');
-  //       } else if (isMounted) {
-  //         setCars(carsFounded);
-  //       }
-  //     } catch (error) {
-  //       console.log(error);
-  //     } finally {
-  //       if (isMounted) {
-  //         setLoading(false);
-  //       }
-  //     }
-  //   }
-  //   fetchCars();
-  //   return () => {
-  //     isMounted = false;
-  //   };
-  // }, []);
-
-  // useEffect(() => {
-  //   if (netInfo.isConnected === true) {
-  //     offlineSynchronize();
-  //   }
-  // }, [netInfo.isConnected]);
+  useEffect(() => {
+    setIsLoading(false);
+    setAppError({});
+    refMail.current?.focus();
+  }, []);
 
   return (
-    <Container>
-      {/* <StatusBar
-        barStyle="light-content"
-        backgroundColor="transparent"
-        translucent
-      />
-      <Header>
-        <HeaderContent>
-          <Logo width={RFValue(108)} height={RFValue(12)} />
-          {!loading && <TotalCars>Total de {cars.length} carros</TotalCars>}
-        </HeaderContent>
-      </Header>
-      {loading ? (
-        <LoadAnimation />
-      ) : (
-        <CarsList
-          data={cars}
-          keyExtractor={item => String(item.id)}
-          renderItem={({ item }) => (
-            <Car data={item} onPress={() => handleCarDetails(item)} />
-          )}
-        />
-      )} */}
-    </Container>
+    <KeyboardAvoidingView behavior="position" enabled style={{ flex: 1 }}>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <Container>
+          <StatusBar
+            barStyle="light-content"
+            translucent
+            backgroundColor="transparent"
+          />
+          <Header>
+            <AreaLogoTitle>
+              <LogoTitleSvg width="100%" height="100%" />
+            </AreaLogoTitle>
+
+            <AreaTitle>
+              <Title>Home</Title>
+              {appError && appError.message && (
+                <WarningText title={appError.message} />
+              )}
+            </AreaTitle>
+          </Header>
+          <Form />
+          <Footer />
+        </Container>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 }

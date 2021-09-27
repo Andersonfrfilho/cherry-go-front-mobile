@@ -8,6 +8,7 @@ import React, {
 import { database } from '../databases';
 import { api } from '../services/api';
 import { TypeUser as ModelTypeUser } from '../databases/model/TypeUser';
+import { UserTerm as ModelUserTerm } from '../databases/model/UserTerm';
 import { User as ModelUser } from '../databases/model/User';
 import { userRepository } from '../databases/repository/user.repository';
 import { tokenRepository } from '../databases/repository/token.repository';
@@ -17,7 +18,7 @@ import { phoneRepository } from '../databases/repository/phone.repository';
 import { addressRepository } from '../databases/repository/address.repository';
 import { imagesRepository } from '../databases/repository/image.repository';
 import { termRepository } from '../databases/repository/term.repository';
-import { UserTypeUser } from '../databases/model/UserTypeUser';
+import { Term as ModelTerm } from '../databases/model/Term';
 import { typeUserSchema } from '../databases/schema/typeUser.schema';
 import { typeUserRepository } from '../databases/repository/typeUser.repository';
 
@@ -51,42 +52,16 @@ function AuthProvider({ children }: AuthProviderProps) {
 
   useEffect(() => {
     async function loadUserData() {
-      setIsLoading(true);
+      const user = await userRepository.getUser();
 
-      const userDatabase = await userRepository.getUser();
-      console.log(userDatabase);
-      // if (userDatabase) {
-      //   api.defaults.headers.authorization = `Bearer ${responseToken.token}`;
-      //   const { active, rg, name, last_name, gender, cpf, email, user_id } =
-      //     responseUser.getUser();
-      //   setUserClient({
-      //     active,
-      //     email,
-      //     cpf,
-      //     gender,
-      //     id: user_id,
-      //     last_name,
-      //     name,
-      //     rg,
-      //   });
-      // }
+      if (user) {
+        api.defaults.headers.authorization = `Bearer ${user.token}`;
+        setUserClient(user);
+      }
+      setIsLoading(false);
     }
     loadUserData();
-    setIsLoading(false);
   }, []);
-  // useEffect(() => {
-  //   async function loadUserData() {
-  //     const userCollection = database.get<ModelUser>('users');
-  //     const response = await userCollection.query().fetch();
-  //     if (response.length > 0) {
-  //       const userData = response[0]._raw as unknown as User;
-  //       api.defaults.headers.authorization = `Bearer ${userData.token}`;
-  //       setData(userData);
-  //     }
-  //     setLoading(false);
-  //   }
-  //   loadUserData();
-  // }, []);
 
   async function signIn({ email, password }: SignInCredentials): Promise<void> {
     try {
@@ -99,12 +74,15 @@ function AuthProvider({ children }: AuthProviderProps) {
       const { token, refresh_token, user } = data;
 
       api.defaults.headers.authorization = `Bearer ${token}`;
+
       const userDatabase = await userRepository.createOrUpdate(user);
+
       await tokenRepository.createOrUpdate({
         token,
         refresh_token,
         user_id: userDatabase.id,
       });
+
       if (user.phones && user.phones.length > 0) {
         const phoneDatabase = await phoneRepository.createOrUpdate(
           user.phones[0],
@@ -114,6 +92,7 @@ function AuthProvider({ children }: AuthProviderProps) {
           phone: phoneDatabase,
         });
       }
+
       if (user.addresses && user.addresses.length > 0) {
         const addressDatabase = await addressRepository.createOrUpdate(
           user.addresses[0],
@@ -123,6 +102,7 @@ function AuthProvider({ children }: AuthProviderProps) {
           address: addressDatabase,
         });
       }
+
       if (user.image_profile && user.image_profile.length > 0) {
         const imageProfileDatabase = await imagesRepository.createOrUpdate(
           user.image_profile[0],
@@ -132,6 +112,7 @@ function AuthProvider({ children }: AuthProviderProps) {
           imageProfile: imageProfileDatabase,
         });
       }
+
       if (user.types && user.types.length > 0) {
         const registerTypeUser = user.types.map((userType: ModelTypeUser) => {
           async function registerUserType() {
@@ -148,13 +129,22 @@ function AuthProvider({ children }: AuthProviderProps) {
 
         await Promise.all(registerTypeUser);
       }
+
       if (user.term && user.term.length > 0) {
-        const termDatabase = await termRepository.createOrUpdate(user.term[0]);
-        await userRepository.createUserTerm({
-          user: userDatabase,
-          term: termDatabase,
+        const registerTypeUser = user.terms.map((term: ModelTerm) => {
+          async function registerUserTerm() {
+            const termUserDatabase = await termRepository.createOrUpdate(term);
+            await userRepository.createUserTerm({
+              user: userDatabase,
+              term: termUserDatabase,
+            });
+          }
+          return registerUserTerm();
         });
+
+        await Promise.all(registerTypeUser);
       }
+
       setUserClient({ ...user, token });
     } catch (error) {
       console.log(error);

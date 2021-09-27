@@ -7,8 +7,6 @@ import { addressRepository } from '../databases/repository/address.repository';
 import { phoneRepository } from '../databases/repository/phone.repository';
 import { tokenRepository } from '../databases/repository/token.repository';
 import { NOT_FOUND } from '../errors/constants/NotFound.const';
-import { Buffer } from 'buffer';
-import { USER_DOCUMENT_VALUE_ENUM } from '../enums/UserDocumentValue.enum';
 import { Platform } from 'react-native';
 import { AxiosError } from 'axios';
 import { UploadUserClientImageDocumentDTO, UploadUserClientImageProfileDTO, UserClientAddressRegisterDTO, UserClientPhoneCodeConfirmDTO, UserClientPhoneDTO, UserClientRegisterDTO } from './dtos/users';
@@ -16,7 +14,7 @@ import { Dispatch, SetStateAction } from 'hoist-non-react-statics/node_modules/@
 
 type ClientUserContextData = {
   userClient: UserClient;
-  setUserClient: Dispatch<SetStateAction<UserClient>>;
+  setUserClient: React.Dispatch<React.SetStateAction<UserClient>>;
   registerClient: (userData: UserClientRegisterDTO) => Promise<void>;
   registerAddressClient: (
     addressData: UserClientAddressRegisterDTO,
@@ -28,21 +26,21 @@ type ClientUserContextData = {
   uploadUserClientImageProfile: (uploadImageProfileData: UploadUserClientImageProfileDTO) => Promise<void>;
   token: Token;
   forgotPasswordMail(email: string): Promise<void>;
-  forgotPasswordPhone(phoneData: Ommit<UserClientPhoneDTO,'user_id'>): Promise<ForgotPasswordPhoneResponse>;
-  countdown: string;
-  phone:string;
-  setPhone:Dispatch<SetStateAction<string>>;
-  userIdResetPassword:string;
+  forgotPasswordPhone(phoneData: Partial<UserClientPhoneDTO>): Promise<ForgotPasswordPhoneResponse>;
+  countdown: number;
+  phone: string;
+  setPhone: Dispatch<SetStateAction<string>>;
+  userIdResetPassword: string;
   resetPassword(dataResetPassword: ResetPasswordProps): Promise<void>;
 };
 
-interface ResetPasswordProps{
-  password:string;
-  token:string;
+interface ResetPasswordProps {
+  password: string;
+  token: string;
 }
-interface ForgotPasswordPhoneResponse{
-  countdown:Number;
-  userId:string;
+interface ForgotPasswordPhoneResponse {
+  countdown: Number;
+  userId: string;
 }
 interface ClientUserProviderProps {
   children: ReactNode;
@@ -68,7 +66,13 @@ type User_Type = {
     description: null | any;
   };
 };
-type Image_Profile = {};
+type Image = {
+  id: string;
+  link: string;
+}
+type Image_Profile = {
+  image: Image;
+};
 export type Phone = {
   country_code: string,
   ddd: string,
@@ -88,7 +92,6 @@ type Addresses = {
   reference?: string;
   latitude?: string;
   longitude?: string;
-  image_profile?: Image_Profile[];
 };
 export type UserClient = {
   id: string;
@@ -108,19 +111,22 @@ export type UserClient = {
   types?: User_Type[];
   term?: Term[];
   transactions?: [];
+  image_profile?: Image_Profile[];
+
 };
 
 export type Token = {
   id?: string;
   token?: string;
   refresh_token?: string;
-  user_id?:string;
+  user_id?: string;
 }
 
 
 
 function ClientUserProvider({ children }: ClientUserProviderProps) {
   const [userClient, setUserClient] = useState<UserClient>({} as UserClient);
+  const [userTypeCLient, setUserTypeCLient] = useState<UserClient>({} as UserClient);
   const [token, setToken] = useState<Token>({} as Token);
   const [countdown, setCountdown] = useState(0);
   const [phone, setPhone] = useState('');
@@ -401,7 +407,7 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
       let type = match ? `image/${match[1]}` : `image`;
 
       const formData = new FormData();
-
+      formData.append('userpic', myFileInput.files[0], 'chris.jpg');
       formData.append('image_profile', {
         uri: Platform.OS === "android" ? image_uri : image_uri.replace("file://", ""),
         name: fileName,
@@ -445,13 +451,13 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
     }
   }
 
-  async function forgotPasswordPhone({ country_code, ddd, number }: Omit<UserClientPhoneDTO, 'user_id'>): Promise<ForgotPasswordPhoneResponse>{
+  async function forgotPasswordPhone({ country_code, ddd, number }: Omit<UserClientPhoneDTO, 'user_id'>): Promise<ForgotPasswordPhoneResponse> {
     try {
 
-      const { data:{token, countdown,user_id} } = await api.post('/v1/users/password/forgot/phone', { country_code, ddd, number });
+      const { data: { token, countdown, user_id } } = await api.post('/v1/users/password/forgot/phone', { country_code, ddd, number });
       setToken({ token })
       setCountdown(Number(countdown))
-      return {countdown:Number(countdown), userId:user_id }
+      return { countdown: Number(countdown), userId: user_id }
     } catch (err) {
       throw new AppError({
         message: err.response.data.message,
@@ -461,9 +467,9 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
     }
   }
 
-  async function resetPassword({ password,token }: ResetPasswordProps): Promise<void>{
+  async function resetPassword({ password, token }: ResetPasswordProps): Promise<void> {
     try {
-      await api.post('/v1/users/password/reset', { password,token });
+      await api.post('/v1/users/password/reset', { password, token });
       setToken({})
     } catch (err) {
       throw new AppError({
@@ -476,7 +482,10 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
 
   return (
     <ClientUserContext.Provider
-      value={{ registerClient,userIdResetPassword,resetPassword,setUserClient, phone, setPhone, registerAddressClient, uploadUserClientImageProfile, userClient, uploadUserClientImageDocument, registerPhoneClient, resendCodePhoneClient, confirmCodePhoneClient, forgotPasswordMail, token, forgotPasswordPhone, countdown }}
+      value={{
+        registerClient, userIdResetPassword, resetPassword,
+        phone, setPhone, registerAddressClient, uploadUserClientImageProfile, uploadUserClientImageDocument, registerPhoneClient, resendCodePhoneClient, confirmCodePhoneClient, forgotPasswordMail, token, forgotPasswordPhone, countdown, userClient, setUserClient
+      }}
     >
       {children}
     </ClientUserContext.Provider>
