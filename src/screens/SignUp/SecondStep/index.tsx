@@ -17,14 +17,12 @@ import {
   AreaLoad,
   SubTitle,
 } from './styles';
-import { ScreenNavigationProp } from '../../../routes/app.stack.routes';
 import { FormInput } from '../../../components/FormInput';
 import { ButtonIcon } from '../../../components/ButtonIcon';
 import { useCommon } from '../../../hooks/common';
 import { SelectedPicker } from '../../../components/SelectedPicker';
 import { TextInputTypeEnum } from '../../../enums/TextInputType.enum';
 import { useClientUser } from '../../../hooks/clientUser';
-import { appErrorVerifyError } from '../../../errors/appErrorVerify';
 import { removeCharacterSpecial } from '../../../utils/validations';
 import { GENDER_ENUM } from '../../../enums/genderType.enum';
 import { Load } from '../../../components/Load';
@@ -39,6 +37,8 @@ import { SearchAbleDropDown } from '../../../components/SearchAbleDropDown';
 import { api } from '../../../services/api';
 import { BAD_REQUEST } from '../../../errors/constants/BadRequest.const';
 import { HTTP_ERROR_CODES_ENUM } from '../../../errors/AppError';
+import { useError } from '../../../hooks/error';
+import { ScreenNavigationProp } from '../../../routes';
 
 interface StateInterface {
   value: string;
@@ -109,7 +109,8 @@ export function SignUpSecondStep() {
   const refReference = createRef<Focusable>();
 
   const theme = useTheme();
-  const { isLoading, setIsLoading, appError, setAppError } = useCommon();
+  const { isLoading, setIsLoading } = useCommon();
+  const { appError, setAppError, appErrorVerifyError } = useError();
   const { registerAddressClient, userClient } = useClientUser();
   const navigation = useNavigation<ScreenNavigationProp>();
 
@@ -125,9 +126,6 @@ export function SignUpSecondStep() {
         country: 'brazil',
       });
       navigation.navigate('SignUpThirdStep');
-    } catch (error) {
-      console.log(error);
-      setAppError(appErrorVerifyError(error));
     } finally {
       setIsLoading(false);
     }
@@ -168,7 +166,6 @@ export function SignUpSecondStep() {
       setSubTitle(
         'Tivemos algum problema em trazer as cidades você pode digitar o nome dela',
       );
-      setAppError(appErrorVerifyError(error));
     } finally {
       setIsLoading(false);
     }

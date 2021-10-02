@@ -1,13 +1,13 @@
+import React, { useEffect } from 'react';
 import LottieView from 'lottie-react-native';
-import React from 'react';
 import { Container } from './styles';
-import loadingCar from '../../assets/loadingCar.json';
+import loadingCherryGo from '../../assets/animations/loading-cherries.json';
 
 export function LoadAnimation() {
   return (
     <Container>
       <LottieView
-        source={loadingCar}
+        source={loadingCherryGo}
         autoPlay
         style={{ height: 200 }}
         resizeMode="contain"

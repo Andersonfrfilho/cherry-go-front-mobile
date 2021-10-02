@@ -20,18 +20,17 @@ import {
   AreaCheckBox,
   SubTitle,
 } from './styles';
-import { ScreenNavigationProp } from '../../../routes/app.stack.routes';
 import { FormInput } from '../../../components/FormInput';
 import { ButtonIcon } from '../../../components/ButtonIcon';
 import { useCommon } from '../../../hooks/common';
 import { TextInputTypeEnum } from '../../../enums/TextInputType.enum';
 import { useClientUser } from '../../../hooks/clientUser';
-import { appErrorVerifyError } from '../../../errors/appErrorVerify';
 import { removeCharacterSpecial } from '../../../utils/validations';
 import { Load } from '../../../components/Load';
 import { WarningText } from '../../../components/WarningText';
 
 import { Button } from '../../../components/Button';
+import { useError } from '../../../hooks/error';
 
 export interface Focusable {
   focus(): void;
@@ -103,7 +102,9 @@ export function ForgotPassword() {
   const refMail = createRef<Focusable>();
 
   const theme = useTheme();
-  const { isLoading, setIsLoading, appError, setAppError } = useCommon();
+  const { isLoading, setIsLoading } = useCommon();
+  const { appError, setAppError, appErrorVerifyError } = useError();
+
   const {
     userClient,
     forgotPasswordMail,

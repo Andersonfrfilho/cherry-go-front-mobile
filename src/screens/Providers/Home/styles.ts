@@ -6,7 +6,7 @@ import FastImage from 'react-native-fast-image';
 import { Appointment } from '../../../hooks/providerUser';
 
 interface AreaInfoProps {
-  color: string;
+  color?: string;
 }
 interface AreaInfoDateProps {
   size?: number;
@@ -26,6 +26,7 @@ export const Form = styled.View`
 
 export const AreaAppointments = styled.View`
   flex: 1;
+  padding-bottom: 10px;
 `;
 
 export const AreaAppointmentTitle = styled.View`
@@ -59,9 +60,8 @@ export const AreaLogoTitle = styled.View`
 `;
 
 export const AreaTitle = styled.View`
-  flex: 4;
+  flex: 3;
   justify-content: center;
-
   padding-left: 10px;
 `;
 
@@ -86,10 +86,10 @@ export const Footer = styled.View`
 
 export const List = styled(FlatList as new () => FlatList<Appointment>)``;
 
-export const AreaAppointmentButton = styled.TouchableOpacity`
+export const AreaAppointmentButton = styled.TouchableOpacity<AreaInfoProps>`
   height: 80px;
 
-  background-color: ${({ theme }) => theme.colors.header};
+  background-color: ${({ theme, color }) => color || theme.colors.header};
 
   padding-top: 5px;
   padding-bottom: 5px;
@@ -133,6 +133,10 @@ export const IconInfoDateLocal = styled.View`
 
   padding-left: 5px;
   padding-right: 5px;
+
+  background-color: ${({ theme }) => theme.colors.blue_catalina_dark_shade};
+
+  border-radius: 6px;
 `;
 export const AreaTextInfoDateLocal = styled.View`
   flex: 1;
@@ -148,8 +152,6 @@ export const AreaInfoLocal = styled.View<AreaInfoProps>`
   flex: 1;
 
   flex-direction: row;
-
-  padding-left: 5px;
 
   background-color: ${({ color }) => color};
 
@@ -167,17 +169,28 @@ export const AreaInfoDate = styled.View<AreaInfoProps>`
 `;
 
 export const IconInfoLocal = styled.View`
-  flex: 1;
-
   justify-content: center;
   align-items: center;
 
-  margin-right: 10px;
+  padding-left: 5px;
+  padding-right: 5px;
+
+  background-color: ${({ theme }) => theme.colors.text_detail};
+
+  border-radius: 6px;
 `;
 export const AreaTextInfoLocal = styled.View`
-  flex: 4;
+  flex: 2;
 
   justify-content: center;
+
+  padding-left: 5px;
+
+  margin-left: 5px;
+
+  background-color: ${({ theme }) => theme.colors.text_detail};
+
+  border-radius: 6px;
 `;
 
 export const TextInfoLocal = styled.Text<AreaInfoDateProps>`
@@ -187,11 +200,12 @@ export const TextInfoLocal = styled.Text<AreaInfoDateProps>`
 
 export const AreaAmount = styled.View`
   flex: 1;
-  border-radius: 12px;
+  border-radius: 6px;
   margin-left: 3px;
   margin-right: 3px;
   justify-content: center;
-  background-color: ${({ theme }) => theme.colors.success};
+  align-items: center;
+  background-color: ${({ theme }) => theme.colors.success_chateau_green};
 `;
 export const ValueAmount = styled.Text<AreaInfoDateProps>`
   font-size: ${({ size }) => RFValue(size || 16)}px;

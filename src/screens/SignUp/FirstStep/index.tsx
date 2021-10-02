@@ -24,7 +24,6 @@ import {
   TermsUseArea,
   AreaLoad,
 } from './styles';
-import { ScreenNavigationProp } from '../../../routes/app.stack.routes';
 import { FormInput } from '../../../components/FormInput';
 import { ButtonIcon } from '../../../components/ButtonIcon';
 import { useCommon } from '../../../hooks/common';
@@ -35,8 +34,6 @@ import { Modal } from '../../../components/Modal';
 import { term } from '../../../constant/term.const';
 import { termWork } from '../../../constant/termWork.const';
 import { useClientUser } from '../../../hooks/clientUser';
-import { UserProviderRegisterDTO } from '../../../hooks/dtos';
-import { appErrorVerifyError } from '../../../errors/appErrorVerify';
 import {
   formattedDate,
   removeCharacterSpecial,
@@ -46,8 +43,13 @@ import {
 import { GENDER_ENUM } from '../../../enums/genderType.enum';
 import { Load } from '../../../components/Load';
 import { WarningText } from '../../../components/WarningText';
-import { UserClientRegisterDTO } from '../../../hooks/dtos/UserClient.dto';
 import { useProviderUser } from '../../../hooks/providerUser';
+import {
+  UserClientRegisterDTO,
+  UserProviderRegisterDTO,
+} from '../../../hooks/dtos/users';
+import { ScreenNavigationProp } from '../../../routes';
+import { useError } from '../../../hooks/error';
 
 interface FormData {
   name: string;
@@ -156,7 +158,8 @@ export function SignUpFirstStep() {
     { label: 'Feminino', value: GENDER_ENUM.FEMALE },
   ];
   const theme = useTheme();
-  const { isLoading, setIsLoading, appError, setAppError } = useCommon();
+  const { isLoading, setIsLoading } = useCommon();
+  const { appError, setAppError, appErrorVerifyError } = useError();
   const { registerClient } = useClientUser();
   const { registerProvider } = useProviderUser();
   const navigation = useNavigation<ScreenNavigationProp>();
@@ -210,9 +213,6 @@ export function SignUpFirstStep() {
       await registerClient(data);
       setIsLoading(false);
       navigation.replace('SignUpSecondStep');
-    } catch (error) {
-      console.log(error);
-      setAppError(appErrorVerifyError(error));
     } finally {
       setIsLoading(false);
     }

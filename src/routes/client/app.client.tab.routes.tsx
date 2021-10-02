@@ -21,7 +21,7 @@ export function AppClientTabRoutes() {
       initialRouteName="HomeClientStack"
     >
       <Screen
-        name="HomeStack"
+        name="HomeClientStack"
         component={AppClientStackRoutes}
         options={{
           tabBarIcon: ({ color }) => (

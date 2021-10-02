@@ -9,7 +9,7 @@ import CarSvg from '../../assets/car.svg';
 import PeopleSvg from '../../assets/people.svg';
 import HomeSvg from '../../assets/home.svg';
 
-import { AppProviderStackRoutes } from './app.provider.stack.routes';
+import { AppProviderDrawerRoutes } from './app.provider.drawer.routes';
 
 const { Navigator, Screen } = createBottomTabNavigator();
 export function AppProviderTabRoutes() {
@@ -19,11 +19,11 @@ export function AppProviderTabRoutes() {
         headerShown: false,
         ...TransitionPresets.ModalPresentationIOS,
       }}
-      initialRouteName="HomeProviderStack"
+      initialRouteName="HomeTabProvider"
     >
       <Screen
-        name="HomeProviderStack"
-        component={AppProviderStackRoutes}
+        name="HomeTabProvider"
+        component={AppProviderDrawerRoutes}
         options={{
           tabBarIcon: ({ color }) => (
             <HomeSvg width={24} height={24} fill={color} />

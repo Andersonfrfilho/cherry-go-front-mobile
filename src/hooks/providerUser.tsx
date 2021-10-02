@@ -1,20 +1,16 @@
-import React, {
-  createContext,
-  useEffect,
-  ReactNode,
-  useContext,
-  useState,
-} from 'react';
+import React, { createContext, ReactNode, useContext, useState } from 'react';
 import { GENDER_ENUM } from '../enums/genderType.enum';
-import { AppError } from '../errors/AppError';
 import { api } from '../services/api';
 import { useCommon } from './common';
-import { useClientUser, UserClient } from './clientUser';
+import { UserClient } from './clientUser';
 import { UserClientRegisterDTO } from './dtos/users';
+import { useError } from './error';
+import { userRepository } from '../databases/repository/user.repository';
 
 type ProviderUserContextData = {
   userProvider: UserProvider;
   registerProvider: (userData: UserClientRegisterDTO) => Promise<void>;
+  loadUserData(): Promise<void>;
 };
 
 type Term = {
@@ -92,7 +88,7 @@ type Transport = {
   id: string;
   provider_id: string;
   appointment_id: string;
-  amount: number;
+  amount: string;
   transport_type_id: string;
   origin_address_id: string;
   destination_address_id: string;
@@ -103,9 +99,9 @@ type Transport = {
   arrival_time_return: string;
   return_time: string;
   created_at: string;
-  transport_type?: TransportTypes[];
-  origin_address?: Addresses[];
-  destination_address?: Addresses[];
+  transport_type: TransportTypes[];
+  origin_address: Addresses;
+  destination_address: Addresses;
 };
 type Service = {
   id: string;
@@ -139,10 +135,10 @@ type TransactionItem = {
 
 type Transaction = {
   id: string;
-  current_amount: number;
-  original_amount: number;
-  discount_amount: number;
-  increment_amount: number;
+  current_amount: string;
+  original_amount: string;
+  discount_amount: string;
+  increment_amount: string;
   status: string;
   client_id: string;
   appointment_id: string;
@@ -160,8 +156,8 @@ export type Appointment = {
   updated_at: string;
   deleted_at: string;
   providers?: UserProvider[];
-  clients?: UserClient[];
-  transports?: Transport[];
+  clients: UserClient[];
+  transports: Transport[];
   services?: Service[];
   addresses: AddressesAppointment[];
   transactions: Transaction[];
@@ -213,42 +209,40 @@ function ProviderUserProvider({ children }: ProviderUserProviderProps) {
   const [userProvider, setUserProvider] = useState<UserProvider>(
     {} as UserProvider,
   );
-  const { setUserClient } = useClientUser();
   const { setIsLoading } = useCommon();
+  const { appErrorVerifyError } = useError();
 
-  useEffect(() => {
-    async function loadUserData() {
-      setIsLoading(true);
-      const {
-        data: { token, refresh_token },
-      } = await api.post('/v1/users/providers/sessions', {
-        email: 'royce_mraz15@gmail.com',
-        password: '102030',
-      });
+  async function loadUserData() {
+    setIsLoading(true);
+    try {
+      const user = await userRepository.getUser();
+
       const headers = {
         headers: {
-          Authorization: `token ${token}`,
+          Authorization: `token ${user?.token}`,
         },
       };
       const {
-        data: { provider },
+        data: { provider, token, refresh_token },
       } = await api.get('/v1/users/providers/me', headers);
 
       if (token && provider) {
         api.defaults.headers.authorization = `Bearer ${token}`;
         setUserProvider({ ...provider, token, refresh_token });
       }
+    } catch (err) {
+      appErrorVerifyError(err);
+    } finally {
       setIsLoading(false);
     }
-    loadUserData();
-  }, []);
+  }
 
   async function registerProvider(userData: UserClientRegisterDTO) {
     try {
       const { data } = await api.post('/v1/users/providers', userData);
       setUserProvider(data);
     } catch (err) {
-      throw new AppError({
+      appErrorVerifyError({
         message: err.response.data.message,
         status_code: err.response.status,
         code: err.response.data.code,
@@ -257,7 +251,9 @@ function ProviderUserProvider({ children }: ProviderUserProviderProps) {
   }
 
   return (
-    <ProviderUserContext.Provider value={{ registerProvider, userProvider }}>
+    <ProviderUserContext.Provider
+      value={{ registerProvider, loadUserData, userProvider }}
+    >
       {children}
     </ProviderUserContext.Provider>
   );

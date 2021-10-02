@@ -5,6 +5,7 @@ import {
   StatusBar,
   TouchableWithoutFeedback,
   Keyboard,
+  Button,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from 'styled-components';
@@ -23,16 +24,14 @@ import {
   SubTitle,
 } from './styles';
 import { useAuth } from '../../hooks/auth';
-import { ScreenNavigationProp } from '../../routes/app.stack.routes';
 import { FormInput } from '../../components/FormInput';
 import { ButtonIcon } from '../../components/ButtonIcon';
 import { useCommon } from '../../hooks/common';
 import { TextInputTypeEnum } from '../../enums/TextInputType.enum';
-import {
-  appErrorVerifyError,
-  VerifyErrorDTO,
-} from '../../errors/appErrorVerify';
+
 import { WarningText } from '../../components/WarningText';
+import { useError } from '../../hooks/error';
+import { ScreenNavigationProp } from '../../routes';
 
 interface FormData {
   email: string;
@@ -57,8 +56,9 @@ export function Home() {
     resolver: yupResolver(schema),
   });
   const theme = useTheme();
-  const { isLoading, setIsLoading, appError, setAppError } = useCommon();
-  const { signIn } = useAuth();
+  const { isLoading, setIsLoading } = useCommon();
+  const { appError, setAppError } = useError();
+  const { signIn, signOut } = useAuth();
   const navigation = useNavigation<ScreenNavigationProp>();
 
   const refMail = createRef<Focusable>();
@@ -68,20 +68,14 @@ export function Home() {
     setIsLoading(true);
     try {
       await signIn({ email, password });
-    } catch (error) {
-      console.log(error);
-      setAppError(appErrorVerifyError(error as VerifyErrorDTO));
     } finally {
       setIsLoading(false);
     }
   }
 
-  function handleForgotPassword() {
-    navigation.navigate('ForgotPassword');
-  }
-
-  function handleNewAccount() {
-    navigation.navigate('SignUpFirstStep');
+  async function handleLogout() {
+    await signOut();
+    navigation.navigate('SignIn');
   }
 
   useEffect(() => {
@@ -111,7 +105,9 @@ export function Home() {
               )}
             </AreaTitle>
           </Header>
-          <Form />
+          <Form>
+            <Button onPress={handleLogout} title="logout" />
+          </Form>
           <Footer />
         </Container>
       </TouchableWithoutFeedback>

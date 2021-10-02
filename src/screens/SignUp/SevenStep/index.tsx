@@ -33,16 +33,15 @@ import {
   CamBorder,
   AreaCamAndOptions,
 } from './styles';
-import { ScreenNavigationProp } from '../../../routes/app.stack.routes';
 import { ButtonIcon } from '../../../components/ButtonIcon';
 import { useCommon } from '../../../hooks/common';
 import { useClientUser } from '../../../hooks/clientUser';
 import { Load } from '../../../components/Load';
 import { WarningText } from '../../../components/WarningText';
 import { ButtonOnlyIcon } from '../../../components/ButtonOnlyIcon';
-import { appErrorVerifyError } from '../../../errors/appErrorVerify';
 import { api } from '../../../services/api';
 import { USER_DOCUMENT_VALUE_ENUM } from '../../../enums/UserDocumentValue.enum';
+import { useError } from '../../../hooks/error';
 
 export interface TakePicture {
   takePictureAsync(
@@ -63,7 +62,8 @@ export function SignUpSevenStep() {
 
   const cameraRef = useRef<TakePicture>();
   const theme = useTheme();
-  const { isLoading, setIsLoading, appError, setAppError } = useCommon();
+  const { isLoading, setIsLoading } = useCommon();
+  const { appError, setAppError, appErrorVerifyError } = useError();
   const { userClient, uploadUserClientImageDocument } = useClientUser();
 
   const navigation = useNavigation<ScreenNavigationProp>();

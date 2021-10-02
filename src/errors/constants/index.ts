@@ -9,7 +9,7 @@ import { TOO_MANY_REQUESTS } from './TooManyRequest.const';
 import { INTERNAL_SERVER_ERROR } from './InternalServerError.const';
 import { APPLICATION_ERROR } from './ApplicationError.const';
 
-export default {
+export const ConstantError = {
   ...BAD_REQUEST,
   ...UNAUTHORIZED,
   ...FORBIDDEN,

@@ -12,7 +12,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import BrandSvg from '../../assets/brand.svg';
 import LogoSvg from '../../assets/logo.svg';
-import { RootStackParamList } from '../../routes/app.stack.routes';
+import { RootStackParamList } from '../../routes';
 import { Container } from './styles';
 
 export type HomeScreenNavigationProp = StackNavigationProp<

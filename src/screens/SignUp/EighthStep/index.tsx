@@ -24,15 +24,15 @@ import {
   AreaButtonTag,
   ButtonIcons,
 } from './styles';
-import { ScreenNavigationProp } from '../../../routes/app.stack.routes';
 import { useCommon } from '../../../hooks/common';
 
 import { WarningText } from '../../../components/WarningText';
 import { ButtonIcon } from '../../../components/ButtonIcon';
 import { Tag, useTag } from '../../../hooks/tag';
-import { appErrorVerifyError } from '../../../errors/appErrorVerify';
 import { Load } from '../../../components/Load';
 import { useClientUser } from '../../../hooks/clientUser';
+import { useError } from '../../../hooks/error';
+import { ScreenNavigationProp } from '../../../routes';
 
 export interface TagSelected extends Tag {
   select?: boolean;
@@ -45,9 +45,11 @@ export function SignUpEighthStep() {
   );
 
   const theme = useTheme();
-  const { isLoading, setIsLoading, appError, setAppError } = useCommon();
+  const { isLoading, setIsLoading } = useCommon();
+  const { appError, setAppError } = useError();
   const { userClient } = useClientUser();
   const { getTags, linkUserTags } = useTag();
+  const { appErrorVerifyError } = useError();
 
   const navigation = useNavigation<ScreenNavigationProp>();
 
@@ -75,9 +77,6 @@ export function SignUpEighthStep() {
         userId: userClient.id,
       });
       navigation.navigate('SignIn');
-    } catch (error) {
-      console.log(error);
-      setAppError(appErrorVerifyError(error));
     } finally {
       setIsLoading(false);
     }
@@ -91,9 +90,6 @@ export function SignUpEighthStep() {
         const tagsResults = await getTags({});
 
         setTagsSelected(tagsResults.map(tag => ({ ...tag, select: false })));
-      } catch (error) {
-        console.log(error);
-        setAppError(appErrorVerifyError(error));
       } finally {
         setIsLoading(false);
       }

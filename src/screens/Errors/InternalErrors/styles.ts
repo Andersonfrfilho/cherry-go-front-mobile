@@ -1,8 +1,6 @@
 import styled from 'styled-components/native';
 import { getStatusBarHeight } from 'react-native-iphone-x-helper';
 import { RFValue } from 'react-native-responsive-fontsize';
-import { Feather } from '@expo/vector-icons';
-import { TouchableOpacity } from 'react-native';
 
 export const Container = styled.View`
   flex: 1;
@@ -10,30 +8,13 @@ export const Container = styled.View`
 `;
 
 export const Header = styled.View`
-  margin-top: ${getStatusBarHeight()}px;
+  margin-top: ${getStatusBarHeight() + 18}px;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  flex: 1;
 `;
-export const AreaButtonLogout = styled.View`
-  height: 60px;
-  width: 100%;
 
-  align-items: flex-end;
-
-  padding-right: 10px;
-`;
-export const AreaButtonIcon = styled(TouchableOpacity)`
-  height: 50px;
-  width: 50px;
-
-  justify-content: center;
-  align-items: center;
-
-  background-color: ${({ theme }) => theme.colors.header};
-
-  border-radius: 12px;
-`;
 export const AreaLogoTitle = styled.View`
   height: ${RFValue(300)}px;
   width: ${RFValue(300)}px;
@@ -41,10 +22,10 @@ export const AreaLogoTitle = styled.View`
 `;
 
 export const AreaTitle = styled.View`
+  height: 60px;
+  padding: 0 20px;
   align-items: center;
 `;
-
-export const Icon = styled(Feather)``;
 
 export const Title = styled.Text`
   font-size: ${RFValue(35)}px;
@@ -60,15 +41,26 @@ export const SubTitle = styled.Text`
   font-size: ${RFValue(15)}px;
   margin-top: 14px;
 `;
-export const Body = styled.View`
+
+export const Form = styled.View`
   flex: 1;
-  margin-top: 15px;
-  padding: 0 20px;
+  margin: 10px 0;
+  padding: 0px 20px;
+`;
+
+export const Footer = styled.View`
+  flex: 1;
+
+  justify-content: center;
+
+  padding: 0px 20px;
 `;
 
 export const ButtonIcons = styled.View`
-  flex: 1;
+  width: 100%;
 
-  justify-content: space-evenly;
-  align-items: center;
+  flex-direction: row;
+  justify-content: space-between;
+
+  margin-top: 0px;
 `;

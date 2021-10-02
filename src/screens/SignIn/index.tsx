@@ -24,16 +24,14 @@ import {
   SubTitle,
 } from './styles';
 import { useAuth } from '../../hooks/auth';
-import { ScreenNavigationProp } from '../../routes/app.stack.routes';
 import { FormInput } from '../../components/FormInput';
 import { ButtonIcon } from '../../components/ButtonIcon';
 import { useCommon } from '../../hooks/common';
 import { TextInputTypeEnum } from '../../enums/TextInputType.enum';
-import {
-  appErrorVerifyError,
-  VerifyErrorDTO,
-} from '../../errors/appErrorVerify';
+
 import { WarningText } from '../../components/WarningText';
+import { useError } from '../../hooks/error';
+import { ScreenNavigationProp } from '../../routes';
 
 interface FormData {
   email: string;
@@ -58,7 +56,8 @@ export function SignIn() {
     resolver: yupResolver(schema),
   });
   const theme = useTheme();
-  const { isLoading, setIsLoading, appError, setAppError } = useCommon();
+  const { isLoading, setIsLoading } = useCommon();
+  const { appError } = useError();
   const { signIn } = useAuth();
   const navigation = useNavigation<ScreenNavigationProp>();
 
@@ -69,9 +68,6 @@ export function SignIn() {
     setIsLoading(true);
     try {
       await signIn({ email, password });
-    } catch (error) {
-      console.log(error);
-      setAppError(appErrorVerifyError(error as VerifyErrorDTO));
     } finally {
       setIsLoading(false);
     }
@@ -84,12 +80,6 @@ export function SignIn() {
   function handleNewAccount() {
     navigation.navigate('SignUpFirstStep');
   }
-
-  useEffect(() => {
-    setIsLoading(false);
-    setAppError({});
-    refMail.current?.focus();
-  }, []);
 
   return (
     <KeyboardAvoidingView behavior="position" enabled style={{ flex: 1 }}>

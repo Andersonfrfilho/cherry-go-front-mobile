@@ -30,16 +30,16 @@ import {
   AreaButtonIcon,
   AreaButtonsCam,
 } from './styles';
-import { ScreenNavigationProp } from '../../../routes/app.stack.routes';
 import { ButtonIcon } from '../../../components/ButtonIcon';
 import { useCommon } from '../../../hooks/common';
 import { useClientUser } from '../../../hooks/clientUser';
 import { Load } from '../../../components/Load';
 import { WarningText } from '../../../components/WarningText';
 import { ButtonOnlyIcon } from '../../../components/ButtonOnlyIcon';
-import { appErrorVerifyError } from '../../../errors/appErrorVerify';
 import { api } from '../../../services/api';
 import { USER_DOCUMENT_VALUE_ENUM } from '../../../enums/UserDocumentValue.enum';
+import { useError } from '../../../hooks/error';
+import { ScreenNavigationProp } from '../../../routes';
 
 export interface TakePicture {
   takePictureAsync(
@@ -59,7 +59,8 @@ export function SignUpFourthStep() {
 
   const cameraRef = useRef<TakePicture>();
   const theme = useTheme();
-  const { isLoading, setIsLoading, appError, setAppError } = useCommon();
+  const { isLoading, setIsLoading } = useCommon();
+  const { appError, setAppError, appErrorVerifyError } = useError();
   const { userClient, uploadUserClientImageDocument } = useClientUser();
 
   const navigation = useNavigation<ScreenNavigationProp>();
@@ -93,9 +94,6 @@ export function SignUpFourthStep() {
         setImagePreview(result.uri);
         setIsPreview(true);
       }
-    } catch (error) {
-      console.log(error);
-      setAppError(appErrorVerifyError(error));
     } finally {
       setIsLoading(false);
     }
@@ -116,9 +114,6 @@ export function SignUpFourthStep() {
           setIsPreview(true);
         }
       }
-    } catch (error) {
-      console.log(error);
-      setAppError(appErrorVerifyError(error));
     } finally {
       setIsLoading(false);
     }
@@ -135,8 +130,6 @@ export function SignUpFourthStep() {
         description: USER_DOCUMENT_VALUE_ENUM.FRONT,
       });
       navigation.replace('SignUpFifthStep');
-    } catch (error) {
-      setAppError(appErrorVerifyError(error));
     } finally {
       setIsLoading(false);
     }

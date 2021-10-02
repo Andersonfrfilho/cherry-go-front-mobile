@@ -69,8 +69,11 @@ async function findByUserId(id: string): Promise<ModelUser> {
 
   return user;
 }
-async function getUser(): Promise<ModelUser> {
+async function getUser(): Promise<ModelUser | null> {
   const [userDatabase] = await database.get<ModelUser>('users').query().fetch();
+  if (!userDatabase) {
+    return null;
+  }
   const user = await userDatabase.getUser();
   return user;
 }
@@ -161,24 +164,30 @@ async function createUserImageProfile({
   });
 }
 
-async function createUserTerm({ term, user }: CreateUserTermDTO) {
+async function createUserTerm(userTerms: CreateUserTermDTO[]) {
   await database.write(async () => {
     const userTermCollection = database.get<ModelUserTerm>('users_terms');
-    await userTermCollection.create(newUserTerm => {
-      newUserTerm.user.set(user);
-      newUserTerm.term.set(term);
+    const functionUserTerm = userTerms.map(async userTerm => {
+      await userTermCollection.create(newUserTerm => {
+        newUserTerm.user.set(userTerm.user);
+        newUserTerm.term.set(userTerm.term);
+      });
     });
+    await Promise.all(functionUserTerm);
   });
 }
 
-async function createUserTypeUser({ userType, user }: CreateUserTypeUserDTO) {
+async function createUserTypeUser(users_types_users: CreateUserTypeUserDTO[]) {
   await database.write(async () => {
     const userTypeUserCollection =
       database.get<ModelUserTypeUser>('users_type_users');
-    await userTypeUserCollection.create(newUserTypeUser => {
-      newUserTypeUser.user.set(user);
-      newUserTypeUser.type_user.set(userType);
+    const functionUserTypesUser = users_types_users.map(async userTypeUser => {
+      await userTypeUserCollection.create(newUserTypeUser => {
+        newUserTypeUser.user.set(userTypeUser.user);
+        newUserTypeUser.type_user.set(userTypeUser.userType);
+      });
     });
+    await Promise.all(functionUserTypesUser);
   });
 }
 

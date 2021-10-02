@@ -17,15 +17,15 @@ import {
   AreaLoad,
   SubTitle,
 } from './styles';
-import { ScreenNavigationProp } from '../../../routes/app.stack.routes';
 import { FormInput } from '../../../components/FormInput';
 import { ButtonIcon } from '../../../components/ButtonIcon';
 import { useCommon } from '../../../hooks/common';
 import { TextInputTypeEnum } from '../../../enums/TextInputType.enum';
 import { useClientUser } from '../../../hooks/clientUser';
-import { appErrorVerifyError } from '../../../errors/appErrorVerify';
 import { Load } from '../../../components/Load';
 import { WarningText } from '../../../components/WarningText';
+import { useError } from '../../../hooks/error';
+import { ScreenNavigationProp } from '../../../routes';
 
 export interface Focusable {
   focus(): void;
@@ -59,7 +59,8 @@ export function ResetPassword() {
   const refConfirmPassword = createRef<Focusable>();
 
   const theme = useTheme();
-  const { isLoading, setIsLoading, appError, setAppError } = useCommon();
+  const { isLoading, setIsLoading } = useCommon();
+  const { appError, setAppError, appErrorVerifyError } = useError();
   const { resetPassword, token } = useClientUser();
   const navigation = useNavigation<ScreenNavigationProp>();
 

@@ -1,17 +1,10 @@
-import React, {
-  createContext,
-  ReactNode,
-  useContext,
-  useState,
-  useEffect,
-} from 'react';
+import React, { createContext, ReactNode, useContext, useState } from 'react';
 import { Dispatch, SetStateAction } from 'react';
 import { userRepository } from '../databases/repository/user.repository';
-import { AppError } from '../errors/AppError';
-import { ErrorData } from '../errors/Error.type';
 import { api } from '../services/api';
 import { PaginationRequestPropsDTO } from './dtos/PaginationProps.dto';
 import { LinkUserTagsPropsDTO } from './dtos/tags';
+import { useError } from './error';
 
 type Image = {
   id: string;
@@ -29,7 +22,7 @@ type TagContextData = {
   setTags: Dispatch<SetStateAction<Tag[]>>;
   totalTags: number;
   getTags: (paginationProps: PaginationRequestPropsDTO) => Promise<Tag[]>;
-  linkUserTags: (paginationProps: LinkUserTagsPropsDTO) => Promise<Tag[]>;
+  linkUserTags: (paginationProps: LinkUserTagsPropsDTO) => Promise<void>;
 };
 
 interface TagProviderProps {
@@ -42,13 +35,15 @@ function TagProvider({ children }: TagProviderProps) {
   const [tags, setTags] = useState<Tag[]>([] as Tag[]);
   const [totalTags, setTotalTags] = useState<number>(0);
 
+  const { appErrorVerifyError } = useError();
+
   async function linkUserTags({ tagsParams, userId }: LinkUserTagsPropsDTO) {
     try {
       if (!userId) {
         const [user] = await userRepository.findAll();
 
         if (!user) {
-          throw new AppError({
+          appErrorVerifyError({
             message: '',
             status_code: 'app',
             code: '0003',
@@ -77,7 +72,7 @@ function TagProvider({ children }: TagProviderProps) {
         client_tags_exclude: tagsNotUsers,
       });
     } catch (err) {
-      throw new AppError({
+      appErrorVerifyError({
         message: err.response.data.message,
         status_code: err.response.status,
         code: err.response.data.code,
@@ -99,7 +94,7 @@ function TagProvider({ children }: TagProviderProps) {
       setTotalTags(total);
       return results;
     } catch (err) {
-      throw new AppError({
+      appErrorVerifyError({
         message: err.response.data.message,
         status_code: err.response.status,
         code: err.response.data.code,

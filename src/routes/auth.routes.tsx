@@ -14,6 +14,7 @@ import { SignUpSevenStep } from '../screens/SignUp/SevenStep';
 import { SignUpEighthStep } from '../screens/SignUp/EighthStep';
 import { ForgotPassword } from '../screens/SignIn/ForgotPassword';
 import { ResetPassword } from '../screens/SignIn/ResetPassword';
+import { InternalServerErrorScreen } from '../screens/Errors/InternalErrors';
 
 const { Navigator, Screen } = createNativeStackNavigator();
 
@@ -40,6 +41,10 @@ export function AuthRoutes() {
       <Screen name="SignUpSevenStep" component={SignUpSevenStep} />
       <Screen name="SignUpEighthStep" component={SignUpEighthStep} />
       <Screen name="Confirmation" component={Confirmation} />
+      <Screen
+        name="InternalServerErrorScreen"
+        component={InternalServerErrorScreen}
+      />
     </Navigator>
   );
 }

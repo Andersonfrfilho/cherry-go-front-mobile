@@ -1,32 +1,22 @@
-import React, {
-  createContext,
-  ReactNode,
-  useContext,
-  useState,
-  useEffect,
-} from 'react';
+import React, { createContext, ReactNode, useContext, useState } from 'react';
 import { Dispatch, SetStateAction } from 'react';
-import { ErrorData } from '../errors/Error.type';
 
 type CommonContextData = {
   isLoading: boolean;
-  appError: Partial<ErrorData>;
-  setAppError: Dispatch<SetStateAction<Partial<ErrorData>>>;
   setIsLoading: Dispatch<SetStateAction<boolean>>;
 };
+
 interface CommonProviderProps {
   children: ReactNode;
 }
+
 const CommonContext = createContext<CommonContextData>({} as CommonContextData);
 
 function CommonProvider({ children }: CommonProviderProps) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [appError, setAppError] = useState<Partial<ErrorData>>({});
 
   return (
-    <CommonContext.Provider
-      value={{ isLoading, setIsLoading, appError, setAppError }}
-    >
+    <CommonContext.Provider value={{ isLoading, setIsLoading }}>
       {children}
     </CommonContext.Provider>
   );

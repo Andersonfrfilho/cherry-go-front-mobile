@@ -1,5 +1,7 @@
 import 'react-native-gesture-handler';
 import { registerRootComponent } from 'expo';
+import 'intl';
+import 'intl/locale-data/jsonp/pt-BR';
 
 import App from './App';
 

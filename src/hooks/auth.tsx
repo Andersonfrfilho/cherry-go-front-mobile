@@ -12,7 +12,7 @@ import { UserTerm as ModelUserTerm } from '../databases/model/UserTerm';
 import { User as ModelUser } from '../databases/model/User';
 import { userRepository } from '../databases/repository/user.repository';
 import { tokenRepository } from '../databases/repository/token.repository';
-import { useClientUser } from './clientUser';
+import { useClientUser, UserClient } from './clientUser';
 import { useCommon } from './common';
 import { phoneRepository } from '../databases/repository/phone.repository';
 import { addressRepository } from '../databases/repository/address.repository';
@@ -21,6 +21,8 @@ import { termRepository } from '../databases/repository/term.repository';
 import { Term as ModelTerm } from '../databases/model/Term';
 import { typeUserSchema } from '../databases/schema/typeUser.schema';
 import { typeUserRepository } from '../databases/repository/typeUser.repository';
+import * as RootNavigation from '../routes/RootNavigation';
+import { useError } from './error';
 
 interface User {
   id: string;
@@ -39,6 +41,7 @@ interface SignInCredentials {
 
 interface AuthContextData {
   signIn: (credentials: SignInCredentials) => Promise<void>;
+  signOut: () => Promise<void>;
 }
 
 interface AuthProviderProps {
@@ -49,7 +52,7 @@ const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 function AuthProvider({ children }: AuthProviderProps) {
   const { setIsLoading } = useCommon();
   const { setUserClient } = useClientUser();
-
+  const { appErrorVerifyError } = useError();
   useEffect(() => {
     async function loadUserData() {
       const user = await userRepository.getUser();
@@ -72,7 +75,6 @@ function AuthProvider({ children }: AuthProviderProps) {
         password,
       });
       const { token, refresh_token, user } = data;
-
       api.defaults.headers.authorization = `Bearer ${token}`;
 
       const userDatabase = await userRepository.createOrUpdate(user);
@@ -114,57 +116,47 @@ function AuthProvider({ children }: AuthProviderProps) {
       }
 
       if (user.types && user.types.length > 0) {
-        const registerTypeUser = user.types.map((userType: ModelTypeUser) => {
-          async function registerUserType() {
-            const typeUserDatabase = await typeUserRepository.createOrUpdate(
-              userType,
-            );
-            await userRepository.createUserTypeUser({
-              user: userDatabase,
-              userType: typeUserDatabase,
-            });
-          }
-          return registerUserType();
-        });
+        const typeUserDatabase = await typeUserRepository.createOrUpdate(
+          user.types,
+        );
 
-        await Promise.all(registerTypeUser);
+        const userTypeUsers = typeUserDatabase.map(userType => ({
+          user: userDatabase,
+          userType,
+        }));
+
+        await userRepository.createUserTypeUser(userTypeUsers);
       }
 
-      if (user.term && user.term.length > 0) {
-        const registerTypeUser = user.terms.map((term: ModelTerm) => {
-          async function registerUserTerm() {
-            const termUserDatabase = await termRepository.createOrUpdate(term);
-            await userRepository.createUserTerm({
-              user: userDatabase,
-              term: termUserDatabase,
-            });
-          }
-          return registerUserTerm();
-        });
-
-        await Promise.all(registerTypeUser);
+      if (user.terms && user.terms.length > 0) {
+        const termUserDatabase = await termRepository.createOrUpdate(
+          user.terms,
+        );
+        const userTerms = termUserDatabase.map(term => ({
+          user: userDatabase,
+          term,
+        }));
+        await userRepository.createUserTerm(userTerms);
       }
 
       setUserClient({ ...user, token });
     } catch (error) {
       console.log(error);
-      throw new Error(String(error));
+      appErrorVerifyError(error);
     }
   }
 
-  // async function signOut() {
-  //   try {
-  //     const userCollection = database.get<ModelUser>('users');
-  //     await database.write(async () => {
-  //       const userSelected = await userCollection.find(data.id);
-  //       await userSelected.destroyPermanently();
-  //     });
-  //     setData({} as User);
-  //   } catch (error) {
-  //     console.log(error);
-  //     throw new Error(String(error));
-  //   }
-  // }
+  async function signOut() {
+    setIsLoading(true);
+    try {
+      await userRepository.removeAll();
+      setUserClient({} as UserClient);
+    } catch (error) {
+      appErrorVerifyError(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
   // async function updatedUser(user: User) {
   //   try {
@@ -186,7 +178,9 @@ function AuthProvider({ children }: AuthProviderProps) {
   // }
 
   return (
-    <AuthContext.Provider value={{ signIn }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ signIn, signOut }}>
+      {children}
+    </AuthContext.Provider>
   );
 }
 

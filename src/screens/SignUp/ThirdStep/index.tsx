@@ -18,19 +18,19 @@ import {
   AreaCount,
   SubTitle,
 } from './styles';
-import { ScreenNavigationProp } from '../../../routes/app.stack.routes';
 import { FormInput } from '../../../components/FormInput';
 import { ButtonIcon } from '../../../components/ButtonIcon';
 import { useCommon } from '../../../hooks/common';
 import { TextInputTypeEnum } from '../../../enums/TextInputType.enum';
 import { useClientUser } from '../../../hooks/clientUser';
-import { appErrorVerifyError } from '../../../errors/appErrorVerify';
 import { removeCharacterSpecial } from '../../../utils/validations';
 import { Load } from '../../../components/Load';
 import { WarningText } from '../../../components/WarningText';
 
 import { Focusable } from '../FirstStep';
 import { Button } from '../../../components/Button';
+import { useError } from '../../../hooks/error';
+import { ScreenNavigationProp } from '../../../routes';
 
 interface FormData {
   phone: string;
@@ -77,7 +77,8 @@ export function SignUpThirdStep() {
   const refCode = createRef<Focusable>();
 
   const theme = useTheme();
-  const { isLoading, setIsLoading, appError, setAppError } = useCommon();
+  const { isLoading, setIsLoading } = useCommon();
+  const { appError, setAppError, appErrorVerifyError } = useError();
   const {
     userClient,
     registerPhoneClient,
@@ -103,9 +104,6 @@ export function SignUpThirdStep() {
       setResendCode(false);
       setSeconds(60 * 3);
       navigation.navigate('SignUpSecondStep');
-    } catch (error) {
-      console.log(error);
-      setAppError(appErrorVerifyError(error));
     } finally {
       setIsLoading(false);
     }
@@ -120,9 +118,6 @@ export function SignUpThirdStep() {
       setResendCode(false);
       setSeconds(60 * 3);
       // navigation.navigate('SignUpSecondStep');
-    } catch (error) {
-      console.log(error);
-      setAppError(appErrorVerifyError(error));
     } finally {
       setIsLoading(false);
     }
@@ -146,9 +141,6 @@ export function SignUpThirdStep() {
       setResendCode(false);
       setSeconds(60 * 3);
       // navigation.navigate('SignUpSecondStep');
-    } catch (error) {
-      console.log(error);
-      setAppError(appErrorVerifyError(error));
     } finally {
       setIsLoading(false);
     }

@@ -2,8 +2,7 @@ import React from 'react';
 
 import { TransitionPresets } from '@react-navigation/stack';
 import { createDrawerNavigator } from '@react-navigation/drawer';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { useRoute } from '@react-navigation/core';
+import { useWindowDimensions } from 'react-native';
 import { Home } from '../../screens/Home';
 import { CarDetails } from '../../screens/CarDetails';
 import { Scheduling } from '../../screens/Scheduling';
@@ -13,25 +12,30 @@ import { MyCars } from '../../screens/MyCars';
 import { SelectArea } from '../../screens/SelectArea';
 import { HomeProvider } from '../../screens/Providers/Home';
 import { AppointmentsDetailsProvider } from '../../screens/Providers/Appointment/Details';
-import { Appointment } from '../../hooks/providerUser';
+import { AppProviderNativeStackRoutes } from './app.provider.stack.routes';
 
-const { Navigator, Screen } = createNativeStackNavigator();
+const { Navigator, Screen } = createDrawerNavigator();
 
-export function AppProviderNativeStackRoutes() {
+export function AppProviderDrawerRoutes() {
   return (
     <Navigator
       screenOptions={{
         headerShown: false,
         gestureEnabled: true,
         ...TransitionPresets.ModalPresentationIOS,
+        drawerPosition: 'right',
       }}
-      initialRouteName="HomeProviderStack"
+      initialRouteName="HomeProviderDrawer"
     >
-      <Screen name="HomeProviderStack" component={HomeProvider} />
       <Screen
-        name="AppointmentsDetailsProvider"
-        component={AppointmentsDetailsProvider}
+        name="HomeProviderDrawer"
+        component={AppProviderNativeStackRoutes}
+        options={{ drawerLabel: 'Home' }}
       />
+      <Screen name="Scheduling" component={Scheduling} />
+      <Screen name="SchedulingDetails" component={SchedulingDetails} />
+      <Screen name="Confirmation" component={Confirmation} />
+      <Screen name="MyCars" component={MyCars} />
     </Navigator>
   );
 }

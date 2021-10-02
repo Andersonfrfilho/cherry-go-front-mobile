@@ -20,5 +20,10 @@ export const APPLICATION_ERROR = {
       code: '0004',
       status_code: 'app',
     },
+    '0005': {
+      message: 'Sem conexão',
+      code: '0005',
+      status_code: 'app',
+    },
   },
 };
