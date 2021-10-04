@@ -39,6 +39,7 @@ export interface GetModelResponse {
   user_id: string;
   name: string;
   last_name: string;
+  birth_date: string;
   cpf: string;
   rg: string;
   gender: GENDER_ENUM;

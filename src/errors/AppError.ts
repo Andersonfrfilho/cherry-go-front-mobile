@@ -8,11 +8,12 @@ export enum HTTP_ERROR_CODES_ENUM {
   UNPROCESSABLE_ENTITY = 422,
   TOO_MANY_REQUESTS = 429,
   INTERNAL_SERVER_ERROR = 500,
+  APPLICATION = 600,
 }
 
 interface ErrorParametersDTO {
   message: string;
-  status_code?: number | 'app';
+  status_code?: number;
   code?: string;
 }
 

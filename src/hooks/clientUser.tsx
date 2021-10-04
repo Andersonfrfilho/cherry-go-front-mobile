@@ -11,10 +11,11 @@ import { AxiosError } from 'axios';
 import { UploadUserClientImageDocumentDTO, UploadUserClientImageProfileDTO, UserClientAddressRegisterDTO, UserClientPhoneCodeConfirmDTO, UserClientPhoneDTO, UserClientRegisterDTO } from './dtos/users';
 import { Dispatch, SetStateAction } from 'hoist-non-react-statics/node_modules/@types/react';
 import { useError } from './error';
+import { GetModelResponse } from '../databases/model/dtos/getUser.dto';
 
 type ClientUserContextData = {
   userClient: UserClient;
-  setUserClient: React.Dispatch<React.SetStateAction<UserClient>>;
+  setUserClient: React.Dispatch<React.SetStateAction<GetModelResponse>>;
   registerClient: (userData: UserClientRegisterDTO) => Promise<void>;
   registerAddressClient: (
     addressData: UserClientAddressRegisterDTO,
@@ -125,13 +126,12 @@ export type Token = {
 
 
 function ClientUserProvider({ children }: ClientUserProviderProps) {
-  const [userClient, setUserClient] = useState<UserClient>({} as UserClient);
-  const [userTypeCLient, setUserTypeCLient] = useState<UserClient>({} as UserClient);
+  const [userClient, setUserClient] = useState<GetModelResponse>({} as GetModelResponse);
   const [token, setToken] = useState<Token>({} as Token);
   const [countdown, setCountdown] = useState(0);
   const [phone, setPhone] = useState('');
   const [userIdResetPassword, setUserIdResetPassword] = useState('');
-  const {appErrorVerifyError} = useError();
+  const { appErrorVerifyError } = useError();
 
   async function registerClient(userData: UserClientRegisterDTO) {
     try {
@@ -141,7 +141,7 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
 
       setUserClient(user);
     } catch (err) {
-      appErrorVerifyError({
+      await appErrorVerifyError({
         message: err.response.data.message,
         status_code: err.response.status,
         code: err.response.data.code,
@@ -157,9 +157,9 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
         const [user] = await userRepository.findAll()
 
         if (!user) {
-          appErrorVerifyError({
+          await appErrorVerifyError({
             message: '',
-            status_code: 'app',
+            status_code: 600,
             code: '0003',
           });
         }
@@ -181,7 +181,7 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
         await userRepository.removeAllDatabase();
       }
 
-      appErrorVerifyError({
+      await appErrorVerifyError({
         message: err.response.data.message,
         status_code: err.response.status,
         code: err.response.data.code,
@@ -198,9 +198,9 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
 
 
         if (!user) {
-          appErrorVerifyError({
+          await appErrorVerifyError({
             message: '',
-            status_code: 'app',
+            status_code: 600,
             code: '0003',
           });
         }
@@ -224,7 +224,7 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
         await userRepository.removeAllDatabase();
       }
 
-      appErrorVerifyError({
+      await appErrorVerifyError({
         message: err.response.data.message,
         status_code: err.response.status,
         code: err.response.data.code,
@@ -241,9 +241,9 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
         const [user] = await userRepository.findAll()
 
         if (!user) {
-          appErrorVerifyError({
+          await appErrorVerifyError({
             message: '',
-            status_code: 'app',
+            status_code: 600,
             code: '0003',
           });
         }
@@ -264,7 +264,7 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
         await userRepository.removeAllDatabase();
       }
 
-      appErrorVerifyError({
+      await appErrorVerifyError({
         message: err.response.data.message,
         status_code: err.response.status,
         code: err.response.data.code,
@@ -283,9 +283,9 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
         const [token] = await tokenRepository.findAll()
 
         if (!user) {
-          appErrorVerifyError({
+          await appErrorVerifyError({
             message: '',
-            status_code: 'app',
+            status_code: 600,
             code: '0003',
           });
         }
@@ -304,7 +304,7 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
         await userRepository.removeAllDatabase();
       }
 
-      appErrorVerifyError({
+      await appErrorVerifyError({
         message: err.response.data.message,
         status_code: err.response.status,
         code: err.response.data.code,
@@ -322,9 +322,9 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
         const [user] = await userRepository.findAll()
 
         if (!user) {
-          appErrorVerifyError({
+          await appErrorVerifyError({
             message: '',
-            status_code: 'app',
+            status_code: 600,
             code: '0003',
           });
         }
@@ -334,9 +334,9 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
       const fileName = image_uri.split('/').pop()
 
       if (!fileName) {
-        appErrorVerifyError({
+        await appErrorVerifyError({
           message: '',
-          status_code: 'app',
+          status_code: 600,
           code: '0004',
         });
       }
@@ -367,7 +367,7 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
         await userRepository.removeAllDatabase();
       }
 
-      appErrorVerifyError({
+      await appErrorVerifyError({
         message: err.response.data.message,
         status_code: err.response.status,
         code: err.response.data.code,
@@ -384,9 +384,9 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
         const [user] = await userRepository.findAll()
 
         if (!user) {
-          appErrorVerifyError({
+          await appErrorVerifyError({
             message: '',
-            status_code: 'app',
+            status_code: 600,
             code: '0003',
           });
         }
@@ -396,9 +396,9 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
       const fileName = image_uri.split('/').pop()
 
       if (!fileName) {
-        appErrorVerifyError({
+        await appErrorVerifyError({
           message: '',
-          status_code: 'app',
+          status_code: 600,
           code: '0004',
         });
       }
@@ -428,7 +428,7 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
         await userRepository.removeAllDatabase();
       }
 
-      appErrorVerifyError({
+      await appErrorVerifyError({
         message: err.response.data.message,
         status_code: err.response.status,
         code: err.response.data.code,
@@ -438,13 +438,12 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
 
   async function forgotPasswordMail(email: string) {
     try {
-      console.log(email)
       await api.post('/v1/users/password/forgot', {
         email,
         platform: Platform.OS
       });
     } catch (err) {
-      appErrorVerifyError({
+      await appErrorVerifyError({
         message: err.response.data.message,
         status_code: err.response.status,
         code: err.response.data.code,
@@ -460,7 +459,7 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
       setCountdown(Number(countdown))
       return { countdown: Number(countdown), userId: user_id }
     } catch (err) {
-      appErrorVerifyError({
+      await appErrorVerifyError({
         message: err.response.data.message,
         status_code: err.response.status,
         code: err.response.data.code,
@@ -473,7 +472,7 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
       await api.post('/v1/users/password/reset', { password, token });
       setToken({})
     } catch (err) {
-      appErrorVerifyError({
+      await appErrorVerifyError({
         message: err.response.data.message,
         status_code: err.response.status,
         code: err.response.data.code,

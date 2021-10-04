@@ -23,6 +23,8 @@ import { typeUserSchema } from '../databases/schema/typeUser.schema';
 import { typeUserRepository } from '../databases/repository/typeUser.repository';
 import * as RootNavigation from '../routes/RootNavigation';
 import { useError } from './error';
+import { GetModelResponse } from '../databases/model/dtos/getUser.dto';
+import { AppError } from '../errors/AppError';
 
 interface User {
   id: string;
@@ -50,20 +52,24 @@ interface AuthProviderProps {
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
 function AuthProvider({ children }: AuthProviderProps) {
-  const { setIsLoading } = useCommon();
+  const { setIsLoading, setIsLoadingRouter } = useCommon();
   const { setUserClient } = useClientUser();
   const { appErrorVerifyError } = useError();
+
   useEffect(() => {
-    async function loadUserData() {
+    (async () => {
+      setIsLoading(true);
+      setIsLoadingRouter(true);
       const user = await userRepository.getUser();
 
       if (user) {
         api.defaults.headers.authorization = `Bearer ${user.token}`;
         setUserClient(user);
       }
+      setIsLoadingRouter(false);
       setIsLoading(false);
-    }
-    loadUserData();
+    })();
+    return () => {};
   }, []);
 
   async function signIn({ email, password }: SignInCredentials): Promise<void> {
@@ -139,7 +145,18 @@ function AuthProvider({ children }: AuthProviderProps) {
         await userRepository.createUserTerm(userTerms);
       }
 
-      setUserClient({ ...user, token });
+      const userGetUser = await userRepository.getUser();
+
+      if (!userGetUser) {
+        throw new AppError({
+          message: 'usuario não encontrado',
+          code: '4001',
+          status_code: 401,
+        });
+      }
+      const dataClone = {} as GetModelResponse;
+      Object.assign(dataClone, userGetUser);
+      setUserClient(dataClone);
     } catch (error) {
       console.log(error);
       appErrorVerifyError(error);
@@ -150,7 +167,7 @@ function AuthProvider({ children }: AuthProviderProps) {
     setIsLoading(true);
     try {
       await userRepository.removeAll();
-      setUserClient({} as UserClient);
+      setUserClient({} as GetModelResponse);
     } catch (error) {
       appErrorVerifyError(error);
     } finally {

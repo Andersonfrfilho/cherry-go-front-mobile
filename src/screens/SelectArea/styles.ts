@@ -41,6 +41,9 @@ export const AreaLogoTitle = styled.View`
 `;
 
 export const AreaTitle = styled.View`
+  height: 60px;
+  padding-left: 10px;
+  padding-right: 10px;
   align-items: center;
 `;
 

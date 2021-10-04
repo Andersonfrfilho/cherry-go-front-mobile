@@ -148,7 +148,7 @@ export function SignUpSecondStep() {
     try {
       const state = states.find(stateParam => stateParam.value === value);
       if (!state) {
-        setAppError(appErrorVerifyError({ status_code: 'app', code: '0002' }));
+        setAppError(appErrorVerifyError({ status_code: 600, code: '0002' }));
         return;
       }
 

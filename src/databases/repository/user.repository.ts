@@ -18,6 +18,7 @@ import { Image as ModelImage } from '../model/Image';
 import { Phone as ModelPhone } from '../model/Phone';
 import { Term as ModelTerm } from '../model/Term';
 import { TypeUser as ModelTypeUser } from '../model/TypeUser';
+import { GetModelResponse } from '../model/dtos/getUser.dto';
 
 async function createOrUpdate(user: UserClient): Promise<ModelUser> {
   const userCollection = database.get<ModelUser>('users');
@@ -69,12 +70,15 @@ async function findByUserId(id: string): Promise<ModelUser> {
 
   return user;
 }
-async function getUser(): Promise<ModelUser | null> {
+async function getUser(): Promise<GetModelResponse | null> {
   const [userDatabase] = await database.get<ModelUser>('users').query().fetch();
+
   if (!userDatabase) {
     return null;
   }
+
   const user = await userDatabase.getUser();
+
   return user;
 }
 async function findAll(): Promise<ModelUser[]> {

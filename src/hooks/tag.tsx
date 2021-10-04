@@ -45,7 +45,7 @@ function TagProvider({ children }: TagProviderProps) {
         if (!user) {
           appErrorVerifyError({
             message: '',
-            status_code: 'app',
+            status_code: 600,
             code: '0003',
           });
         }

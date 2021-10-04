@@ -272,6 +272,28 @@ export const AreaAppointmentServicesList = styled.View`
   flex: 1;
 `;
 
+export const AreaTransactionService = styled.View`
+  flex: 1;
+  margin-bottom: 10px;
+`;
+
+export const AreaAppointmentTransactionServiceInformation = styled.View`
+  flex: 1;
+  margin: 0 10px;
+  background-color: ${({ theme }) => theme.colors.main};
+  border-radius: 12px;
+`;
+export const AreaTitleTransactionItem = styled.View`
+  height: 40px;
+
+  justify-content: center;
+  align-items: center;
+
+  margin-bottom: 10px;
+
+  border-bottom-width: 4px;
+  border-bottom-color: ${({ theme }) => theme.colors.background_primary};
+`;
 // export const AreaAppointmentContent = styled.View`
 //   flex: 1;
 //   background-color: ${({ theme }) => theme.colors.background_primary};

@@ -379,7 +379,66 @@ export function AppointmentsDetailsProvider() {
                   />
                 </AreaIcon>
               </AreaAppointmentAddressTitleIcon>
-              <AreaAppointmentServicesList />
+              <AreaAppointmentServicesList>
+                {appointment.transactions[0].itens.map(service => (
+                  <AreaTransactionService>
+                    <AreaAppointmentTransactionServiceInformation>
+                      <AreaTitleTransactionItem>
+                        <Title>Tipo de transporte</Title>
+                      </AreaTitleTransactionItem>
+                      <AreaTitleTransactionItem>
+                        <Title style={{ textTransform: 'capitalize' }}>
+                          {appointment.transports[0].transport_type.name}
+                        </Title>
+                      </AreaTitleTransactionItem>
+                      <AreaStreetNumber>
+                        <AreaTextStreet>
+                          <TextStreet
+                            numberOfLines={1}
+                            style={{ fontSize: RFValue(16) }}
+                          >
+                            Hora da solicitação:{' '}
+                            {getHour(appointment.transports[0].initial_hour)}
+                          </TextStreet>
+                          <TextStreet
+                            numberOfLines={1}
+                            style={{ fontSize: RFValue(16) }}
+                          >
+                            Hora da partida prevista:{' '}
+                            {getHour(appointment.transports[0].departure_time)}
+                          </TextStreet>
+                        </AreaTextStreet>
+                      </AreaStreetNumber>
+                      <AreaDistrictComplement>
+                        <AreaTextDistrict>
+                          <TextStreet
+                            numberOfLines={1}
+                            style={{ fontSize: RFValue(16) }}
+                          >
+                            Hora de retorno:{' '}
+                            {getHour(appointment.transports[0].return_time)}
+                          </TextStreet>
+                          <TextStreet
+                            numberOfLines={1}
+                            style={{ fontSize: RFValue(16) }}
+                          >
+                            Hora de chegada retorno:{' '}
+                            {getHour(
+                              appointment.transports[0].arrival_time_return,
+                            )}
+                          </TextStreet>
+                        </AreaTextDistrict>
+                      </AreaDistrictComplement>
+                      <AreaTitleTransactionItemValueInformation>
+                        <Title>Valor</Title>
+                        <Title>
+                          {getValueAmount(appointment.transports[0].amount)}
+                        </Title>
+                      </AreaTitleTransactionItemValueInformation>
+                    </AreaAppointmentTransactionServiceInformation>
+                  </AreaTransactionService>
+                ))}
+              </AreaAppointmentServicesList>
             </AreaAppointmentServices>
           </AreaAppointments>
         )}

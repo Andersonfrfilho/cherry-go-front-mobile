@@ -36,5 +36,3 @@ export const database = new Database({
     UserTypeUser,
   ],
 });
-
-console.log(database);

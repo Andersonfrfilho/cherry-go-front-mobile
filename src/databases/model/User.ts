@@ -87,7 +87,7 @@ class User extends Model {
     const typesDatabase = await this.types.fetch();
 
     const terms = await this.terms.fetch();
-
+    const termsFormatted = terms.map(termsParam => termsParam._raw);
     const tokensDatabase = await this.collections
       .get('tokens')
       .query(Q.where('user_id', this.id))
@@ -112,8 +112,8 @@ class User extends Model {
       phones: phone._raw,
       addresses: address._raw,
       image_profile: image_profile._raw,
-      terms,
-      token: token?.token,
+      terms: termsFormatted,
+      token: token.token,
       refresh_token: token?.refresh_token,
     };
   }

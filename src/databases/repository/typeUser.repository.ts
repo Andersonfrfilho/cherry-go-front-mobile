@@ -27,7 +27,6 @@ async function createOrUpdate(typeUsers: TypeUser[]): Promise<ModelTypeUser[]> {
     const data = await Promise.all(functionPromisesTypeUser);
     return data;
   });
-  console.log(typeUserSaved);
   return typeUserSaved;
 }
 

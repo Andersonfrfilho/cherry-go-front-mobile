@@ -46,14 +46,15 @@ export type ScreenNavigationProp = NativeStackNavigationProp<
   'Home'
 >;
 export function Routes() {
-  const { isLoading } = useCommon();
+  const { isLoadingRouter } = useCommon();
   const { userClient } = useClientUser();
-  return isLoading ? (
+
+  return isLoadingRouter ? (
     <LoadAnimation />
   ) : (
     <NavigationContainer linking={linking} independent ref={navigationRef}>
       {userClient.id ? (
-        userClient && userClient.types && userClient.types?.length > 1 ? (
+        userClient && userClient.types && userClient.types.length > 1 ? (
           <AppStackInitialRoutes />
         ) : (
           <AppClientTabRoutes />

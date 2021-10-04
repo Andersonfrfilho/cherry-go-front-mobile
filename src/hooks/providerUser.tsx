@@ -1,4 +1,11 @@
-import React, { createContext, ReactNode, useContext, useState } from 'react';
+import React, {
+  createContext,
+  ReactNode,
+  useContext,
+  useState,
+  useEffect,
+  Dispatch,
+} from 'react';
 import { GENDER_ENUM } from '../enums/genderType.enum';
 import { api } from '../services/api';
 import { useCommon } from './common';
@@ -6,9 +13,11 @@ import { UserClient } from './clientUser';
 import { UserClientRegisterDTO } from './dtos/users';
 import { useError } from './error';
 import { userRepository } from '../databases/repository/user.repository';
+import { AppError } from '../errors/AppError';
 
 type ProviderUserContextData = {
   userProvider: UserProvider;
+  setUserProvider: Dispatch<React.SetStateAction<UserProvider>>;
   registerProvider: (userData: UserClientRegisterDTO) => Promise<void>;
   loadUserData(): Promise<void>;
 };
@@ -217,9 +226,17 @@ function ProviderUserProvider({ children }: ProviderUserProviderProps) {
     try {
       const user = await userRepository.getUser();
 
+      if (!user) {
+        throw new AppError({
+          message: 'Usuario não encontrado',
+          status_code: 401,
+          code: '1001',
+        });
+      }
+
       const headers = {
         headers: {
-          Authorization: `token ${user?.token}`,
+          Authorization: `Bearer ${user.token}`,
         },
       };
       const {
@@ -231,7 +248,7 @@ function ProviderUserProvider({ children }: ProviderUserProviderProps) {
         setUserProvider({ ...provider, token, refresh_token });
       }
     } catch (err) {
-      appErrorVerifyError(err);
+      await appErrorVerifyError(err);
     } finally {
       setIsLoading(false);
     }
@@ -242,7 +259,7 @@ function ProviderUserProvider({ children }: ProviderUserProviderProps) {
       const { data } = await api.post('/v1/users/providers', userData);
       setUserProvider(data);
     } catch (err) {
-      appErrorVerifyError({
+      await appErrorVerifyError({
         message: err.response.data.message,
         status_code: err.response.status,
         code: err.response.data.code,
@@ -252,7 +269,7 @@ function ProviderUserProvider({ children }: ProviderUserProviderProps) {
 
   return (
     <ProviderUserContext.Provider
-      value={{ registerProvider, loadUserData, userProvider }}
+      value={{ registerProvider, loadUserData, userProvider, setUserProvider }}
     >
       {children}
     </ProviderUserContext.Provider>

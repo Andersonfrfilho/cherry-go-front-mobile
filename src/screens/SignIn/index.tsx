@@ -21,7 +21,6 @@ import {
   Form,
   Footer,
   ButtonIcons,
-  SubTitle,
 } from './styles';
 import { useAuth } from '../../hooks/auth';
 import { FormInput } from '../../components/FormInput';

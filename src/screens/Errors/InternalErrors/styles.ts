@@ -11,7 +11,7 @@ export const Header = styled.View`
   margin-top: ${getStatusBarHeight() + 18}px;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   flex: 1;
 `;
 
@@ -22,6 +22,13 @@ export const AreaLogoTitle = styled.View`
 `;
 
 export const AreaTitle = styled.View`
+  flex: 1;
+  height: 60px;
+  padding: 0 20px;
+  align-items: center;
+`;
+
+export const AreaWarning = styled.View`
   height: 60px;
   padding: 0 20px;
   align-items: center;

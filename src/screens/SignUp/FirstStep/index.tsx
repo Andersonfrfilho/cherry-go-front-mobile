@@ -203,7 +203,7 @@ export function SignUpFirstStep() {
       }
 
       if (!checkTerm) {
-        setAppError(appErrorVerifyError({ status_code: 'app', code: '0001' }));
+        setAppError(appErrorVerifyError({ status_code: 600, code: '0001' }));
         Alert.alert('Aceite os termos para terminar o cadastro');
         setIsLoading(false);
         return;

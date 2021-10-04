@@ -6,15 +6,15 @@ import React, {
   Dispatch,
   SetStateAction,
 } from 'react';
+import { userRepository } from '../databases/repository/user.repository';
 import { ConstantError } from '../errors/constants';
 import { ErrorData } from '../errors/Error.type';
-// import { useNavigation } from './navigation';
 import * as RootNavigation from '../routes/RootNavigation';
 
 type ErrorContextData = {
   appError: Partial<ErrorData>;
   setAppError: Dispatch<SetStateAction<Partial<ErrorData>>>;
-  appErrorVerifyError: (data: any) => void;
+  appErrorVerifyError: (data: any) => Promise<void>;
 };
 interface ErrorProviderProps {
   children: ReactNode;
@@ -30,26 +30,32 @@ const ErrorContext = createContext<ErrorContextData>({} as ErrorContextData);
 function ErrorProvider({ children }: ErrorProviderProps) {
   const [appError, setAppError] = useState<Partial<ErrorData>>({});
 
-  function appErrorVerifyError(err): void {
-    switch (err.constructor) {
-      case Error:
-        if (err.message === 'Network Error') {
-          console.log('entrou');
-          setAppError(ConstantError.app['0005']);
-          RootNavigation.navigate('InternalServerErrorScreenProvider', {});
-        }
-        break;
-      default:
-        setAppError(ConstantError[500]['50001']);
-        break;
+  async function unauthorizedError(err: Error): Promise<void> {
+    console.log(ConstantError[err.status][err.response.data.code]);
+    setAppError(ConstantError[err.status][err.response.data.code]);
+    userRepository.removeAll();
+  }
+
+  async function appErrorVerifyError(err): Promise<void> {
+    console.log('##############');
+    console.log(ConstantError[600]);
+    if (err.message === 'Network Error') {
+      setAppError(ConstantError[600]['0005']);
+      RootNavigation.navigate('InternalServerErrorScreenProvider', {});
+      return;
     }
+
+    if (err.response.status === 401) {
+      await unauthorizedError(err);
+      return;
+    }
+
+    setAppError(ConstantError[500]['50001']);
   }
-  function handleMOvePage() {
-    RootNavigation.navigate('InternalServerErrorScreenProvider', {});
-  }
+
   return (
     <ErrorContext.Provider
-      value={{ appError, setAppError, appErrorVerifyError, handleMOvePage }}
+      value={{ appError, setAppError, appErrorVerifyError }}
     >
       {children}
     </ErrorContext.Provider>

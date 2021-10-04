@@ -1,3 +1,8 @@
+import { Dimensions } from 'react-native';
+
+const windowWidth = Dimensions.get('window').width;
+const windowHeight = Dimensions.get('window').height;
+
 export default {
   colors: {
     header: '#EA5D6C',
@@ -59,5 +64,9 @@ export default {
     secondary_400: 'Archivo_400Regular',
     secondary_500: 'Archivo_500Medium',
     secondary_600: 'Archivo_600SemiBold',
+  },
+  measures: {
+    height: windowHeight,
+    width: windowWidth,
   },
 };

@@ -57,9 +57,14 @@ export function HomeProvider() {
     image_profile: imageProfile,
   } = userProvider;
 
-  function handleSelectedAppointment(appointment: Appointment) {
+  async function handleSelectedAppointment(appointment: Appointment) {
     navigation.navigate('AppointmentsDetailsProvider', { appointment });
   }
+
+  useEffect(() => {
+    console.log('executou');
+    loadUserData();
+  }, []);
 
   return (
     <Container>

@@ -129,7 +129,7 @@ export function SignUpThirdStep() {
     try {
       console.log(form);
       if (!token.token) {
-        setAppError(appErrorVerifyError({ status_code: 'app', code: '0002' }));
+        setAppError(appErrorVerifyError({ status_code: 600, code: '0002' }));
         return;
       }
       await confirmCodePhoneClient({
