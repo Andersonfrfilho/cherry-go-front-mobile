@@ -7,6 +7,7 @@ import { ProviderUserProvider } from './providerUser';
 import { UserProvider } from './user';
 import { TagProvider } from './tag';
 import { ErrorProvider } from './error';
+import { AppointmentProvider } from './appointment';
 
 interface AppProviderProps {
   children: ReactNode;
@@ -20,7 +21,9 @@ function AppProvider({ children }: AppProviderProps) {
           <TagProvider>
             <UserProvider>
               <ProviderUserProvider>
-                <AuthProvider>{children}</AuthProvider>
+                <AppointmentProvider>
+                  <AuthProvider>{children}</AuthProvider>
+                </AppointmentProvider>
               </ProviderUserProvider>
             </UserProvider>
           </TagProvider>

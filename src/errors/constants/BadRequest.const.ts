@@ -10,9 +10,19 @@ export const BAD_REQUEST = {
       code: '0001',
     },
     '0002': {
-      message: 'Informações invalidas!',
+      message: 'Agendamento ja passou da data!',
       status_code,
       code: '0002',
+    },
+    '0003': {
+      message: 'Agendamento ja foi rejeitado!',
+      status_code,
+      code: '0003',
+    },
+    '0004': {
+      message: 'Agendamento ja foi aceito!',
+      status_code,
+      code: '0004',
     },
   },
 };

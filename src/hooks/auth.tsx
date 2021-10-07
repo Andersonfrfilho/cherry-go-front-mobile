@@ -25,6 +25,7 @@ import * as RootNavigation from '../routes/RootNavigation';
 import { useError } from './error';
 import { GetModelResponse } from '../databases/model/dtos/getUser.dto';
 import { AppError } from '../errors/AppError';
+import { useProviderUser, UserProvider } from './providerUser';
 
 interface User {
   id: string;
@@ -54,6 +55,7 @@ const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 function AuthProvider({ children }: AuthProviderProps) {
   const { setIsLoading, setIsLoadingRouter } = useCommon();
   const { setUserClient } = useClientUser();
+  const { setUserProvider } = useProviderUser();
   const { appErrorVerifyError } = useError();
 
   useEffect(() => {
@@ -168,6 +170,7 @@ function AuthProvider({ children }: AuthProviderProps) {
     try {
       await userRepository.removeAll();
       setUserClient({} as GetModelResponse);
+      setUserProvider({} as UserProvider);
     } catch (error) {
       appErrorVerifyError(error);
     } finally {

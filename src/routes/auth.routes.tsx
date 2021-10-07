@@ -15,6 +15,9 @@ import { SignUpEighthStep } from '../screens/SignUp/EighthStep';
 import { ForgotPassword } from '../screens/SignIn/ForgotPassword';
 import { ResetPassword } from '../screens/SignIn/ResetPassword';
 import { InternalServerErrorScreen } from '../screens/Errors/InternalErrors';
+import { UnauthorizedErrorScreen } from '../screens/Errors/Unauthorized';
+import { UnknownErrorScreen } from '../screens/Errors/UnknownErrors';
+import { BadRequestErrorScreen } from '../screens/Errors/BadRequestErrors';
 
 const { Navigator, Screen } = createNativeStackNavigator();
 
@@ -45,6 +48,12 @@ export function AuthRoutes() {
         name="InternalServerErrorScreen"
         component={InternalServerErrorScreen}
       />
+      <Screen
+        name="UnauthorizedErrorScreen"
+        component={UnauthorizedErrorScreen}
+      />
+      <Screen name="UnknownErrorScreen" component={UnknownErrorScreen} />
+      <Screen name="BadRequestErrorScreen" component={BadRequestErrorScreen} />
     </Navigator>
   );
 }

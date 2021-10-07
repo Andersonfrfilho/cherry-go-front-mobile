@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { StatusBar } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import LottieView from 'lottie-react-native';
-import errorNetwork from '../../../assets/animations/trex-sem-conexao.json';
+import warningNetwork from '../../../assets/animations/error-warning-alert.json';
 import {
   Container,
   Header,
@@ -20,7 +20,7 @@ import { useError } from '../../../hooks/error';
 import { getRouteGoBack } from '../../../utils/getRouteGoBack';
 import * as RootNavigation from '../../../routes/RootNavigation';
 
-export function InternalServerErrorScreen() {
+export function BadRequestErrorScreen() {
   const { appError, setAppError } = useError();
   const navigation = useNavigation<ScreenNavigationProp>();
 
@@ -46,7 +46,7 @@ export function InternalServerErrorScreen() {
       />
       <Header>
         <AreaTitle>
-          <Title>Erro de serviço interno</Title>
+          <Title>Erro de operação</Title>
         </AreaTitle>
         <AreaWarning>
           {appError && appError.message && (
@@ -56,15 +56,14 @@ export function InternalServerErrorScreen() {
       </Header>
       <Form>
         <LottieView
-          source={errorNetwork}
+          source={warningNetwork}
           autoPlay
-          style={{ height: 200 }}
+          style={{ height: 350 }}
           resizeMode="contain"
-          loop
         />
       </Form>
       <Footer>
-        <Button title="Tentar novamente" onPress={handleGoBack} />
+        <Button title="Retornar" onPress={handleGoBack} />
       </Footer>
     </Container>
   );

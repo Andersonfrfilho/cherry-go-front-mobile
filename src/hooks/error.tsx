@@ -7,6 +7,7 @@ import React, {
   SetStateAction,
 } from 'react';
 import { userRepository } from '../databases/repository/user.repository';
+import { HTTP_ERROR_CODES_ENUM } from '../errors/AppError';
 import { ConstantError } from '../errors/constants';
 import { ErrorData } from '../errors/Error.type';
 import * as RootNavigation from '../routes/RootNavigation';
@@ -14,7 +15,7 @@ import * as RootNavigation from '../routes/RootNavigation';
 type ErrorContextData = {
   appError: Partial<ErrorData>;
   setAppError: Dispatch<SetStateAction<Partial<ErrorData>>>;
-  appErrorVerifyError: (data: any) => Promise<void>;
+  appErrorVerifyError: (data: any) => void;
 };
 interface ErrorProviderProps {
   children: ReactNode;
@@ -30,27 +31,45 @@ const ErrorContext = createContext<ErrorContextData>({} as ErrorContextData);
 function ErrorProvider({ children }: ErrorProviderProps) {
   const [appError, setAppError] = useState<Partial<ErrorData>>({});
 
-  async function unauthorizedError(err: Error): Promise<void> {
-    console.log(ConstantError[err.status][err.response.data.code]);
-    setAppError(ConstantError[err.status][err.response.data.code]);
-    userRepository.removeAll();
+  function unauthorizedError(err: Error): void {
+    setAppError(ConstantError[err.response.status][err.response.data.code]);
+    RootNavigation.navigate('UnauthorizedErrorScreen', {});
+  }
+  function badRequestError(err: Error): void {
+    setAppError(ConstantError[err.response.status][err.response.data.code]);
+    RootNavigation.navigate('BadRequestErrorScreen', {});
   }
 
-  async function appErrorVerifyError(err): Promise<void> {
-    console.log('##############');
-    console.log(ConstantError[600]);
-    if (err.message === 'Network Error') {
-      setAppError(ConstantError[600]['0005']);
-      RootNavigation.navigate('InternalServerErrorScreenProvider', {});
-      return;
-    }
+  function internalServerError(): void {
+    setAppError(ConstantError[600]['0005']);
+    RootNavigation.navigate('InternalServerErrorScreen', {});
+  }
 
-    if (err.response.status === 401) {
-      await unauthorizedError(err);
-      return;
-    }
-
+  function unknownServerError(): void {
     setAppError(ConstantError[500]['50001']);
+    RootNavigation.navigate('UnknownErrorScreen', {});
+  }
+
+  async function appErrorVerifyError(err) {
+    console.log(
+      '%c ### Hook Error####',
+      'color: green; background: yellow; font-size: 30px',
+    );
+
+    if (err.message === 'Network Error') {
+      internalServerError();
+      return;
+    }
+    if (err.response.status === HTTP_ERROR_CODES_ENUM.UNAUTHORIZED) {
+      unauthorizedError(err);
+      return;
+    }
+    if (err.response.status === HTTP_ERROR_CODES_ENUM.BAD_REQUEST) {
+      badRequestError(err);
+      return;
+    }
+
+    unknownServerError();
   }
 
   return (

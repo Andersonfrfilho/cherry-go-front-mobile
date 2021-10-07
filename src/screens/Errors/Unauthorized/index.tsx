@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { StatusBar } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import LottieView from 'lottie-react-native';
-import errorNetwork from '../../../assets/animations/trex-sem-conexao.json';
+import errorUnauthorized from '../../../assets/animations/session-expired.json';
 import {
   Container,
   Header,
@@ -18,20 +18,31 @@ import { ScreenNavigationProp } from '../../../routes';
 import { Button } from '../../../components/Button';
 import { useError } from '../../../hooks/error';
 import { getRouteGoBack } from '../../../utils/getRouteGoBack';
-import * as RootNavigation from '../../../routes/RootNavigation';
+import { useAuth } from '../../../hooks/auth';
+import { useCommon } from '../../../hooks/common';
 
-export function InternalServerErrorScreen() {
+export function UnauthorizedErrorScreen() {
+  const { setIsLoading, setIsLoadingRouter } = useCommon();
   const { appError, setAppError } = useError();
+  const { signOut } = useAuth();
   const navigation = useNavigation<ScreenNavigationProp>();
 
-  function handleGoBack() {
-    const { routeNames } = navigation.getState();
-
-    const routeName = getRouteGoBack(routeNames);
-    navigation.replace(routeName);
+  async function handleGoToPageLogin() {
+    navigation.replace('SignIn');
   }
 
   useEffect(() => {
+    (async () => {
+      setIsLoading(true);
+      setIsLoadingRouter(true);
+      await new Promise(resolve => {
+        setTimeout(resolve, 3000);
+      });
+      await signOut();
+
+      setIsLoadingRouter(false);
+      setIsLoading(false);
+    })();
     return () => {
       setAppError({});
     };
@@ -46,7 +57,7 @@ export function InternalServerErrorScreen() {
       />
       <Header>
         <AreaTitle>
-          <Title>Erro de serviço interno</Title>
+          <Title>Não Autorizado</Title>
         </AreaTitle>
         <AreaWarning>
           {appError && appError.message && (
@@ -56,15 +67,14 @@ export function InternalServerErrorScreen() {
       </Header>
       <Form>
         <LottieView
-          source={errorNetwork}
+          source={errorUnauthorized}
           autoPlay
           style={{ height: 200 }}
           resizeMode="contain"
-          loop
         />
       </Form>
       <Footer>
-        <Button title="Tentar novamente" onPress={handleGoBack} />
+        <Button title="Ir para login" onPress={handleGoToPageLogin} />
       </Footer>
     </Container>
   );

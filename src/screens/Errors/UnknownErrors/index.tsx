@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { StatusBar } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import LottieView from 'lottie-react-native';
-import errorNetwork from '../../../assets/animations/trex-sem-conexao.json';
+import errorUnknown from '../../../assets/animations/error-unknow-buggyy.json';
 import {
   Container,
   Header,
@@ -18,9 +18,8 @@ import { ScreenNavigationProp } from '../../../routes';
 import { Button } from '../../../components/Button';
 import { useError } from '../../../hooks/error';
 import { getRouteGoBack } from '../../../utils/getRouteGoBack';
-import * as RootNavigation from '../../../routes/RootNavigation';
 
-export function InternalServerErrorScreen() {
+export function UnknownErrorScreen() {
   const { appError, setAppError } = useError();
   const navigation = useNavigation<ScreenNavigationProp>();
 
@@ -46,7 +45,7 @@ export function InternalServerErrorScreen() {
       />
       <Header>
         <AreaTitle>
-          <Title>Erro de serviço interno</Title>
+          <Title>Erro interno desconhecido</Title>
         </AreaTitle>
         <AreaWarning>
           {appError && appError.message && (
@@ -56,7 +55,7 @@ export function InternalServerErrorScreen() {
       </Header>
       <Form>
         <LottieView
-          source={errorNetwork}
+          source={errorUnknown}
           autoPlay
           style={{ height: 200 }}
           resizeMode="contain"
@@ -64,7 +63,7 @@ export function InternalServerErrorScreen() {
         />
       </Form>
       <Footer>
-        <Button title="Tentar novamente" onPress={handleGoBack} />
+        <Button title="Enviar experiencia" onPress={handleGoBack} />
       </Footer>
     </Container>
   );

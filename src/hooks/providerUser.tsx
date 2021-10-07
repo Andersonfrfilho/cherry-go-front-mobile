@@ -9,7 +9,7 @@ import React, {
 import { GENDER_ENUM } from '../enums/genderType.enum';
 import { api } from '../services/api';
 import { useCommon } from './common';
-import { UserClient } from './clientUser';
+import { ClientAppointment, UserClient } from './clientUser';
 import { UserClientRegisterDTO } from './dtos/users';
 import { useError } from './error';
 import { userRepository } from '../databases/repository/user.repository';
@@ -108,7 +108,7 @@ type Transport = {
   arrival_time_return: string;
   return_time: string;
   created_at: string;
-  transport_type: TransportTypes[];
+  transport_type: TransportTypes;
   origin_address: Addresses;
   destination_address: Addresses;
 };
@@ -116,8 +116,12 @@ type Service = {
   id: string;
   provider_id: string;
   appointment_id: string;
+  name: string;
   service_id: string;
   created_at: string;
+  active: boolean;
+  amount: string;
+  duration: string;
 };
 
 type ElementTransactionItem = {
@@ -136,9 +140,9 @@ type TransactionItem = {
   elements: ElementTransactionItem;
   reference_key: string;
   type: string;
-  increment_amount: number;
-  discount_amount: number;
-  amount: number;
+  increment_amount: string;
+  discount_amount: string;
+  amount: string;
   created_at: string;
 };
 
@@ -164,8 +168,8 @@ export type Appointment = {
   created_at: string;
   updated_at: string;
   deleted_at: string;
-  providers?: UserProvider[];
-  clients: UserClient[];
+  providers: UserProvider[];
+  clients: ClientAppointment[];
   transports: Transport[];
   services?: Service[];
   addresses: AddressesAppointment[];
@@ -187,6 +191,7 @@ export type UserProvider = {
   password?: string;
   password_confirm?: string;
   birth_date: string;
+  status: string;
   gender: GENDER_ENUM;
   details?: any;
   phones?: Phone[];

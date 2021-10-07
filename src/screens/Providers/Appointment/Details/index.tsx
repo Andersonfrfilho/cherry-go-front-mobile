@@ -1,11 +1,12 @@
-import React, { createRef, useEffect } from 'react';
-import * as Yup from 'yup';
+import React from 'react';
+
 import brazilLocale from 'date-fns/locale/pt-BR';
 import { StatusBar } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTheme } from 'styled-components';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { format } from 'date-fns';
+import { Button } from '../../../../components/Button';
 import {
   Container,
   Body,
@@ -27,8 +28,6 @@ import {
   AreaStreetNumber,
   AreaTextStreet,
   TextStreet,
-  AreaTextNumber,
-  TextNumber,
   AreaDistrictComplement,
   AreaTextDistrict,
   TextDistrict,
@@ -37,8 +36,6 @@ import {
   AreaTextCityStateReference,
   AreaTextCityState,
   TextCityState,
-  AreaTextReference,
-  TextReference,
   AreaAppointmentTransport,
   AreaAppointmentTransportTitleIcon,
   AreaAppointmentTransportInformation,
@@ -48,10 +45,18 @@ import {
   AreaTitleTransportItemInformation,
   AreaAppointmentServicesList,
   AreaAppointmentServices,
+  AreaTransactionService,
+  AreaAppointmentTransactionServiceInformation,
+  AreaInfoServiceDurationAmount,
+  AreaTitleTransactionItem,
+  AreaTransactionText,
+  AreaTitleTransactionItemValueInformation,
+  AreaAppointmentStatus,
+  AreaTitleAppointmentStatus,
+  AreaAppointmentStatusButtons,
 } from './styles';
 
 import { useCommon } from '../../../../hooks/common';
-
 import { WarningText } from '../../../../components/WarningText';
 import { ScreenNavigationProp } from '../../../../routes';
 import { HeaderProfile } from '../../../../components/HeaderProfile';
@@ -62,6 +67,10 @@ import { useError } from '../../../../hooks/error';
 import { getOldest } from '../../../../utils/getOldest';
 import { getValueAmount } from '../../../../utils/formatValueAmount';
 import { getHour } from '../../../../utils/getHour';
+import { getMinutes } from '../../../../utils/getMinutes';
+import { getDuration } from '../../../../utils/getDuration';
+import { useAppointment } from '../../../../hooks/appointment';
+import { STATUS_PROVIDERS_APPOINTMENT } from '../../../../enums/statusProvidersAppointment.enum';
 
 export interface Focusable {
   focus(): void;
@@ -76,6 +85,8 @@ export function AppointmentsDetailsProvider() {
   const { isLoading } = useCommon();
   const { appError } = useError();
   const { userProvider } = useProviderUser();
+  const { confirmAppointmentProvider, rejectedAppointmentProvider } =
+    useAppointment();
   const route = useRoute();
   const { appointment } = route.params as { appointment: Appointment };
   const navigation = useNavigation<ScreenNavigationProp>();
@@ -84,8 +95,14 @@ export function AppointmentsDetailsProvider() {
     last_name: lastName,
     image_profile: imageProfile,
   } = userProvider;
-  function handleSelectedAppointment(appointment: Appointment) {
-    console.log(appointment);
+  async function handleSelectedRejectAppointment(appointment_id: string) {
+    await rejectedAppointmentProvider(appointment_id);
+  }
+  async function handleSelectedConfirmedAppointment(appointment_id: string) {
+    await confirmAppointmentProvider(appointment_id);
+  }
+  function handleCanBack() {
+    navigation.replace('HomeProvider');
   }
   return (
     <Container>
@@ -154,9 +171,9 @@ export function AppointmentsDetailsProvider() {
                           source={{
                             uri:
                               client &&
-                              client.image_profile &&
-                              client.image_profile[0].image &&
-                              client.image_profile[0].image.link,
+                              client.client.image_profile &&
+                              client.client.image_profile[0].image &&
+                              client.client.image_profile[0].image.link,
                           }}
                         />
                       </AreaPhoto>
@@ -165,8 +182,8 @@ export function AppointmentsDetailsProvider() {
                           numberOfLines={1}
                           style={{ textTransform: 'capitalize' }}
                         >
-                          {client.name} {client.last_name},{' '}
-                          {getOldest(new Date(client.birth_date))}
+                          {client.client.name} {client.client.last_name},{' '}
+                          {getOldest(new Date(client.client.birth_date))}
                         </Title>
                       </AreaTitle>
                     </AreaAppointmentClient>
@@ -380,66 +397,137 @@ export function AppointmentsDetailsProvider() {
                 </AreaIcon>
               </AreaAppointmentAddressTitleIcon>
               <AreaAppointmentServicesList>
-                {appointment.transactions[0].itens.map(service => (
-                  <AreaTransactionService>
+                {appointment.transactions[0].itens.map((item, index) => (
+                  <AreaTransactionService key={index.toString()}>
                     <AreaAppointmentTransactionServiceInformation>
                       <AreaTitleTransactionItem>
-                        <Title>Tipo de transporte</Title>
+                        <Title>{item.elements.service.name}</Title>
                       </AreaTitleTransactionItem>
-                      <AreaTitleTransactionItem>
-                        <Title style={{ textTransform: 'capitalize' }}>
-                          {appointment.transports[0].transport_type.name}
-                        </Title>
-                      </AreaTitleTransactionItem>
-                      <AreaStreetNumber>
-                        <AreaTextStreet>
-                          <TextStreet
+                      <AreaInfoServiceDurationAmount>
+                        <AreaTransactionText>
+                          <Title numberOfLines={1}>Duração:</Title>
+                          <Title
                             numberOfLines={1}
                             style={{ fontSize: RFValue(16) }}
                           >
-                            Hora da solicitação:{' '}
-                            {getHour(appointment.transports[0].initial_hour)}
-                          </TextStreet>
-                          <TextStreet
-                            numberOfLines={1}
-                            style={{ fontSize: RFValue(16) }}
-                          >
-                            Hora da partida prevista:{' '}
-                            {getHour(appointment.transports[0].departure_time)}
-                          </TextStreet>
-                        </AreaTextStreet>
-                      </AreaStreetNumber>
-                      <AreaDistrictComplement>
-                        <AreaTextDistrict>
-                          <TextStreet
-                            numberOfLines={1}
-                            style={{ fontSize: RFValue(16) }}
-                          >
-                            Hora de retorno:{' '}
-                            {getHour(appointment.transports[0].return_time)}
-                          </TextStreet>
-                          <TextStreet
-                            numberOfLines={1}
-                            style={{ fontSize: RFValue(16) }}
-                          >
-                            Hora de chegada retorno:{' '}
-                            {getHour(
-                              appointment.transports[0].arrival_time_return,
-                            )}
-                          </TextStreet>
-                        </AreaTextDistrict>
-                      </AreaDistrictComplement>
+                            {getMinutes(item.elements.service.duration).minutes}{' '}
+                            m
+                          </Title>
+                        </AreaTransactionText>
+                        <AreaTransactionText>
+                          <Title numberOfLines={1}>Incremento:</Title>
+                          <Title numberOfLines={1}>
+                            {getValueAmount(item.increment_amount)}
+                          </Title>
+                        </AreaTransactionText>
+                        <AreaTransactionText>
+                          <Title numberOfLines={1}>Desconto:</Title>
+                          <Title numberOfLines={1}>
+                            {getValueAmount(item.discount_amount)}
+                          </Title>
+                        </AreaTransactionText>
+                      </AreaInfoServiceDurationAmount>
+
                       <AreaTitleTransactionItemValueInformation>
-                        <Title>Valor</Title>
-                        <Title>
-                          {getValueAmount(appointment.transports[0].amount)}
-                        </Title>
+                        <Title>Total</Title>
+                        <Title>{getValueAmount(item.amount)}</Title>
                       </AreaTitleTransactionItemValueInformation>
                     </AreaAppointmentTransactionServiceInformation>
                   </AreaTransactionService>
                 ))}
+                <AreaTransactionService>
+                  <AreaAppointmentTransactionServiceInformation
+                    color={theme.colors.success}
+                  >
+                    <AreaTitleTransactionItem>
+                      <Title>Total dos serviços</Title>
+                    </AreaTitleTransactionItem>
+                    <AreaTitleTransactionItemValueInformation>
+                      <Title>Duração</Title>
+                      <Title>
+                        {getDuration({
+                          initialDate: appointment.initial_date,
+                          finallyDate: appointment.final_date,
+                        })}{' '}
+                        m
+                      </Title>
+                    </AreaTitleTransactionItemValueInformation>
+                    <AreaTitleTransactionItemValueInformation>
+                      <Title>Original</Title>
+                      <Title>
+                        {getValueAmount(
+                          appointment.transactions[0].original_amount,
+                        )}
+                      </Title>
+                    </AreaTitleTransactionItemValueInformation>
+                    <AreaTitleTransactionItemValueInformation>
+                      <Title>Incrementos</Title>
+                      <Title>
+                        {getValueAmount(
+                          appointment.transactions[0].increment_amount,
+                        )}
+                      </Title>
+                    </AreaTitleTransactionItemValueInformation>
+                    <AreaTitleTransactionItemValueInformation>
+                      <Title>Descontos</Title>
+                      <Title>
+                        {getValueAmount(
+                          appointment.transactions[0].discount_amount,
+                        )}
+                      </Title>
+                    </AreaTitleTransactionItemValueInformation>
+                    <AreaTitleTransactionItemValueInformation>
+                      <Title>Total</Title>
+                      <Title>
+                        {getValueAmount(
+                          appointment.transactions[0].current_amount,
+                        )}
+                      </Title>
+                    </AreaTitleTransactionItemValueInformation>
+                  </AreaAppointmentTransactionServiceInformation>
+                </AreaTransactionService>
               </AreaAppointmentServicesList>
             </AreaAppointmentServices>
+            <AreaAppointmentStatus>
+              <AreaTitleAppointmentStatus>
+                <Title>Opções de Agendamento</Title>
+              </AreaTitleAppointmentStatus>
+              <AreaAppointmentStatusButtons>
+                {appointment.providers[0].status ===
+                  STATUS_PROVIDERS_APPOINTMENT.OPEN && (
+                  <Button
+                    title="Confirmar"
+                    onPress={() =>
+                      handleSelectedConfirmedAppointment(appointment.id)
+                    }
+                    enabled={!isLoading}
+                    loading={isLoading}
+                    color={theme.colors.success_chateau}
+                  />
+                )}
+                {(appointment.providers[0].status ===
+                  STATUS_PROVIDERS_APPOINTMENT.ACCEPTED ||
+                  appointment.providers[0].status ===
+                    STATUS_PROVIDERS_APPOINTMENT.OPEN) && (
+                  <Button
+                    title="Cancelar"
+                    onPress={() =>
+                      handleSelectedRejectAppointment(appointment.id)
+                    }
+                    enabled={!isLoading}
+                    loading={isLoading}
+                    color={theme.colors.red_devil}
+                  />
+                )}
+
+                <Button
+                  title="Voltar"
+                  onPress={handleCanBack}
+                  enabled={!isLoading}
+                  loading={isLoading}
+                />
+              </AreaAppointmentStatusButtons>
+            </AreaAppointmentStatus>
           </AreaAppointments>
         )}
       </Body>

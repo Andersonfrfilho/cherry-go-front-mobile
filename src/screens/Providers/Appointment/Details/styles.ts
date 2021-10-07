@@ -3,6 +3,10 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import { Feather } from '@expo/vector-icons';
 import FastImage from 'react-native-fast-image';
 
+interface TransactionItensProps {
+  color?: string;
+}
+
 export const Container = styled.View`
   flex: 1;
   background-color: ${({ theme }) => theme.colors.background_primary};
@@ -277,10 +281,10 @@ export const AreaTransactionService = styled.View`
   margin-bottom: 10px;
 `;
 
-export const AreaAppointmentTransactionServiceInformation = styled.View`
+export const AreaAppointmentTransactionServiceInformation = styled.View<TransactionItensProps>`
   flex: 1;
   margin: 0 10px;
-  background-color: ${({ theme }) => theme.colors.main};
+  background-color: ${({ theme, color }) => color || theme.colors.main};
   border-radius: 12px;
 `;
 export const AreaTitleTransactionItem = styled.View`
@@ -288,12 +292,58 @@ export const AreaTitleTransactionItem = styled.View`
 
   justify-content: center;
   align-items: center;
+`;
+
+export const AreaInfoServiceDurationAmount = styled.View``;
+export const AreaTransactionText = styled.View`
+  height: 40px;
+
+  flex-direction: row;
+
+  justify-content: space-between;
+  align-items: center;
 
   margin-bottom: 10px;
 
-  border-bottom-width: 4px;
-  border-bottom-color: ${({ theme }) => theme.colors.background_primary};
+  padding-left: 10px;
+  padding-right: 10px;
+
+  border-top-width: 4px;
+  border-top-color: ${({ theme }) => theme.colors.background_primary};
 `;
+export const TextTransaction = styled.Text``;
+
+export const AreaTitleTransactionItemValueInformation = styled.View`
+  height: 40px;
+
+  flex-direction: row;
+
+  justify-content: space-between;
+  align-items: center;
+
+  margin-bottom: 10px;
+
+  padding-left: 10px;
+  padding-right: 10px;
+
+  border-top-width: 4px;
+  border-top-color: ${({ theme }) => theme.colors.background_primary};
+`;
+
+export const AreaAppointmentStatus = styled.View`
+  flex: 1;
+
+  padding: 0 10px;
+`;
+
+export const AreaStatusButton = styled.View``;
+export const AreaTitleAppointmentStatus = styled.View`
+  height: 40px;
+
+  justify-content: center;
+  align-items: center;
+`;
+export const AreaAppointmentStatusButtons = styled.View``;
 // export const AreaAppointmentContent = styled.View`
 //   flex: 1;
 //   background-color: ${({ theme }) => theme.colors.background_primary};

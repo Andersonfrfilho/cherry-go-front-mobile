@@ -115,7 +115,16 @@ export type UserClient = {
   image_profile?: Image_Profile[];
 
 };
-
+export type ClientAppointment = {
+  id: string;
+  client_id: string;
+  appointment_id: string;
+  active: boolean;
+  created_at: string;
+  updated_at: null;
+  deleted_at: null;
+  client: UserClient;
+}
 export type Token = {
   id?: string;
   token?: string;

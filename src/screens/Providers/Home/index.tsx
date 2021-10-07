@@ -62,7 +62,6 @@ export function HomeProvider() {
   }
 
   useEffect(() => {
-    console.log('executou');
     loadUserData();
   }, []);
 
@@ -94,7 +93,7 @@ export function HomeProvider() {
                 ) : (
                   <>
                     <AreaTitle>
-                      <Title>Agendamentos pendentes de aprovação</Title>
+                      <Title>Agendamentos pendentes</Title>
                     </AreaTitle>
                     <AreaIcon>
                       <Icon
@@ -126,8 +125,9 @@ export function HomeProvider() {
                             source={{
                               uri:
                                 item.clients &&
-                                item.clients[0].image_profile &&
-                                item.clients[0].image_profile[0].image.link,
+                                item.clients[0].client.image_profile &&
+                                item.clients[0].client.image_profile[0].image
+                                  .link,
                             }}
                           />
                         </AreaPhoto>
@@ -229,8 +229,9 @@ export function HomeProvider() {
                             source={{
                               uri:
                                 item.clients &&
-                                item.clients[0].image_profile &&
-                                item.clients[0].image_profile[0].image.link,
+                                item.clients[0].client.image_profile &&
+                                item.clients[0].client.image_profile[0].image
+                                  .link,
                             }}
                           />
                         </AreaPhoto>
