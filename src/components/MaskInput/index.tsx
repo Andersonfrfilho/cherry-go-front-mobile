@@ -48,6 +48,7 @@ export function MaskInput({
       </AreaIcon>
       <AreaInput isFocused={isFocused} isFilled={isFilled} error={!!error}>
         <TextInputSC
+          value={value}
           {...rest}
           onBlur={handleInputBlur}
           onFocus={handleInputFocus}

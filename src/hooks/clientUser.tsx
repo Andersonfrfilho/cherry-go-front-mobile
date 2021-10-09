@@ -12,9 +12,10 @@ import { UploadUserClientImageDocumentDTO, UploadUserClientImageProfileDTO, User
 import { Dispatch, SetStateAction } from 'hoist-non-react-statics/node_modules/@types/react';
 import { useError } from './error';
 import { GetModelResponse } from '../databases/model/dtos/getUser.dto';
+import { useCommon } from './common';
 
 type ClientUserContextData = {
-  userClient: UserClient;
+  userClient: GetModelResponse;
   setUserClient: React.Dispatch<React.SetStateAction<GetModelResponse>>;
   registerClient: (userData: UserClientRegisterDTO) => Promise<void>;
   registerAddressClient: (
@@ -33,8 +34,11 @@ type ClientUserContextData = {
   setPhone: Dispatch<SetStateAction<string>>;
   userIdResetPassword: string;
   resetPassword(dataResetPassword: ResetPasswordProps): Promise<void>;
+  updateDetails(data: UpdateDetailsProps): Promise<void>
 };
-
+interface UpdateDetailsProps {
+  details: any;
+}
 interface ResetPasswordProps {
   password: string;
   token: string;
@@ -140,6 +144,7 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
   const [countdown, setCountdown] = useState(0);
   const [phone, setPhone] = useState('');
   const [userIdResetPassword, setUserIdResetPassword] = useState('');
+  const { setIsLoading } = useCommon();
   const { appErrorVerifyError } = useError();
 
   async function registerClient(userData: UserClientRegisterDTO) {
@@ -150,7 +155,7 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
 
       setUserClient(user);
     } catch (err) {
-      await appErrorVerifyError({
+      appErrorVerifyError({
         message: err.response.data.message,
         status_code: err.response.status,
         code: err.response.data.code,
@@ -166,7 +171,7 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
         const [user] = await userRepository.findAll()
 
         if (!user) {
-          await appErrorVerifyError({
+          appErrorVerifyError({
             message: '',
             status_code: 600,
             code: '0003',
@@ -190,7 +195,7 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
         await userRepository.removeAllDatabase();
       }
 
-      await appErrorVerifyError({
+      appErrorVerifyError({
         message: err.response.data.message,
         status_code: err.response.status,
         code: err.response.data.code,
@@ -207,7 +212,7 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
 
 
         if (!user) {
-          await appErrorVerifyError({
+          appErrorVerifyError({
             message: '',
             status_code: 600,
             code: '0003',
@@ -233,7 +238,7 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
         await userRepository.removeAllDatabase();
       }
 
-      await appErrorVerifyError({
+      appErrorVerifyError({
         message: err.response.data.message,
         status_code: err.response.status,
         code: err.response.data.code,
@@ -250,7 +255,7 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
         const [user] = await userRepository.findAll()
 
         if (!user) {
-          await appErrorVerifyError({
+          appErrorVerifyError({
             message: '',
             status_code: 600,
             code: '0003',
@@ -273,7 +278,7 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
         await userRepository.removeAllDatabase();
       }
 
-      await appErrorVerifyError({
+      appErrorVerifyError({
         message: err.response.data.message,
         status_code: err.response.status,
         code: err.response.data.code,
@@ -292,7 +297,7 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
         const [token] = await tokenRepository.findAll()
 
         if (!user) {
-          await appErrorVerifyError({
+          appErrorVerifyError({
             message: '',
             status_code: 600,
             code: '0003',
@@ -313,7 +318,7 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
         await userRepository.removeAllDatabase();
       }
 
-      await appErrorVerifyError({
+      appErrorVerifyError({
         message: err.response.data.message,
         status_code: err.response.status,
         code: err.response.data.code,
@@ -331,7 +336,7 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
         const [user] = await userRepository.findAll()
 
         if (!user) {
-          await appErrorVerifyError({
+          appErrorVerifyError({
             message: '',
             status_code: 600,
             code: '0003',
@@ -343,7 +348,7 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
       const fileName = image_uri.split('/').pop()
 
       if (!fileName) {
-        await appErrorVerifyError({
+        appErrorVerifyError({
           message: '',
           status_code: 600,
           code: '0004',
@@ -371,12 +376,11 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
       }
       await api.post('/v1/users/documents/image', formData, config);
     } catch (err) {
-      console.log(err)
       if (NOT_FOUND[404][4001].code === err.response.data.code && NOT_FOUND[404][4001].status_code === err.response.status && NOT_FOUND[404][4001].message === err.response.data.message) {
         await userRepository.removeAllDatabase();
       }
 
-      await appErrorVerifyError({
+      appErrorVerifyError({
         message: err.response.data.message,
         status_code: err.response.status,
         code: err.response.data.code,
@@ -393,7 +397,7 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
         const [user] = await userRepository.findAll()
 
         if (!user) {
-          await appErrorVerifyError({
+          appErrorVerifyError({
             message: '',
             status_code: 600,
             code: '0003',
@@ -405,7 +409,7 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
       const fileName = image_uri.split('/').pop()
 
       if (!fileName) {
-        await appErrorVerifyError({
+        appErrorVerifyError({
           message: '',
           status_code: 600,
           code: '0004',
@@ -432,12 +436,11 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
       }
       await api.post('/v1/users/profiles/images', formData, config);
     } catch (err) {
-      console.log(err)
       if (NOT_FOUND[404][4001].code === err.response.data.code && NOT_FOUND[404][4001].status_code === err.response.status && NOT_FOUND[404][4001].message === err.response.data.message) {
         await userRepository.removeAllDatabase();
       }
 
-      await appErrorVerifyError({
+      appErrorVerifyError({
         message: err.response.data.message,
         status_code: err.response.status,
         code: err.response.data.code,
@@ -452,7 +455,7 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
         platform: Platform.OS
       });
     } catch (err) {
-      await appErrorVerifyError({
+      appErrorVerifyError({
         message: err.response.data.message,
         status_code: err.response.status,
         code: err.response.data.code,
@@ -468,7 +471,7 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
       setCountdown(Number(countdown))
       return { countdown: Number(countdown), userId: user_id }
     } catch (err) {
-      await appErrorVerifyError({
+      appErrorVerifyError({
         message: err.response.data.message,
         status_code: err.response.status,
         code: err.response.data.code,
@@ -481,7 +484,7 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
       await api.post('/v1/users/password/reset', { password, token });
       setToken({})
     } catch (err) {
-      await appErrorVerifyError({
+      appErrorVerifyError({
         message: err.response.data.message,
         status_code: err.response.status,
         code: err.response.data.code,
@@ -489,11 +492,22 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
     }
   }
 
+  async function updateDetails({ details }: UpdateDetailsProps): Promise<void> {
+    setIsLoading(true)
+    try {
+      await api.put('/v1/users/clients/details', { details });
+    } catch (err) {
+      appErrorVerifyError(err);
+    } finally{
+      setIsLoading(false)
+    }
+  }
+
   return (
     <ClientUserContext.Provider
       value={{
         registerClient, userIdResetPassword, resetPassword,
-        phone, setPhone, registerAddressClient, uploadUserClientImageProfile, uploadUserClientImageDocument, registerPhoneClient, resendCodePhoneClient, confirmCodePhoneClient, forgotPasswordMail, token, forgotPasswordPhone, countdown, userClient, setUserClient
+        phone, setPhone, registerAddressClient, uploadUserClientImageProfile, uploadUserClientImageDocument, registerPhoneClient, resendCodePhoneClient, confirmCodePhoneClient, forgotPasswordMail, token, forgotPasswordPhone, countdown, userClient, setUserClient,updateDetails
       }}
     >
       {children}

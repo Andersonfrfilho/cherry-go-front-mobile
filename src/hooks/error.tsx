@@ -32,6 +32,7 @@ function ErrorProvider({ children }: ErrorProviderProps) {
   const [appError, setAppError] = useState<Partial<ErrorData>>({});
 
   function unauthorizedError(err: Error): void {
+    console.log('veiooo');
     setAppError(ConstantError[err.response.status][err.response.data.code]);
     RootNavigation.navigate('UnauthorizedErrorScreen', {});
   }
@@ -55,7 +56,7 @@ function ErrorProvider({ children }: ErrorProviderProps) {
       '%c ### Hook Error####',
       'color: green; background: yellow; font-size: 30px',
     );
-
+    console.log(JSON.stringify(err, null, 2));
     if (err.message === 'Network Error') {
       internalServerError();
       return;

@@ -264,7 +264,7 @@ function ProviderUserProvider({ children }: ProviderUserProviderProps) {
       const { data } = await api.post('/v1/users/providers', userData);
       setUserProvider(data);
     } catch (err) {
-      await appErrorVerifyError({
+      appErrorVerifyError({
         message: err.response.data.message,
         status_code: err.response.status,
         code: err.response.data.code,

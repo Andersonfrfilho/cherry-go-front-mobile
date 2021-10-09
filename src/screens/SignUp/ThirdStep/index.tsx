@@ -127,7 +127,6 @@ export function SignUpThirdStep() {
     setIsLoading(true);
     setAppError({});
     try {
-      console.log(form);
       if (!token.token) {
         setAppError(appErrorVerifyError({ status_code: 600, code: '0002' }));
         return;

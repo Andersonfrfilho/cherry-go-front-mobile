@@ -124,7 +124,6 @@ export function ForgotPassword() {
       await forgotPasswordMail(mail);
       // navigation.navigate('SignUpSecondStep');
     } catch (error) {
-      console.log(error);
       setAppError(appErrorVerifyError(error));
     } finally {
       setIsLoading(false);
@@ -147,7 +146,6 @@ export function ForgotPassword() {
       setUserId(userIdResponse);
       // navigation.navigate('SignUpSecondStep');
     } catch (error) {
-      console.log(error);
       setAppError(appErrorVerifyError(error));
     } finally {
       setIsLoading(false);
@@ -183,7 +181,6 @@ export function ForgotPassword() {
       });
       navigation.navigate('SignUpSecondStep');
     } catch (error) {
-      console.log(error);
       setAppError(appErrorVerifyError(error));
     } finally {
       setIsLoading(false);
@@ -191,7 +188,6 @@ export function ForgotPassword() {
   }
 
   useEffect(() => {
-    console.log(phoneConfirmation && seconds > 0);
     if (phoneConfirmation && seconds > 0) {
       setTimeout(() => setSeconds(seconds - 1), 1000);
     } else if (phoneConfirmation) {

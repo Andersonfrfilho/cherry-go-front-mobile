@@ -99,7 +99,6 @@ export function SignUpSevenStep() {
         setIsPreview(true);
       }
     } catch (error) {
-      console.log(error);
       setAppError(appErrorVerifyError(error));
     } finally {
       setIsLoading(false);
@@ -122,7 +121,6 @@ export function SignUpSevenStep() {
         }
       }
     } catch (error) {
-      console.log(error);
       setAppError(appErrorVerifyError(error));
     } finally {
       setIsLoading(false);

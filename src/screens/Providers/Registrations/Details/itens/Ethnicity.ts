@@ -1,0 +1,58 @@
+export const ethnicityItens = [
+  {
+    label: 'Selecione uma etnia',
+    value: '',
+    color: '',
+    colorFont: '',
+    backgroundColor: '',
+  },
+  {
+    label: 'Brancos',
+    value: 'Brancos',
+    color: '',
+    colorFont: '',
+    backgroundColor: '',
+  },
+  {
+    label: 'Negros',
+    value: 'Negros',
+    color: '',
+    colorFont: '',
+    backgroundColor: '',
+  },
+  {
+    label: 'Indígenas',
+    value: 'Indígenas',
+    color: '',
+    colorFont: '',
+    backgroundColor: '',
+  },
+  {
+    label: 'Pardos',
+    value: 'Pardos',
+    color: '',
+    colorFont: '',
+    backgroundColor: '',
+  },
+  {
+    label: 'Mulatos',
+    value: 'Mulatos',
+    color: '',
+    colorFont: '',
+    backgroundColor: '',
+  },
+  {
+    label: 'Caboclos',
+    value: 'Caboclos',
+    color: '',
+    colorFont: '',
+    backgroundColor: '',
+  },
+  {
+    label: 'Cafuzos',
+    value: 'Cafuzos',
+    color: '',
+    colorFont: '',
+    backgroundColor: '',
+  },
+];

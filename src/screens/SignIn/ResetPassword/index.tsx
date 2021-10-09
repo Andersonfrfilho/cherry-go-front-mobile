@@ -85,7 +85,6 @@ export function ResetPassword() {
       });
       navigation.navigate('SignIn');
     } catch (error) {
-      console.log(error);
       setAppError(appErrorVerifyError(error));
     } finally {
       setIsLoading(false);

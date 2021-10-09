@@ -69,5 +69,5 @@ npx uri-scheme open cherry-go://app/splash/123 --android
 ```
 
 ```powershell
-  cd android;./gradlew clean;cd ..;npx react-native run-android;yarn start;adb reverse tcp:3333 tcp:333
+  cd android;./gradlew clean;cd ..;npx react-native run-android;yarn start;adb reverse tcp:3333 tcp:3333
 ```

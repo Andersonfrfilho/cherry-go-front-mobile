@@ -1,0 +1,58 @@
+export const hairStyle = [
+  {
+    label: 'Selecione um estilo de cabelo',
+    value: '',
+    color: '',
+    colorFont: '',
+    backgroundColor: '',
+  },
+  {
+    label: 'Buzzcut',
+    value: 'Buzzcut',
+    color: '',
+    colorFont: '',
+    backgroundColor: '',
+  },
+  {
+    label: 'Undercut',
+    value: 'Undercut',
+    color: '',
+    colorFont: '',
+    backgroundColor: '',
+  },
+  {
+    label: 'Sidecut',
+    value: 'Sidecut',
+    color: '',
+    colorFont: '',
+    backgroundColor: '',
+  },
+  {
+    label: 'Pixiecut',
+    value: 'Pixiecut',
+    color: '',
+    colorFont: '',
+    backgroundColor: '',
+  },
+  {
+    label: 'Corte Bob',
+    value: 'Corte Bob',
+    color: '',
+    colorFont: '',
+    backgroundColor: '',
+  },
+  {
+    label: 'Long Bob',
+    value: 'Long Bob',
+    color: '',
+    colorFont: '',
+    backgroundColor: '',
+  },
+  {
+    label: 'Shag hair',
+    value: 'Shag hair',
+    color: '',
+    colorFont: '',
+    backgroundColor: '',
+  },
+];

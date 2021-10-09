@@ -214,9 +214,7 @@ export function SignUpFifthStep() {
                     <AreaButton
                       disabled={isLoading}
                       onPress={() => {
-                        console.log('Loading');
                         handleFlashOnOff(flashMode === 'on' ? 'off' : 'on');
-                        console.log(flashMode);
                       }}
                       color={
                         isLoading

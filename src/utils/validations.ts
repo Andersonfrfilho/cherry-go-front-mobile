@@ -51,6 +51,10 @@ export function removeCharacterSpecial(value: string): string {
   return value.replace(/[^a-zA-Z0-9 ]/g, '');
 }
 
+export function onlyNumbers(value: string): string {
+  return value.replace(/[^0-9]*$/g, '');
+}
+
 export function formattedDate(date: string): Date {
   const [day, month, year] = date.split('/');
   return new Date(`${year}-${month}-${day}`);
