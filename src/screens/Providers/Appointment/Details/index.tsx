@@ -95,12 +95,17 @@ export function AppointmentsDetailsProvider() {
     last_name: lastName,
     image_profile: imageProfile,
   } = userProvider;
+
   async function handleSelectedRejectAppointment(appointment_id: string) {
     await rejectedAppointmentProvider(appointment_id);
+    navigation.replace('HomeProvider');
   }
+
   async function handleSelectedConfirmedAppointment(appointment_id: string) {
     await confirmAppointmentProvider(appointment_id);
+    navigation.replace('HomeProvider');
   }
+
   function handleCanBack() {
     navigation.replace('HomeProvider');
   }
@@ -401,7 +406,7 @@ export function AppointmentsDetailsProvider() {
                   <AreaTransactionService key={index.toString()}>
                     <AreaAppointmentTransactionServiceInformation>
                       <AreaTitleTransactionItem>
-                        <Title>{item.elements.service.name}</Title>
+                        <Title>{item.elements.name}</Title>
                       </AreaTitleTransactionItem>
                       <AreaInfoServiceDurationAmount>
                         <AreaTransactionText>
@@ -410,8 +415,7 @@ export function AppointmentsDetailsProvider() {
                             numberOfLines={1}
                             style={{ fontSize: RFValue(16) }}
                           >
-                            {getMinutes(item.elements.service.duration).minutes}{' '}
-                            m
+                            {getMinutes(item.elements.duration).minutes} m
                           </Title>
                         </AreaTransactionText>
                         <AreaTransactionText>

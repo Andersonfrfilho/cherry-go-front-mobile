@@ -79,24 +79,17 @@ class User extends Model {
 
   async getUser(): Promise<GetModelResponse> {
     const [address] = await this.addresses.fetch();
-
     const [phone] = await this.phones.fetch();
-
     const [image_profile] = await this.image_profile.fetch();
-
     const typesDatabase = await this.types.fetch();
-
     const terms = await this.terms.fetch();
     const termsFormatted = terms.map(termsParam => termsParam._raw);
     const tokensDatabase = await this.collections
       .get('tokens')
       .query(Q.where('user_id', this.id))
       .fetch();
-
     const [token] = tokensDatabase.map(tokenParam => tokenParam._raw);
-
     const types = typesDatabase.map(type => type._raw);
-
     return {
       id: this.id,
       user_id: this.external_id,
@@ -109,12 +102,12 @@ class User extends Model {
       active: this.active,
       details: this.details,
       types,
-      phones: phone._raw,
-      addresses: address._raw,
-      image_profile: image_profile._raw,
+      phones: phone && phone._raw,
+      addresses: address && address._raw,
+      image_profile: image_profile && image_profile._raw,
       terms: termsFormatted,
-      token: token.token,
-      refresh_token: token?.refresh_token,
+      token: token && token.token,
+      refresh_token: token && token?.refresh_token,
     };
   }
 

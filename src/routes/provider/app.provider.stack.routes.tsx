@@ -17,7 +17,7 @@ export function AppProviderNativeStackRoutes() {
         gestureEnabled: true,
         ...TransitionPresets.ModalPresentationIOS,
       }}
-      initialRouteName="RegistrationsPhotosProviderStack"
+      initialRouteName="HomeProviderStack"
     >
       <Screen name="HomeProviderStack" component={HomeProvider} />
       <Screen

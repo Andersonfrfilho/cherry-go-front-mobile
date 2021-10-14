@@ -47,7 +47,7 @@ export interface Focusable {
 export function HomeProvider() {
   const theme = useTheme();
   const { isLoading } = useCommon();
-  const { appError } = useError();
+  const { appError, setAppError } = useError();
   const { userProvider, loadUserData } = useProviderUser();
 
   const navigation = useNavigation<ScreenNavigationProp>();
@@ -62,6 +62,7 @@ export function HomeProvider() {
   }
 
   useEffect(() => {
+    setAppError({});
     loadUserData();
   }, []);
 

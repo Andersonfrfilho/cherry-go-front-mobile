@@ -24,5 +24,10 @@ export const BAD_REQUEST = {
       status_code,
       code: '0004',
     },
+    '0005': {
+      message: `O numero de imagens atingiu o limite, para adicionar novas, exclua as existentes!`,
+      status_code,
+      code: '0005',
+    },
   },
 };

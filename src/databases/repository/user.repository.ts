@@ -74,13 +74,10 @@ async function findByUserId(id: string): Promise<ModelUser> {
 }
 async function getUser(): Promise<GetModelResponse | null> {
   const [userDatabase] = await database.get<ModelUser>('users').query().fetch();
-
   if (!userDatabase) {
     return null;
   }
-
   const user = await userDatabase.getUser();
-
   return user;
 }
 async function findAll(): Promise<ModelUser[]> {

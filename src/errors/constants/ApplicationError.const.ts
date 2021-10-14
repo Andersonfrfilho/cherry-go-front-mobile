@@ -29,5 +29,10 @@ export const APPLICATION_ERROR = {
       code: '0005',
       status_code,
     },
+    '0006': {
+      message: 'Imagens invalidas !!!',
+      code: '0006',
+      status_code,
+    },
   },
 };

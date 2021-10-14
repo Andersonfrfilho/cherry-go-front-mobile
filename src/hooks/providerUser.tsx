@@ -6,20 +6,28 @@ import React, {
   useEffect,
   Dispatch,
 } from 'react';
+import { Platform } from 'react-native';
 import { GENDER_ENUM } from '../enums/genderType.enum';
 import { api } from '../services/api';
 import { useCommon } from './common';
 import { ClientAppointment, UserClient } from './clientUser';
-import { UserClientRegisterDTO } from './dtos/users';
+import { UploadImagesProviderDTO, UserClientRegisterDTO } from './dtos/users';
 import { useError } from './error';
 import { userRepository } from '../databases/repository/user.repository';
 import { AppError } from '../errors/AppError';
+import { UpdateImagesPositionProviderDTO } from './dtos/users/UpdateImagesPositionProvider.dto';
+import { DeleteImagesProviderDTO } from './dtos/users/DeleteImagesProvider.dto';
 
 type ProviderUserContextData = {
   userProvider: UserProvider;
   setUserProvider: Dispatch<React.SetStateAction<UserProvider>>;
   registerProvider: (userData: UserClientRegisterDTO) => Promise<void>;
   loadUserData(): Promise<void>;
+  uploadImagesProvider(data: UploadImagesProviderDTO): Promise<void>;
+  updateImagesPositionProvider(
+    data: UpdateImagesPositionProviderDTO[],
+  ): Promise<void>;
+  deleteImagesProvider(data: DeleteImagesProviderDTO): Promise<void>;
 };
 
 type Term = {
@@ -51,6 +59,8 @@ type Image_Profile = {
   id: string;
   user_id: string;
   image_id: string;
+  position: string;
+  rating: string;
   created_at: string;
   image: Image;
 };
@@ -126,12 +136,13 @@ type Service = {
 
 type ElementTransactionItem = {
   id: string;
-  service: Service;
-  created_at: string;
-  service_id: string;
-  updated_at: string;
   provider_id: string;
-  appointment_id: string;
+  name: string;
+  service_id: string;
+  created_at: string;
+  active: boolean;
+  amount: string;
+  duration: string;
 };
 
 type TransactionItem = {
@@ -180,6 +191,17 @@ export type AppointmentsMode = {
   rejected: Appointment[];
   confirmed: Appointment[];
 };
+export type Image_Provider = {
+  id: string;
+  provider_id: string;
+  image_id: string;
+  position: string;
+  rating: string;
+  created_at: string;
+  updated_at: null;
+  deleted_at: null;
+  image: Image;
+};
 export type UserProvider = {
   id: string;
   name: string;
@@ -203,6 +225,7 @@ export type UserProvider = {
   token?: string;
   appointments?: AppointmentsMode;
   refresh_token?: string;
+  images?: Image_Provider[];
 };
 
 export type Token = {
@@ -253,7 +276,7 @@ function ProviderUserProvider({ children }: ProviderUserProviderProps) {
         setUserProvider({ ...provider, token, refresh_token });
       }
     } catch (err) {
-      await appErrorVerifyError(err);
+      appErrorVerifyError(err);
     } finally {
       setIsLoading(false);
     }
@@ -272,9 +295,99 @@ function ProviderUserProvider({ children }: ProviderUserProviderProps) {
     }
   }
 
+  async function uploadImagesProvider({
+    imagesUri,
+    token,
+  }: UploadImagesProviderDTO) {
+    setIsLoading(true);
+    try {
+      const formData = new FormData();
+
+      imagesUri.forEach(imageUri => {
+        const fileName = imageUri.split('/').pop();
+
+        if (!fileName) {
+          throw new AppError({
+            message: '',
+            status_code: 600,
+            code: '0004',
+          });
+        }
+
+        const match = /\.(\w+)$/.exec(fileName);
+
+        const type = match ? `image/${match[1]}` : `image`;
+
+        formData.append('photos', {
+          uri:
+            Platform.OS === 'android'
+              ? imageUri
+              : imageUri.replace('file://', ''),
+          name: fileName,
+          type,
+        });
+      });
+
+      const config = {
+        headers: {
+          'content-type': 'multipart/form-data',
+          authorization: `Bearer ${token}`,
+        },
+      };
+      await api.post('/v1/users/providers/photos', formData, config);
+    } catch (error) {
+      appErrorVerifyError(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function updateImagesPositionProvider(
+    data: UpdateImagesPositionProviderDTO[],
+  ) {
+    setIsLoading(true);
+    try {
+      await api.patch('/v1/users/providers/photos', data);
+    } catch (error) {
+      appErrorVerifyError(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function deleteImagesProvider({
+    images,
+    token,
+  }: DeleteImagesProviderDTO) {
+    setIsLoading(true);
+    try {
+      const config = {
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
+        data: {
+          images,
+        },
+      };
+      await api.delete('/v1/users/providers/photos', config);
+    } catch (error) {
+      appErrorVerifyError(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   return (
     <ProviderUserContext.Provider
-      value={{ registerProvider, loadUserData, userProvider, setUserProvider }}
+      value={{
+        registerProvider,
+        loadUserData,
+        userProvider,
+        setUserProvider,
+        uploadImagesProvider,
+        updateImagesPositionProvider,
+        deleteImagesProvider,
+      }}
     >
       {children}
     </ProviderUserContext.Provider>

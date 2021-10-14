@@ -3,7 +3,6 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import { Feather } from '@expo/vector-icons';
 import { FlatList } from 'react-native';
 import FastImage from 'react-native-fast-image';
-import { Appointment } from '../../../hooks/providerUser';
 import { OptionRegister } from '.';
 
 interface AreaInfoProps {

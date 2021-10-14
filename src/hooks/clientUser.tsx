@@ -13,6 +13,7 @@ import { Dispatch, SetStateAction } from 'hoist-non-react-statics/node_modules/@
 import { useError } from './error';
 import { GetModelResponse } from '../databases/model/dtos/getUser.dto';
 import { useCommon } from './common';
+import {AppError} from '../errors/AppError'
 
 type ClientUserContextData = {
   userClient: GetModelResponse;
@@ -348,7 +349,7 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
       const fileName = image_uri.split('/').pop()
 
       if (!fileName) {
-        appErrorVerifyError({
+        throw new AppError({
           message: '',
           status_code: 600,
           code: '0004',

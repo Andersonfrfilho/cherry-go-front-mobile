@@ -60,16 +60,20 @@ function AuthProvider({ children }: AuthProviderProps) {
 
   useEffect(() => {
     (async () => {
-      setIsLoading(true);
-      setIsLoadingRouter(true);
-      const user = await userRepository.getUser();
-
-      if (user) {
-        api.defaults.headers.authorization = `Bearer ${user.token}`;
-        setUserClient(user);
+      try {
+        setIsLoading(true);
+        setIsLoadingRouter(true);
+        const user = await userRepository.getUser();
+        if (user) {
+          api.defaults.headers.authorization = `Bearer ${user.token}`;
+          setUserClient(user);
+        }
+      } catch (error) {
+        appErrorVerifyError(error);
+      } finally {
+        setIsLoadingRouter(false);
+        setIsLoading(false);
       }
-      setIsLoadingRouter(false);
-      setIsLoading(false);
     })();
     return () => {};
   }, []);
@@ -77,7 +81,6 @@ function AuthProvider({ children }: AuthProviderProps) {
   async function signIn({ email, password }: SignInCredentials): Promise<void> {
     try {
       await userRepository.removeAll();
-
       const { data } = await api.post('/v1/users/sessions', {
         email,
         password,
@@ -86,7 +89,6 @@ function AuthProvider({ children }: AuthProviderProps) {
       api.defaults.headers.authorization = `Bearer ${token}`;
 
       const userDatabase = await userRepository.createOrUpdate(user);
-
       await tokenRepository.createOrUpdate({
         token,
         refresh_token,
@@ -135,7 +137,6 @@ function AuthProvider({ children }: AuthProviderProps) {
 
         await userRepository.createUserTypeUser(userTypeUsers);
       }
-
       if (user.terms && user.terms.length > 0) {
         const termUserDatabase = await termRepository.createOrUpdate(
           user.terms,
@@ -146,7 +147,6 @@ function AuthProvider({ children }: AuthProviderProps) {
         }));
         await userRepository.createUserTerm(userTerms);
       }
-
       const userGetUser = await userRepository.getUser();
 
       if (!userGetUser) {
@@ -160,7 +160,6 @@ function AuthProvider({ children }: AuthProviderProps) {
       Object.assign(dataClone, userGetUser);
       setUserClient(dataClone);
     } catch (error) {
-      console.log(error);
       appErrorVerifyError(error);
     }
   }

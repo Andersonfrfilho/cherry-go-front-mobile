@@ -5,3 +5,4 @@ export { UserClientPhoneDTO } from './UserClientPhones.dto';
 export { UserClientPhoneCodeConfirmDTO } from './UserClientPhoneCodeConfirm.dto';
 export { UploadUserClientImageDocumentDTO } from './UploadUserClientImageDocument.dto';
 export { UploadUserClientImageProfileDTO } from './UploadUserClientImageProfile.dto';
+export { UploadImagesProviderDTO } from './UploadImagesProvider.dto';

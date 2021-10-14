@@ -122,7 +122,13 @@ export function RegistrationsProvider() {
                       </SubTitle>
                     </AreaOptionSubTitle>
                   </AreaOptionButton>
-                  <AreaOptionButton onPress={() => {}}>
+                  <AreaOptionButton
+                    onPress={() =>
+                      handlePageOptionRegister(
+                        'RegistrationsPhotosProviderStack',
+                      )
+                    }
+                  >
                     <AreaOptionImage>
                       <Icon
                         name="image"

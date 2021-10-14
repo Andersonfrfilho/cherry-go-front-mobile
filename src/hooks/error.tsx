@@ -32,13 +32,16 @@ function ErrorProvider({ children }: ErrorProviderProps) {
   const [appError, setAppError] = useState<Partial<ErrorData>>({});
 
   function unauthorizedError(err: Error): void {
-    console.log('veiooo');
     setAppError(ConstantError[err.response.status][err.response.data.code]);
     RootNavigation.navigate('UnauthorizedErrorScreen', {});
   }
   function badRequestError(err: Error): void {
     setAppError(ConstantError[err.response.status][err.response.data.code]);
-    RootNavigation.navigate('BadRequestErrorScreen', {});
+  }
+
+  function notFoundError(err: Error): void {
+    setAppError(ConstantError[err.response.status][err.response.data.code]);
+    RootNavigation.navigate('NotFoundErrorScreen', {});
   }
 
   function internalServerError(): void {
@@ -56,7 +59,13 @@ function ErrorProvider({ children }: ErrorProviderProps) {
       '%c ### Hook Error####',
       'color: green; background: yellow; font-size: 30px',
     );
-    console.log(JSON.stringify(err, null, 2));
+    // console.log(JSON.stringify(err, null, 2));
+    // console.log('##############################');
+    // console.log(err.message);
+    // if (err.message === "Cannot read property '_raw' of undefined") {
+    //   unknownServerError();
+    //   return;
+    // }
     if (err.message === 'Network Error') {
       internalServerError();
       return;
@@ -69,7 +78,16 @@ function ErrorProvider({ children }: ErrorProviderProps) {
       badRequestError(err);
       return;
     }
-
+    if (err.response.status === HTTP_ERROR_CODES_ENUM.NOT_FOUND) {
+      notFoundError(err);
+      return;
+    }
+    if (err.response.status === HTTP_ERROR_CODES_ENUM.INTERNAL_SERVER_ERROR) {
+      if (err.response.data.code === '50001') {
+        notFoundError(err);
+        return;
+      }
+    }
     unknownServerError();
   }
 
