@@ -80,6 +80,7 @@ function AuthProvider({ children }: AuthProviderProps) {
 
   async function signIn({ email, password }: SignInCredentials): Promise<void> {
     try {
+      // await api.get('http://10.0.2.2/healthcheck');
       await userRepository.removeAll();
       const { data } = await api.post('/v1/users/sessions', {
         email,

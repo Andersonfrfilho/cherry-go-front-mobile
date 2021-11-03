@@ -25,9 +25,15 @@ export const BAD_REQUEST = {
       code: '0004',
     },
     '0005': {
-      message: `O numero de imagens atingiu o limite, para adicionar novas, exclua as existentes!`,
+      message:
+        'O numero de imagens atingiu o limite, para adicionar novas, exclua as existentes!',
       status_code,
       code: '0005',
+    },
+    '0006': {
+      message: 'A data inicial informada é maior que a data final!',
+      status_code,
+      code: '0006',
     },
   },
 };

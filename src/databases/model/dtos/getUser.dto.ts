@@ -1,9 +1,19 @@
 import { GENDER_ENUM } from '../../../enums/genderType.enum';
+import { USER_TYPES_ENUM } from '../../../enums/usersType.enum';
 
+interface UserType {
+  id: string;
+  name: USER_TYPES_ENUM;
+  description: string | null;
+}
 interface Type {
-  external_id: string;
-  name: string;
-  description?: string;
+  id: string;
+  user_id: string;
+  user_type_id: string;
+  active: boolean;
+  roles: string[];
+  permissions: string[];
+  user_type: UserType;
 }
 interface Phone {
   external_id: string;

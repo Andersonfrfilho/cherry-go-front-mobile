@@ -6,6 +6,10 @@ import { HomeProvider } from '../../screens/Providers/Home';
 import { AppointmentsDetailsProvider } from '../../screens/Providers/Appointment/Details';
 import { RegistrationsDetailsProvider } from '../../screens/Providers/Registrations/Details';
 import { RegistrationsPhotosProvider } from '../../screens/Providers/Registrations/Photos';
+import { RegistrationsAvailabilitiesProvider } from '../../screens/Providers/Registrations/Availabilities';
+import { RegistrationsAvailabilitiesDaysProvider } from '../../screens/Providers/Registrations/Availabilities/Days';
+import { RegistrationsAvailabilitiesHoursProvider } from '../../screens/Providers/Registrations/Availabilities/Hours';
+import { RegistrationsAvailabilitiesPaymentsMethodsProvider } from '../../screens/Providers/Registrations/PaymentsMethods';
 
 const { Navigator, Screen } = createNativeStackNavigator();
 
@@ -31,6 +35,22 @@ export function AppProviderNativeStackRoutes() {
       <Screen
         name="RegistrationsPhotosProviderStack"
         component={RegistrationsPhotosProvider}
+      />
+      <Screen
+        name="RegistrationsAvailabilitiesProviderStack"
+        component={RegistrationsAvailabilitiesProvider}
+      />
+      <Screen
+        name="RegistrationsAvailabilitiesDaysProviderStack"
+        component={RegistrationsAvailabilitiesDaysProvider}
+      />
+      <Screen
+        name="RegistrationsAvailabilitiesHoursProviderStack"
+        component={RegistrationsAvailabilitiesHoursProvider}
+      />
+      <Screen
+        name="RegistrationsAvailabilitiesPaymentsMethodsProviderStack"
+        component={RegistrationsAvailabilitiesPaymentsMethodsProvider}
       />
     </Navigator>
   );

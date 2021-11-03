@@ -1,68 +1,140 @@
 import React, { useEffect } from 'react';
-import brazilLocale from 'date-fns/locale/pt-BR';
-import { Button, StatusBar } from 'react-native';
+import { StatusBar } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from 'styled-components';
 import { RFValue } from 'react-native-responsive-fontsize';
-import { format } from 'date-fns';
+import { isAfter, isBefore, isEqual } from 'date-fns';
 import {
   Container,
-  AreaAppointmentTitle,
-  AreaAppointments,
-  AreaAppointmentContent,
+  AreaAvailabilityTitle,
+  AreaAvailabilities,
+  AreaAvailabilityContent,
   AreaTitle,
   Title,
   Form,
   Icon,
-  AreaTextInfoDateLocal,
-  AreaAppointmentButton,
   AreaIcon,
-  List,
-  AreaPhoto,
-  PhotoClientAppointment,
-  IconInfoDateLocal,
-  AreaInfoLocalDate,
-  AreaInfoLocal,
-  IconInfoLocal,
-  AreaTextInfoLocal,
-  TextInfoLocal,
-  AreaAmount,
-  ValueAmount,
-  AreaInfoDate,
+  AreaOptions,
+  Option,
 } from './styles';
 
-import { useCommon } from '../../../hooks/common';
-import { WarningText } from '../../../components/WarningText';
-import { ScreenNavigationProp } from '../../../routes';
-import { HeaderProfile } from '../../../components/HeaderProfile';
-import { Appointment, useProviderUser } from '../../../hooks/providerUser';
-import { getPlatformDate } from '../../../utils/getPlatformDate';
-import { getValueAmount } from '../../../utils/formatValueAmount';
-import { Load } from '../../../components/Load';
-import { useError } from '../../../hooks/error';
+import { useCommon } from '../../../../hooks/common';
+import { WarningText } from '../../../../components/WarningText';
+import { ScreenNavigationProp } from '../../../../routes';
+import { HeaderProfile } from '../../../../components/HeaderProfile';
+import { Appointment, useProviderUser } from '../../../../hooks/providerUser';
+import { Load } from '../../../../components/Load';
+import { useError } from '../../../../hooks/error';
+import { Button } from '../../../../components/Button';
+import { ButtonIcon } from '../../../../components/ButtonIcon';
+import { daysPtBr } from '../../../../enums/daysProviders.enum';
 
 export interface Focusable {
   focus(): void;
 }
-export function HomeProvider() {
+export function RegistrationsAvailabilitiesProvider() {
   const theme = useTheme();
-  const { isLoading } = useCommon();
+  const { isLoading, setIsLoading } = useCommon();
   const { appError } = useError();
-  const { userProvider, loadUserData } = useProviderUser();
+  const {
+    userProvider,
+    loadUserData,
+    loadAvailableDaysToProviderWork,
+    daysAvailable,
+    hoursAvailable,
+  } = useProviderUser();
 
   const navigation = useNavigation<ScreenNavigationProp>();
   const {
     name,
     last_name: lastName,
     image_profile: imageProfile,
+    days,
+    hours,
   } = userProvider;
 
-  async function handleSelectedAppointment(appointment: Appointment) {
-    navigation.navigate('AppointmentsDetailsProvider', { appointment });
+  async function handleSelectedDaysAvailability() {
+    const daysAvailabilityWithProviderDaysSelected = daysAvailable.map(
+      dayWeekend => {
+        if (
+          days &&
+          days.some(
+            dayProvider =>
+              dayProvider.day.toString() === dayWeekend.day.toString(),
+          )
+        ) {
+          return {
+            ...dayWeekend,
+            selected: true,
+            label: daysPtBr[dayWeekend.day],
+          };
+        }
+        return {
+          ...dayWeekend,
+          selected: false,
+          label: daysPtBr[dayWeekend.day],
+        };
+      },
+    );
+
+    navigation.navigate('RegistrationsAvailabilitiesDaysProviderStack', {
+      daysForSelected: daysAvailabilityWithProviderDaysSelected,
+    });
+  }
+
+  function handleSelectedHoursAvailability() {
+    setIsLoading(true);
+    const hoursSelected = hoursAvailable.map(hourDay => {
+      const dateHourDay = new Date(2000, 0, 1);
+      const [hourDayFormatted, minuteDayFormatted] = hourDay.split(':');
+      dateHourDay.setHours(
+        Number(hourDayFormatted),
+        Number(minuteDayFormatted),
+        0,
+        0,
+      );
+      if (
+        hours &&
+        hours.some(period => {
+          const startDate = new Date(2000, 0, 1);
+          const [startDateHour, startDateMinute] = period.start_time.split(':');
+          startDate.setHours(
+            Number(startDateHour),
+            Number(startDateMinute),
+            0,
+            0,
+          );
+          const endDate = new Date(2000, 0, 1);
+          const [endDateHour, endDateMinute] = period.end_time.split(':');
+          endDate.setHours(Number(endDateHour), Number(endDateMinute), 0, 0);
+
+          return (
+            (isAfter(dateHourDay, startDate) &&
+              isBefore(dateHourDay, endDate)) ||
+            isEqual(dateHourDay, startDate) ||
+            isEqual(dateHourDay, endDate)
+          );
+        })
+      ) {
+        return {
+          hour: hourDay,
+          selected: true,
+        };
+      }
+      return {
+        hour: hourDay,
+        selected: false,
+      };
+    });
+
+    setIsLoading(false);
+    navigation.navigate('RegistrationsAvailabilitiesHoursProviderStack', {
+      hoursForSelected: hoursSelected,
+    });
   }
 
   useEffect(() => {
-    loadUserData();
+    loadAvailableDaysToProviderWork();
   }, []);
 
   return (
@@ -83,219 +155,54 @@ export function HomeProvider() {
         {isLoading ? (
           <Load color={theme.colors.white_medium} />
         ) : (
-          <>
-            <AreaAppointments>
-              <AreaAppointmentTitle>
-                {appError && appError.message ? (
-                  <AreaTitle>
-                    <WarningText title={appError.message} />
-                  </AreaTitle>
-                ) : (
-                  <>
-                    <AreaTitle>
-                      <Title>Agendamentos pendentes</Title>
-                    </AreaTitle>
-                    <AreaIcon>
-                      <Icon
-                        name="calendar"
-                        size={RFValue(25)}
-                        color={theme.colors.white_medium}
-                      />
-                    </AreaIcon>
-                  </>
-                )}
-              </AreaAppointmentTitle>
-              <AreaAppointmentContent>
-                <List
-                  keyExtractor={(item, index) => index.toString()}
-                  data={userProvider.appointments?.opens}
-                  ListEmptyComponent={() => (
-                    <AreaTitle>
-                      <Title>Sem agendamentos no momento</Title>
-                    </AreaTitle>
-                  )}
-                  renderItem={({ item }) => {
-                    return (
-                      <AreaAppointmentButton
-                        onPress={() => handleSelectedAppointment(item)}
-                      >
-                        <AreaPhoto>
-                          <PhotoClientAppointment
-                            source={{
-                              uri:
-                                item.clients &&
-                                item.clients[0].client.image_profile &&
-                                item.clients[0].client.image_profile[0].image
-                                  .link,
-                            }}
-                          />
-                        </AreaPhoto>
-                        <AreaInfoLocalDate>
-                          <AreaInfoLocal
-                            color="transparent"
-                            style={{ marginBottom: 5 }}
-                          >
-                            <IconInfoLocal>
-                              <Icon
-                                name="map-pin"
-                                size={RFValue(25)}
-                                color={theme.colors.shape}
-                              />
-                            </IconInfoLocal>
-                            <AreaTextInfoLocal>
-                              <TextInfoLocal numberOfLines={1}>
-                                {item.addresses[0].address.street}
-                                {' ,'}
-                                {item.addresses[0].address.number}
-                              </TextInfoLocal>
-                            </AreaTextInfoLocal>
-                            <AreaAmount>
-                              <ValueAmount size={12}>
-                                {getValueAmount(
-                                  item.transactions[0].current_amount,
-                                )}
-                              </ValueAmount>
-                            </AreaAmount>
-                          </AreaInfoLocal>
-                          <AreaInfoDate color="transparent">
-                            <IconInfoDateLocal>
-                              <Icon
-                                name="calendar"
-                                size={RFValue(25)}
-                                color={theme.colors.shape}
-                              />
-                            </IconInfoDateLocal>
-                            <AreaTextInfoDateLocal>
-                              <TextInfoLocal size={14} numberOfLines={1}>
-                                {format(
-                                  getPlatformDate(new Date(item.initial_date)),
-                                  'dd/MMM - HH:mm',
-                                  { locale: brazilLocale },
-                                )}
-                              </TextInfoLocal>
-                            </AreaTextInfoDateLocal>
-                            <AreaTextInfoDateLocal>
-                              <TextInfoLocal size={14} numberOfLines={1}>
-                                {format(
-                                  getPlatformDate(new Date(item.final_date)),
-                                  'dd/MMM - HH:mm',
-                                  { locale: brazilLocale },
-                                )}
-                              </TextInfoLocal>
-                            </AreaTextInfoDateLocal>
-                          </AreaInfoDate>
-                        </AreaInfoLocalDate>
-                      </AreaAppointmentButton>
-                    );
-                  }}
-                />
-              </AreaAppointmentContent>
-            </AreaAppointments>
-            <AreaAppointments>
-              <AreaAppointmentTitle
-                style={{ backgroundColor: theme.colors.success }}
-              >
+          <AreaAvailabilities>
+            <AreaAvailabilityTitle>
+              {appError && appError.message ? (
                 <AreaTitle>
-                  <Title>Agendamentos Confirmados</Title>
+                  <WarningText title={appError.message} />
                 </AreaTitle>
-                <AreaIcon>
-                  <Icon
-                    name="calendar"
-                    size={RFValue(25)}
-                    color={theme.colors.white_medium}
-                  />
-                </AreaIcon>
-              </AreaAppointmentTitle>
-              <AreaAppointmentContent
-                style={{ borderColor: theme.colors.success }}
-              >
-                <List
-                  keyExtractor={(item, index) => index.toString()}
-                  data={userProvider.appointments?.confirmed}
-                  ListEmptyComponent={() => (
-                    <AreaTitle>
-                      <Title>Sem agendamentos no momento</Title>
-                    </AreaTitle>
-                  )}
-                  renderItem={({ item }) => {
-                    return (
-                      <AreaAppointmentButton
-                        color={theme.colors.success}
-                        onPress={() => handleSelectedAppointment(item)}
-                      >
-                        <AreaPhoto>
-                          <PhotoClientAppointment
-                            source={{
-                              uri:
-                                item.clients &&
-                                item.clients[0].client.image_profile &&
-                                item.clients[0].client.image_profile[0].image
-                                  .link,
-                            }}
-                          />
-                        </AreaPhoto>
-                        <AreaInfoLocalDate>
-                          <AreaInfoLocal
-                            color="transparent"
-                            style={{ marginBottom: 5 }}
-                          >
-                            <IconInfoLocal>
-                              <Icon
-                                name="map-pin"
-                                size={RFValue(25)}
-                                color={theme.colors.shape}
-                              />
-                            </IconInfoLocal>
-                            <AreaTextInfoLocal>
-                              <TextInfoLocal numberOfLines={1}>
-                                {item.addresses[0].address.street}
-                                {' ,'}
-                                {item.addresses[0].address.number}
-                              </TextInfoLocal>
-                            </AreaTextInfoLocal>
-                            <AreaAmount>
-                              <ValueAmount size={12}>
-                                {getValueAmount(
-                                  item.transactions[0].current_amount,
-                                )}
-                              </ValueAmount>
-                            </AreaAmount>
-                          </AreaInfoLocal>
-                          <AreaInfoDate color="transparent">
-                            <IconInfoDateLocal>
-                              <Icon
-                                name="calendar"
-                                size={RFValue(25)}
-                                color={theme.colors.shape}
-                              />
-                            </IconInfoDateLocal>
-                            <AreaTextInfoDateLocal>
-                              <TextInfoLocal size={14} numberOfLines={1}>
-                                {format(
-                                  getPlatformDate(new Date(item.initial_date)),
-                                  'dd/MMM - HH:mm',
-                                  { locale: brazilLocale },
-                                )}
-                              </TextInfoLocal>
-                            </AreaTextInfoDateLocal>
-                            <AreaTextInfoDateLocal>
-                              <TextInfoLocal size={14} numberOfLines={1}>
-                                {format(
-                                  getPlatformDate(new Date(item.final_date)),
-                                  'dd/MMM - HH:mm',
-                                  { locale: brazilLocale },
-                                )}
-                              </TextInfoLocal>
-                            </AreaTextInfoDateLocal>
-                          </AreaInfoDate>
-                        </AreaInfoLocalDate>
-                      </AreaAppointmentButton>
-                    );
-                  }}
+              ) : (
+                <>
+                  <AreaTitle>
+                    <Title>Disponibilidades</Title>
+                  </AreaTitle>
+                  <AreaIcon>
+                    <Icon
+                      name="calendar"
+                      size={RFValue(25)}
+                      color={theme.colors.white_medium}
+                    />
+                  </AreaIcon>
+                </>
+              )}
+            </AreaAvailabilityTitle>
+            <AreaAvailabilityContent>
+              <AreaOptions>
+                <ButtonIcon
+                  iconName="sun"
+                  title="Dias"
+                  disabled={isLoading}
+                  loading={isLoading}
+                  light
+                  buttonColor={theme.colors.background_secondary}
+                  textColor={theme.colors.background_primary}
+                  iconColor={theme.colors.background_primary}
+                  onPress={handleSelectedDaysAvailability}
                 />
-              </AreaAppointmentContent>
-            </AreaAppointments>
-          </>
+                <ButtonIcon
+                  iconName="watch"
+                  title="Horarios"
+                  disabled={isLoading}
+                  loading={isLoading}
+                  light
+                  buttonColor={theme.colors.background_secondary}
+                  textColor={theme.colors.background_primary}
+                  iconColor={theme.colors.background_primary}
+                  onPress={handleSelectedHoursAvailability}
+                />
+              </AreaOptions>
+            </AreaAvailabilityContent>
+          </AreaAvailabilities>
         )}
       </Form>
     </Container>

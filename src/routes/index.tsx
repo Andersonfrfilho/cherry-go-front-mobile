@@ -11,6 +11,7 @@ import { AppStackInitialRoutes } from './app.stack.initial.routes';
 import { AppClientTabRoutes } from './client/app.client.tab.routes';
 import { AppProvider } from '../hooks';
 import { navigationRef } from './RootNavigation';
+import { AppProviderTabRoutes } from './provider/app.provider.tab.routes';
 
 export type RootStackClientParamList = {
   HomeClientStack: undefined;
@@ -48,10 +49,11 @@ export type ScreenNavigationProp = NativeStackNavigationProp<
 export function Routes() {
   const { isLoadingRouter } = useCommon();
   const { userClient } = useClientUser();
+  if (isLoadingRouter) {
+    return <LoadAnimation />;
+  }
 
-  return isLoadingRouter ? (
-    <LoadAnimation />
-  ) : (
+  return (
     <NavigationContainer linking={linking} independent ref={navigationRef}>
       {userClient.id ? (
         userClient && userClient.types && userClient.types.length > 1 ? (
@@ -62,6 +64,40 @@ export function Routes() {
       ) : (
         <AuthRoutes />
       )}
+      {/* {userClient.id ? (
+        userClient && userClient.types && userClient.types.length > 1 ? (
+          <AppStackInitialRoutes />
+        ) : (
+          <AppClientTabRoutes />
+        )
+      ) : (
+        <AuthRoutes />
+      )} */}
+      {/* {() => {
+        if (
+          userClient &&
+          userClient.types &&
+          userClient.types.some(type => type.user_type.name === 'client') &&
+          userClient.types.some(type => type.user_type.name === 'provider')
+        ) {
+          return <AppStackInitialRoutes />;
+        }
+        if (
+          userClient &&
+          userClient.types &&
+          userClient.types.some(type => type.user_type.name === 'provider')
+        ) {
+          return <AppProviderTabRoutes />;
+        }
+        if (
+          userClient &&
+          userClient.types &&
+          userClient.types.some(type => type.user_type.name === 'client')
+        ) {
+          return <AppClientTabRoutes />;
+        }
+        return <AuthRoutes />;
+      }} */}
     </NavigationContainer>
   );
 }

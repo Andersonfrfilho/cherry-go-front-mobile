@@ -17,6 +17,7 @@ import { userRepository } from '../databases/repository/user.repository';
 import { AppError } from '../errors/AppError';
 import { UpdateImagesPositionProviderDTO } from './dtos/users/UpdateImagesPositionProvider.dto';
 import { DeleteImagesProviderDTO } from './dtos/users/DeleteImagesProvider.dto';
+import { DAYS_WEEK_ENUM } from '../enums/DaysProviders.enum';
 
 type ProviderUserContextData = {
   userProvider: UserProvider;
@@ -28,8 +29,26 @@ type ProviderUserContextData = {
     data: UpdateImagesPositionProviderDTO[],
   ): Promise<void>;
   deleteImagesProvider(data: DeleteImagesProviderDTO): Promise<void>;
+  loadAvailableDaysToProviderWork(): Promise<void>;
+  daysAvailable: ResponseGetAllAvailableDaysToProviderWorkService[];
+  hoursAvailable: Array<string>;
+  availableDaysToProviderWork(days: DAYS_WEEK_ENUM[]): Promise<void>;
+  addHoursProviderWorkAvailable(
+    data: handleAddHoursAvailableParams,
+  ): Promise<void>;
+  removeHourProviderWorkAvailable(id: string): Promise<void>;
 };
-
+type ProviderDaysAvailability = {
+  id: string;
+  day: DAYS_WEEK_ENUM;
+  provider_id: string;
+};
+export type ProviderHoursAvailability = {
+  id: string;
+  start_time: string;
+  end_time: string;
+  provider_id: string;
+};
 type Term = {
   id: string;
   accept: boolean;
@@ -226,7 +245,14 @@ export type UserProvider = {
   appointments?: AppointmentsMode;
   refresh_token?: string;
   images?: Image_Provider[];
+  days?: ProviderDaysAvailability[];
+  hours?: ProviderHoursAvailability[];
 };
+
+interface handleAddHoursAvailableParams {
+  startHour: string;
+  endHour: string;
+}
 
 export type Token = {
   id?: string;
@@ -242,9 +268,19 @@ const ProviderUserContext = createContext<ProviderUserContextData>(
   {} as ProviderUserContextData,
 );
 
+export interface ResponseGetAllAvailableDaysToProviderWorkService {
+  day: DAYS_WEEK_ENUM;
+}
+
 function ProviderUserProvider({ children }: ProviderUserProviderProps) {
   const [userProvider, setUserProvider] = useState<UserProvider>(
     {} as UserProvider,
+  );
+  const [daysAvailable, setDaysAvailable] = useState<
+    ResponseGetAllAvailableDaysToProviderWorkService[]
+  >([] as ResponseGetAllAvailableDaysToProviderWorkService[]);
+  const [hoursAvailable, setHoursAvailable] = useState<Array<string>>(
+    [] as Array<string>,
   );
   const { setIsLoading } = useCommon();
   const { appErrorVerifyError } = useError();
@@ -377,6 +413,68 @@ function ProviderUserProvider({ children }: ProviderUserProviderProps) {
     }
   }
 
+  async function loadAvailableDaysToProviderWork() {
+    setIsLoading(true);
+    try {
+      const { data: availabilities } = await api.get(
+        '/v1/users/providers/availabilities',
+      );
+      setDaysAvailable(availabilities.days);
+      setHoursAvailable(availabilities.hours);
+    } catch (error) {
+      appErrorVerifyError(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function availableDaysToProviderWork(days: DAYS_WEEK_ENUM[]) {
+    setIsLoading(true);
+    try {
+      await api.patch('/v1/users/providers/days', {
+        days,
+      });
+    } catch (error) {
+      appErrorVerifyError(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function addHoursProviderWorkAvailable({
+    startHour,
+    endHour,
+  }: handleAddHoursAvailableParams): Promise<void> {
+    setIsLoading(true);
+    try {
+      const { data } = await api.patch('/v1/users/providers/hours', {
+        start_hour: startHour,
+        end_hour: endHour,
+      });
+      setUserProvider({ ...userProvider, hours: data });
+    } catch (error) {
+      appErrorVerifyError(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function removeHourProviderWorkAvailable(
+    idHour: string,
+  ): Promise<void> {
+    setIsLoading(true);
+    try {
+      const { data } = await api.delete('/v1/users/providers/hours', {
+        data: { hour_id: idHour },
+      });
+      setUserProvider({ ...userProvider, hours: data });
+    } catch (error) {
+      appErrorVerifyError(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   return (
     <ProviderUserContext.Provider
       value={{
@@ -387,6 +485,12 @@ function ProviderUserProvider({ children }: ProviderUserProviderProps) {
         uploadImagesProvider,
         updateImagesPositionProvider,
         deleteImagesProvider,
+        loadAvailableDaysToProviderWork,
+        daysAvailable,
+        hoursAvailable,
+        availableDaysToProviderWork,
+        addHoursProviderWorkAvailable,
+        removeHourProviderWorkAvailable,
       }}
     >
       {children}

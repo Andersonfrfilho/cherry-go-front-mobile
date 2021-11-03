@@ -75,7 +75,6 @@ export function Home() {
 
   async function handleLogout() {
     await signOut();
-    navigation.navigate('SignIn');
   }
 
   useEffect(() => {

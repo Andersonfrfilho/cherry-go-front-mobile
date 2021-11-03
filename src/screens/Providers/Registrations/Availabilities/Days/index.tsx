@@ -1,55 +1,67 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import brazilLocale from 'date-fns/locale/pt-BR';
 import { Button, StatusBar } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTheme } from 'styled-components';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { format } from 'date-fns';
 import {
   Container,
-  AreaAppointmentTitle,
-  AreaAppointments,
-  AreaAppointmentContent,
+  AreaDaysAvailabilityTitle,
+  AreaDaysAvailability,
+  AreaDaysAvailabilityContent,
   AreaTitle,
   Title,
   Form,
   Icon,
-  AreaTextInfoDateLocal,
-  AreaAppointmentButton,
+  SelectedDayButton,
   AreaIcon,
   List,
-  AreaPhoto,
-  PhotoClientAppointment,
-  IconInfoDateLocal,
-  AreaInfoLocalDate,
-  AreaInfoLocal,
-  IconInfoLocal,
-  AreaTextInfoLocal,
+  AreaTextDayAvailability,
   TextInfoLocal,
-  AreaAmount,
-  ValueAmount,
-  AreaInfoDate,
+  AreaButtonSave,
 } from './styles';
 
-import { useCommon } from '../../../hooks/common';
-import { WarningText } from '../../../components/WarningText';
-import { ScreenNavigationProp } from '../../../routes';
-import { HeaderProfile } from '../../../components/HeaderProfile';
-import { Appointment, useProviderUser } from '../../../hooks/providerUser';
-import { getPlatformDate } from '../../../utils/getPlatformDate';
-import { getValueAmount } from '../../../utils/formatValueAmount';
-import { Load } from '../../../components/Load';
-import { useError } from '../../../hooks/error';
+import { useCommon } from '../../../../../hooks/common';
+import { WarningText } from '../../../../../components/WarningText';
+import { ScreenNavigationProp } from '../../../../../routes';
+import { HeaderProfile } from '../../../../../components/HeaderProfile';
+import {
+  Appointment,
+  ResponseGetAllAvailableDaysToProviderWorkService,
+  useProviderUser,
+} from '../../../../../hooks/providerUser';
+import { getPlatformDate } from '../../../../../utils/getPlatformDate';
+import { getValueAmount } from '../../../../../utils/formatValueAmount';
+import { Load } from '../../../../../components/Load';
+import { useError } from '../../../../../hooks/error';
+import { ButtonIcon } from '../../../../../components/ButtonIcon';
+import { navigate } from '../../../../../routes/RootNavigation';
+import { DAYS_WEEK_ENUM } from '../../../../../enums/DaysProviders.enum';
+
+export interface DaySelected {
+  day: DAYS_WEEK_ENUM;
+  selected: boolean;
+  label: string;
+}
+interface Params {
+  daysForSelected: Array<DaySelected>;
+}
 
 export interface Focusable {
   focus(): void;
 }
-export function HomeProvider() {
+export function RegistrationsAvailabilitiesDaysProvider() {
+  const [selectedDaysProvider, setSelectedDaysProvider] = useState(
+    [] as DaySelected[],
+  );
   const theme = useTheme();
   const { isLoading } = useCommon();
   const { appError } = useError();
-  const { userProvider, loadUserData } = useProviderUser();
-
+  const { userProvider, loadUserData, availableDaysToProviderWork } =
+    useProviderUser();
+  const route = useRoute();
+  const { daysForSelected } = route.params as Params;
   const navigation = useNavigation<ScreenNavigationProp>();
   const {
     name,
@@ -57,14 +69,23 @@ export function HomeProvider() {
     image_profile: imageProfile,
   } = userProvider;
 
-  async function handleSelectedAppointment(appointment: Appointment) {
-    navigation.navigate('AppointmentsDetailsProvider', { appointment });
+  function handleSelectedDay(indexParam: number) {
+    const newDaysSelected = selectedDaysProvider.map((day, index) => ({
+      ...day,
+      selected: indexParam === index ? !day.selected : day.selected,
+    }));
+    setSelectedDaysProvider(newDaysSelected);
   }
-
   useEffect(() => {
-    loadUserData();
+    setSelectedDaysProvider(daysForSelected);
   }, []);
 
+  async function handleSendSelectedDays(days: DaySelected[]) {
+    const daysSelected = days.filter(day => day.selected).map(day => day.day);
+
+    await availableDaysToProviderWork(daysSelected);
+    navigation.replace('HomeProviderStack');
+  }
   return (
     <Container>
       <StatusBar
@@ -83,219 +104,71 @@ export function HomeProvider() {
         {isLoading ? (
           <Load color={theme.colors.white_medium} />
         ) : (
-          <>
-            <AreaAppointments>
-              <AreaAppointmentTitle>
-                {appError && appError.message ? (
-                  <AreaTitle>
-                    <WarningText title={appError.message} />
-                  </AreaTitle>
-                ) : (
-                  <>
-                    <AreaTitle>
-                      <Title>Agendamentos pendentes</Title>
-                    </AreaTitle>
-                    <AreaIcon>
-                      <Icon
-                        name="calendar"
-                        size={RFValue(25)}
-                        color={theme.colors.white_medium}
-                      />
-                    </AreaIcon>
-                  </>
-                )}
-              </AreaAppointmentTitle>
-              <AreaAppointmentContent>
-                <List
-                  keyExtractor={(item, index) => index.toString()}
-                  data={userProvider.appointments?.opens}
-                  ListEmptyComponent={() => (
-                    <AreaTitle>
-                      <Title>Sem agendamentos no momento</Title>
-                    </AreaTitle>
-                  )}
-                  renderItem={({ item }) => {
-                    return (
-                      <AreaAppointmentButton
-                        onPress={() => handleSelectedAppointment(item)}
-                      >
-                        <AreaPhoto>
-                          <PhotoClientAppointment
-                            source={{
-                              uri:
-                                item.clients &&
-                                item.clients[0].client.image_profile &&
-                                item.clients[0].client.image_profile[0].image
-                                  .link,
-                            }}
-                          />
-                        </AreaPhoto>
-                        <AreaInfoLocalDate>
-                          <AreaInfoLocal
-                            color="transparent"
-                            style={{ marginBottom: 5 }}
-                          >
-                            <IconInfoLocal>
-                              <Icon
-                                name="map-pin"
-                                size={RFValue(25)}
-                                color={theme.colors.shape}
-                              />
-                            </IconInfoLocal>
-                            <AreaTextInfoLocal>
-                              <TextInfoLocal numberOfLines={1}>
-                                {item.addresses[0].address.street}
-                                {' ,'}
-                                {item.addresses[0].address.number}
-                              </TextInfoLocal>
-                            </AreaTextInfoLocal>
-                            <AreaAmount>
-                              <ValueAmount size={12}>
-                                {getValueAmount(
-                                  item.transactions[0].current_amount,
-                                )}
-                              </ValueAmount>
-                            </AreaAmount>
-                          </AreaInfoLocal>
-                          <AreaInfoDate color="transparent">
-                            <IconInfoDateLocal>
-                              <Icon
-                                name="calendar"
-                                size={RFValue(25)}
-                                color={theme.colors.shape}
-                              />
-                            </IconInfoDateLocal>
-                            <AreaTextInfoDateLocal>
-                              <TextInfoLocal size={14} numberOfLines={1}>
-                                {format(
-                                  getPlatformDate(new Date(item.initial_date)),
-                                  'dd/MMM - HH:mm',
-                                  { locale: brazilLocale },
-                                )}
-                              </TextInfoLocal>
-                            </AreaTextInfoDateLocal>
-                            <AreaTextInfoDateLocal>
-                              <TextInfoLocal size={14} numberOfLines={1}>
-                                {format(
-                                  getPlatformDate(new Date(item.final_date)),
-                                  'dd/MMM - HH:mm',
-                                  { locale: brazilLocale },
-                                )}
-                              </TextInfoLocal>
-                            </AreaTextInfoDateLocal>
-                          </AreaInfoDate>
-                        </AreaInfoLocalDate>
-                      </AreaAppointmentButton>
-                    );
-                  }}
-                />
-              </AreaAppointmentContent>
-            </AreaAppointments>
-            <AreaAppointments>
-              <AreaAppointmentTitle
-                style={{ backgroundColor: theme.colors.success }}
-              >
+          <AreaDaysAvailability>
+            <AreaDaysAvailabilityTitle>
+              {appError && appError.message ? (
                 <AreaTitle>
-                  <Title>Agendamentos Confirmados</Title>
+                  <WarningText title={appError.message} />
                 </AreaTitle>
-                <AreaIcon>
-                  <Icon
-                    name="calendar"
-                    size={RFValue(25)}
-                    color={theme.colors.white_medium}
-                  />
-                </AreaIcon>
-              </AreaAppointmentTitle>
-              <AreaAppointmentContent
-                style={{ borderColor: theme.colors.success }}
-              >
-                <List
-                  keyExtractor={(item, index) => index.toString()}
-                  data={userProvider.appointments?.confirmed}
-                  ListEmptyComponent={() => (
-                    <AreaTitle>
-                      <Title>Sem agendamentos no momento</Title>
-                    </AreaTitle>
-                  )}
-                  renderItem={({ item }) => {
-                    return (
-                      <AreaAppointmentButton
-                        color={theme.colors.success}
-                        onPress={() => handleSelectedAppointment(item)}
-                      >
-                        <AreaPhoto>
-                          <PhotoClientAppointment
-                            source={{
-                              uri:
-                                item.clients &&
-                                item.clients[0].client.image_profile &&
-                                item.clients[0].client.image_profile[0].image
-                                  .link,
-                            }}
-                          />
-                        </AreaPhoto>
-                        <AreaInfoLocalDate>
-                          <AreaInfoLocal
-                            color="transparent"
-                            style={{ marginBottom: 5 }}
-                          >
-                            <IconInfoLocal>
-                              <Icon
-                                name="map-pin"
-                                size={RFValue(25)}
-                                color={theme.colors.shape}
-                              />
-                            </IconInfoLocal>
-                            <AreaTextInfoLocal>
-                              <TextInfoLocal numberOfLines={1}>
-                                {item.addresses[0].address.street}
-                                {' ,'}
-                                {item.addresses[0].address.number}
-                              </TextInfoLocal>
-                            </AreaTextInfoLocal>
-                            <AreaAmount>
-                              <ValueAmount size={12}>
-                                {getValueAmount(
-                                  item.transactions[0].current_amount,
-                                )}
-                              </ValueAmount>
-                            </AreaAmount>
-                          </AreaInfoLocal>
-                          <AreaInfoDate color="transparent">
-                            <IconInfoDateLocal>
-                              <Icon
-                                name="calendar"
-                                size={RFValue(25)}
-                                color={theme.colors.shape}
-                              />
-                            </IconInfoDateLocal>
-                            <AreaTextInfoDateLocal>
-                              <TextInfoLocal size={14} numberOfLines={1}>
-                                {format(
-                                  getPlatformDate(new Date(item.initial_date)),
-                                  'dd/MMM - HH:mm',
-                                  { locale: brazilLocale },
-                                )}
-                              </TextInfoLocal>
-                            </AreaTextInfoDateLocal>
-                            <AreaTextInfoDateLocal>
-                              <TextInfoLocal size={14} numberOfLines={1}>
-                                {format(
-                                  getPlatformDate(new Date(item.final_date)),
-                                  'dd/MMM - HH:mm',
-                                  { locale: brazilLocale },
-                                )}
-                              </TextInfoLocal>
-                            </AreaTextInfoDateLocal>
-                          </AreaInfoDate>
-                        </AreaInfoLocalDate>
-                      </AreaAppointmentButton>
-                    );
-                  }}
+              ) : (
+                <>
+                  <AreaTitle>
+                    <Title>Dias disponiveis</Title>
+                  </AreaTitle>
+                  <AreaIcon>
+                    <Icon
+                      name="calendar"
+                      size={RFValue(25)}
+                      color={theme.colors.white_medium}
+                    />
+                  </AreaIcon>
+                </>
+              )}
+            </AreaDaysAvailabilityTitle>
+            <AreaDaysAvailabilityContent>
+              {selectedDaysProvider.map((day, index) => {
+                return (
+                  <SelectedDayButton
+                    selected={day.selected}
+                    onPress={() => handleSelectedDay(index)}
+                    key={index.toString()}
+                  >
+                    <AreaIcon>
+                      {day.selected ? (
+                        <Icon
+                          name="check-square"
+                          size={RFValue(25)}
+                          color={theme.colors.white_medium}
+                        />
+                      ) : (
+                        <Icon
+                          name="square"
+                          size={RFValue(25)}
+                          color={theme.colors.white_medium}
+                        />
+                      )}
+                    </AreaIcon>
+                    <AreaTextDayAvailability>
+                      <TextInfoLocal size={20}>{day.label}</TextInfoLocal>
+                    </AreaTextDayAvailability>
+                  </SelectedDayButton>
+                );
+              })}
+              <AreaButtonSave>
+                <ButtonIcon
+                  iconName="save"
+                  title="Salvar"
+                  disabled={isLoading}
+                  loading={isLoading}
+                  light
+                  buttonColor={theme.colors.background_secondary}
+                  textColor={theme.colors.background_primary}
+                  iconColor={theme.colors.background_primary}
+                  onPress={() => handleSendSelectedDays(selectedDaysProvider)}
                 />
-              </AreaAppointmentContent>
-            </AreaAppointments>
-          </>
+              </AreaButtonSave>
+            </AreaDaysAvailabilityContent>
+          </AreaDaysAvailability>
         )}
       </Form>
     </Container>

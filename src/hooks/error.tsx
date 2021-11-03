@@ -59,7 +59,7 @@ function ErrorProvider({ children }: ErrorProviderProps) {
       '%c ### Hook Error####',
       'color: green; background: yellow; font-size: 30px',
     );
-    // console.log(JSON.stringify(err, null, 2));
+    console.log(JSON.stringify(err, null, 2));
     // console.log('##############################');
     // console.log(err.message);
     // if (err.message === "Cannot read property '_raw' of undefined") {

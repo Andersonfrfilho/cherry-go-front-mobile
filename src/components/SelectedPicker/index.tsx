@@ -12,7 +12,7 @@ interface Item {
 interface Props {
   title: string;
   items: Array<Item>;
-  setSelected: (param: string) => void | Promise<void>;
+  setSelected: (param: string, index: number) => void | Promise<void>;
   selected: string;
   error: string;
   selectedRef: React.RefObject<unknown>;
@@ -35,7 +35,7 @@ export function SelectedPicker({
       <AreaPicker enabled={enabled}>
         <Picker
           selectedValue={selected}
-          onValueChange={itemValue => setSelected(itemValue)}
+          onValueChange={(itemValue, index) => setSelected(itemValue, index)}
           ref={selectedRef}
         >
           {items &&
@@ -43,7 +43,7 @@ export function SelectedPicker({
               if (index === 0) {
                 return (
                   <Picker.Item
-                    key={element.value}
+                    key={index.toString()}
                     label={element.label}
                     value={element.value}
                     enabled={false}
@@ -58,7 +58,7 @@ export function SelectedPicker({
               }
               return (
                 <Picker.Item
-                  key={element.value}
+                  key={index.toString()}
                   label={element.label}
                   value={element.value}
                   enabled={enabled}

@@ -24,12 +24,12 @@ export const Form = styled.View`
   padding: 0 20px;
 `;
 
-export const AreaAppointments = styled.View`
+export const AreaAvailabilities = styled.View`
   flex: 1;
   padding-bottom: 10px;
 `;
 
-export const AreaAppointmentTitle = styled.View`
+export const AreaAvailabilityTitle = styled.View`
   flex-direction: row;
   height: 60px;
 
@@ -39,20 +39,21 @@ export const AreaAppointmentTitle = styled.View`
   margin-bottom: 10px;
 `;
 
-export const AreaAppointmentContent = styled.View`
+export const AreaAvailabilityContent = styled.View`
   flex: 1;
-  background-color: ${({ theme }) => theme.colors.background_primary};
 
-  border-radius: 12px;
   justify-content: flex-start;
 
   padding: 3px;
-
-  border: solid;
-  border-color: ${({ theme }) => theme.colors.header};
-  border-width: 5px;
 `;
-
+export const AreaOptions = styled.View`
+  flex: 1;
+  justify-content: space-evenly;
+  align-items: center;
+`;
+export const Option = styled.TouchableOpacity`
+  height: 60px;
+`;
 export const AreaLogoTitle = styled.View`
   height: ${RFValue(300)}px;
   width: ${RFValue(300)}px;

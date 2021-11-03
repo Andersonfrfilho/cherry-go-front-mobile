@@ -4,9 +4,11 @@ import { Feather } from '@expo/vector-icons';
 import { FlatList } from 'react-native';
 import FastImage from 'react-native-fast-image';
 import { Appointment } from '../../../hooks/providerUser';
+import { DaySelected } from '.';
 
 interface AreaInfoProps {
   color?: string;
+  selected?: boolean;
 }
 interface AreaInfoDateProps {
   size?: number;
@@ -24,12 +26,12 @@ export const Form = styled.View`
   padding: 0 20px;
 `;
 
-export const AreaAppointments = styled.View`
+export const AreaDaysAvailability = styled.View`
   flex: 1;
   padding-bottom: 10px;
 `;
 
-export const AreaAppointmentTitle = styled.View`
+export const AreaDaysAvailabilityTitle = styled.View`
   flex-direction: row;
   height: 60px;
 
@@ -39,18 +41,12 @@ export const AreaAppointmentTitle = styled.View`
   margin-bottom: 10px;
 `;
 
-export const AreaAppointmentContent = styled.View`
+export const AreaDaysAvailabilityContent = styled.View`
   flex: 1;
   background-color: ${({ theme }) => theme.colors.background_primary};
-
-  border-radius: 12px;
   justify-content: flex-start;
-
-  padding: 3px;
-
-  border: solid;
-  border-color: ${({ theme }) => theme.colors.header};
-  border-width: 5px;
+  padding-left: 1.5px;
+  padding-right: 1.5px;
 `;
 
 export const AreaLogoTitle = styled.View`
@@ -84,27 +80,29 @@ export const Footer = styled.View`
   flex: 1;
 `;
 
-export const List = styled(FlatList as new () => FlatList<Appointment>)``;
+export const List = styled(FlatList as new () => FlatList<DaySelected>)``;
 
-export const AreaAppointmentButton = styled.TouchableOpacity<AreaInfoProps>`
-  height: 80px;
-
-  background-color: ${({ theme, color }) => color || theme.colors.header};
-
-  padding-top: 5px;
-  padding-bottom: 5px;
+export const SelectedDayButton = styled.TouchableOpacity<AreaInfoProps>`
+  flex: 1;
 
   flex-direction: row;
 
   justify-content: flex-start;
 
-  padding-left: 5px;
+  background-color: ${({ theme, selected }) =>
+    selected ? theme.colors.success : theme.colors.bon_jour_dark_shade};
+
+  margin-top: 5px;
 
   border-radius: 12px;
-
-  margin-bottom: 10px;
 `;
+export const AreaButtonSave = styled.View`
+  flex: 1;
+  margin-top: 10px;
 
+  justify-content: center;
+  align-items: center;
+`;
 export const AreaPhoto = styled.View`
   flex: 1;
   width: 70px;
@@ -179,17 +177,14 @@ export const IconInfoLocal = styled.View`
 
   border-radius: 6px;
 `;
-export const AreaTextInfoLocal = styled.View`
-  flex: 2;
+export const AreaTextDayAvailability = styled.View`
+  flex: 3;
 
   justify-content: center;
 
   padding-left: 5px;
 
   margin-left: 5px;
-
-  background-color: ${({ theme }) => theme.colors.text_detail};
-
   border-radius: 6px;
 `;
 

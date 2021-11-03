@@ -144,7 +144,13 @@ export function RegistrationsProvider() {
                   </AreaOptionButton>
                 </AreaOptionLine>
                 <AreaOptionLine>
-                  <AreaOptionButton onPress={() => {}}>
+                  <AreaOptionButton
+                    onPress={() =>
+                      handlePageOptionRegister(
+                        'RegistrationsAvailabilitiesProviderStack',
+                      )
+                    }
+                  >
                     <AreaOptionImage>
                       <Icon
                         name="calendar"
@@ -158,7 +164,13 @@ export function RegistrationsProvider() {
                       </SubTitle>
                     </AreaOptionSubTitle>
                   </AreaOptionButton>
-                  <AreaOptionButton onPress={() => {}}>
+                  <AreaOptionButton
+                    onPress={() =>
+                      handlePageOptionRegister(
+                        'RegistrationsAvailabilitiesPaymentsMethodsProviderStack',
+                      )
+                    }
+                  >
                     <AreaOptionImage>
                       <Icon
                         name="dollar-sign"
