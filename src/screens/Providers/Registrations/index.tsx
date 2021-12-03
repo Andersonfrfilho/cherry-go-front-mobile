@@ -52,6 +52,7 @@ export function RegistrationsProvider() {
 
   useEffect(() => {
     loadUserData();
+    return () => {};
   }, []);
 
   function handlePageOptionRegister(routeName: string) {
@@ -186,7 +187,13 @@ export function RegistrationsProvider() {
                   </AreaOptionButton>
                 </AreaOptionLine>
                 <AreaOptionLine>
-                  <AreaOptionButton onPress={() => {}}>
+                  <AreaOptionButton
+                    onPress={() =>
+                      handlePageOptionRegister(
+                        'RegistrationsAvailabilitiesLocalsProviderStack',
+                      )
+                    }
+                  >
                     <AreaOptionImage>
                       <Icon
                         name="map-pin"

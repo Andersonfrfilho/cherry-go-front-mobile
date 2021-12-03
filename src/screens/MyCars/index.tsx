@@ -72,8 +72,6 @@ export function MyCars() {
           };
         });
         setCars(dataFormatted);
-      } catch (_) {
-        // console.log(error);
       } finally {
         setLoading(false);
       }

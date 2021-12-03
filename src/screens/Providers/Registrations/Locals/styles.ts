@@ -1,9 +1,14 @@
-import styled from 'styled-components/native';
+import styled, { css } from 'styled-components/native';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { Feather } from '@expo/vector-icons';
 import { FlatList } from 'react-native';
 import FastImage from 'react-native-fast-image';
 import { Appointment } from '../../../hooks/providerUser';
+import { IconMaterialCommunityIcons } from '../PaymentsMethods/styles';
+
+interface CheckSelected {
+  selected: boolean;
+}
 
 interface AreaInfoProps {
   color?: string;
@@ -24,12 +29,14 @@ export const Form = styled.View`
   padding: 0 20px;
 `;
 
-export const AreaAppointments = styled.View`
+export const AreaLocals = styled.View`
   flex: 1;
   padding-bottom: 10px;
 `;
-
-export const AreaAppointmentTitle = styled.View`
+export const AreaLocalClient = styled.View`
+  height: 80px;
+`;
+export const AreaLocalTitle = styled.View`
   flex-direction: row;
   height: 60px;
 
@@ -39,7 +46,99 @@ export const AreaAppointmentTitle = styled.View`
   margin-bottom: 10px;
 `;
 
-export const AreaAppointmentContent = styled.View`
+export const AreaCheckBox = styled.TouchableOpacity<CheckSelected>`
+  flex: 1;
+
+  flex-direction: row;
+
+  justify-content: space-around;
+  align-items: center;
+
+  background-color: ${({ theme }) => theme.colors.text};
+
+  border-radius: 12px;
+
+  margin-bottom: 10px;
+
+  border: solid;
+  border-width: 3px;
+  border-color: ${({ theme }) => theme.colors.bon_jour_dark_shade};
+
+  ${({ theme, selected }) =>
+    selected &&
+    css`
+      background-color: ${theme.colors.success};
+    `}
+`;
+
+export const AreaCheckBoxAddAddress = styled.TouchableOpacity<CheckSelected>`
+  height: 60px;
+  flex-direction: row;
+
+  justify-content: space-around;
+  align-items: center;
+
+  background-color: ${({ theme }) => theme.colors.text};
+
+  border-radius: 12px;
+
+  margin-bottom: 10px;
+
+  border: solid;
+  border-width: 3px;
+  border-color: ${({ theme }) => theme.colors.bon_jour_dark_shade};
+
+  ${({ theme, selected }) =>
+    selected &&
+    css`
+      background-color: ${theme.colors.success_chateau_green};
+    `}
+`;
+
+export const AreaTitleLocalType = styled.View`
+  flex: 3;
+  justify-content: center;
+`;
+export const AreaLocalOwnLocals = styled.View`
+  flex: 1;
+  padding-left: 5px;
+  padding-right: 5px;
+
+  justify-content: flex-start;
+`;
+export const AreaLocalOwnLocal = styled.View`
+  flex: 1;
+
+  justify-content: flex-start;
+`;
+
+export const AreaLocalsAvailable = styled.ScrollView`
+  flex-grow: 1;
+`;
+
+export const TitleLocalType = styled.Text<CheckSelected>`
+  font-size: ${RFValue(20)}px;
+  font-family: ${({ theme }) => theme.fonts.primary_700};
+  color: ${({ theme }) => theme.colors.background_primary};
+  ${({ theme, selected }) =>
+    selected &&
+    css`
+      color: ${theme.colors.main_light};
+    `}
+`;
+
+export const TitleAddLocal = styled.Text`
+  font-size: ${RFValue(20)}px;
+  font-family: ${({ theme }) => theme.fonts.primary_700};
+  color: ${({ theme }) => theme.colors.main_light};
+`;
+
+export const TitleLocal = styled.Text`
+  font-size: ${RFValue(12)}px;
+  font-family: ${({ theme }) => theme.fonts.primary_700};
+  color: ${({ theme }) => theme.colors.background_primary};
+`;
+export const AreaLocalsContent = styled.View`
   flex: 1;
   background-color: ${({ theme }) => theme.colors.background_primary};
 
@@ -48,11 +147,35 @@ export const AreaAppointmentContent = styled.View`
 
   padding: 3px;
 
-  border: solid;
+  /* border: solid;
   border-color: ${({ theme }) => theme.colors.header};
-  border-width: 5px;
+  border-width: 5px; */
 `;
 
+export const AreaLocalOwners = styled.View`
+  flex: 1;
+`;
+
+export const AreaLocalOwn = styled.View`
+  height: 80px;
+`;
+export const AreaCheckBoxLocal = styled.View`
+  height: 80px;
+  flex-direction: row;
+
+  justify-content: center;
+  align-items: center;
+
+  background-color: ${({ theme }) => theme.colors.main_light};
+
+  border-radius: 12px;
+
+  margin-bottom: 10px;
+
+  border: solid;
+  border-width: 3px;
+  border-color: ${({ theme }) => theme.colors.shape_medium};
+`;
 export const AreaLogoTitle = styled.View`
   height: ${RFValue(300)}px;
   width: ${RFValue(300)}px;
@@ -78,7 +201,15 @@ export const AreaIcon = styled.View`
   align-items: center;
 `;
 
+export const AreaIconRemoveLocal = styled.TouchableOpacity`
+  flex: 1;
+
+  justify-content: center;
+  align-items: center;
+`;
+
 export const Icon = styled(Feather)``;
+export const IconMaterialCommunity = styled(IconMaterialCommunityIcons)``;
 
 export const Footer = styled.View`
   flex: 1;

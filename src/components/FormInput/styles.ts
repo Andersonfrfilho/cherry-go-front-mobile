@@ -1,7 +1,12 @@
 import { RFValue } from 'react-native-responsive-fontsize';
 import styled from 'styled-components/native';
 
-export const Container = styled.View`
+interface Props {
+  percent?: number;
+}
+
+export const Container = styled.View<Props>`
+  width: ${({ percent = 100 }) => percent}%;
   flex-direction: column;
   margin-bottom: 8px;
 `;

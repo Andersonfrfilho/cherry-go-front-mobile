@@ -10,6 +10,9 @@ import { RegistrationsAvailabilitiesProvider } from '../../screens/Providers/Reg
 import { RegistrationsAvailabilitiesDaysProvider } from '../../screens/Providers/Registrations/Availabilities/Days';
 import { RegistrationsAvailabilitiesHoursProvider } from '../../screens/Providers/Registrations/Availabilities/Hours';
 import { RegistrationsAvailabilitiesPaymentsMethodsProvider } from '../../screens/Providers/Registrations/PaymentsMethods';
+import { RegistrationsAvailabilitiesLocalsProvider } from '../../screens/Providers/Registrations/Locals';
+import { RegistrationsAvailabilitiesAddressesProvider } from '../../screens/Providers/Registrations/Locals/Address';
+import { RegisterAccountBank } from '../../screens/Providers/Registrations/PaymentsMethods/RegisterAccountBank';
 
 const { Navigator, Screen } = createNativeStackNavigator();
 
@@ -51,6 +54,18 @@ export function AppProviderNativeStackRoutes() {
       <Screen
         name="RegistrationsAvailabilitiesPaymentsMethodsProviderStack"
         component={RegistrationsAvailabilitiesPaymentsMethodsProvider}
+      />
+      <Screen
+        name="RegistrationsAvailabilitiesLocalsProviderStack"
+        component={RegistrationsAvailabilitiesLocalsProvider}
+      />
+      <Screen
+        name="RegistrationsAvailabilitiesAddressesProviderStack"
+        component={RegistrationsAvailabilitiesAddressesProvider}
+      />
+      <Screen
+        name="RegistrationsAccountBankProviderStack"
+        component={RegisterAccountBank}
       />
     </Navigator>
   );

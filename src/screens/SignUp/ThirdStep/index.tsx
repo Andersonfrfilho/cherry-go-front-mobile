@@ -146,7 +146,7 @@ export function SignUpThirdStep() {
   }
 
   function handleBack() {
-    navigation.navigate('SignIn');
+    navigation.goBack();
   }
 
   useEffect(() => {

@@ -13,7 +13,8 @@ import { Dispatch, SetStateAction } from 'hoist-non-react-statics/node_modules/@
 import { useError } from './error';
 import { GetModelResponse } from '../databases/model/dtos/getUser.dto';
 import { useCommon } from './common';
-import {AppError} from '../errors/AppError'
+import { AppError } from '../errors/AppError'
+import { Details } from './providerUser';
 
 type ClientUserContextData = {
   userClient: GetModelResponse;
@@ -35,8 +36,17 @@ type ClientUserContextData = {
   setPhone: Dispatch<SetStateAction<string>>;
   userIdResetPassword: string;
   resetPassword(dataResetPassword: ResetPasswordProps): Promise<void>;
-  updateDetails(data: UpdateDetailsProps): Promise<void>
+  updateDetails(data: UpdateDetailsProps): Promise<void>;
+  registerAccountBank(data: RegisterAccountBankProps): Promise<Details>;
+  removeAccountBank(accountBankId: string): Promise<Details>;
 };
+interface RegisterAccountBankProps {
+  branch_number: string;
+  account_number: string;
+  account_holder_name: string;
+  name_account_bank: string;
+  code_bank: string;
+}
 interface UpdateDetailsProps {
   details: any;
 }
@@ -85,7 +95,7 @@ export type Phone = {
   number: string,
   id: string
 };
-type Addresses = {
+export type Addresses = {
   street: string;
   number: string;
   zipcode: string;
@@ -331,7 +341,6 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
   async function uploadUserClientImageDocument(
     { image_uri, user_id, description }: UploadUserClientImageDocumentDTO
   ) {
-
     try {
       if (!user_id) {
         const [user] = await userRepository.findAll()
@@ -499,6 +508,32 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
       await api.put('/v1/users/clients/details', { details });
     } catch (err) {
       appErrorVerifyError(err);
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  async function registerAccountBank(data: RegisterAccountBankProps): Promise<Details> {
+    setIsLoading(true)
+    try {
+      const { data: details } = await api.post('/v1/users/banks', data);
+      return details
+    } catch (err) {
+      appErrorVerifyError(err);
+    } finally{
+      setIsLoading(false)
+    }
+  }
+
+  async function removeAccountBank(bankAccountId:string): Promise<Details> {
+    setIsLoading(true)
+    try {
+      const { data: details } = await api.delete('/v1/users/banks', {
+        data: { bank_account_id: bankAccountId }
+      });
+      return details
+    } catch (err) {
+      appErrorVerifyError(err);
     } finally{
       setIsLoading(false)
     }
@@ -507,8 +542,26 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
   return (
     <ClientUserContext.Provider
       value={{
-        registerClient, userIdResetPassword, resetPassword,
-        phone, setPhone, registerAddressClient, uploadUserClientImageProfile, uploadUserClientImageDocument, registerPhoneClient, resendCodePhoneClient, confirmCodePhoneClient, forgotPasswordMail, token, forgotPasswordPhone, countdown, userClient, setUserClient,updateDetails
+        registerClient,
+        userIdResetPassword,
+        resetPassword,
+        phone,
+        setPhone,
+        registerAddressClient,
+        uploadUserClientImageProfile,
+        uploadUserClientImageDocument,
+        registerPhoneClient,
+        resendCodePhoneClient,
+        confirmCodePhoneClient,
+        forgotPasswordMail,
+        token,
+        forgotPasswordPhone,
+        countdown,
+        userClient,
+        setUserClient,
+        updateDetails,
+        registerAccountBank,
+        removeAccountBank
       }}
     >
       {children}

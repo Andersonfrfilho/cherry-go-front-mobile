@@ -18,10 +18,14 @@ import { AppError } from '../errors/AppError';
 import { UpdateImagesPositionProviderDTO } from './dtos/users/UpdateImagesPositionProvider.dto';
 import { DeleteImagesProviderDTO } from './dtos/users/DeleteImagesProvider.dto';
 import { DAYS_WEEK_ENUM } from '../enums/DaysProviders.enum';
+import { PAYMENT_TYPES_ENUM } from '../enums/PaymentTypes.enum';
+import { STRIPE_PAYMENT_REQUIRES_ENUM } from '../enums/stripe.enums';
+import { LOCALS_TYPES_ENUM } from '../enums/localsTypes.enum';
 
 type ProviderUserContextData = {
   userProvider: UserProvider;
   setUserProvider: Dispatch<React.SetStateAction<UserProvider>>;
+  requirementRegister: boolean;
   registerProvider: (userData: UserClientRegisterDTO) => Promise<void>;
   loadUserData(): Promise<void>;
   uploadImagesProvider(data: UploadImagesProviderDTO): Promise<void>;
@@ -37,6 +41,17 @@ type ProviderUserContextData = {
     data: handleAddHoursAvailableParams,
   ): Promise<void>;
   removeHourProviderWorkAvailable(id: string): Promise<void>;
+  paymentTypesAvailable: Payment[];
+  getAllPaymentTypesAvailable(): Promise<void>;
+  addPaymentTypesAvailableProvider(
+    paymentsTypes: PAYMENT_TYPES_ENUM[],
+  ): Promise<void>;
+  getAllRequirementRegister(): Promise<void>;
+  updatePaymentAccountPerson(): Promise<void>;
+  getAllLocalsTypesAvailable(): Promise<void>;
+  deleteLocalsTypesAvailable(localTypeIds: string[]): Promise<void>;
+  createLocalsTypesAvailable(localsTypes: string[]): Promise<void>;
+  addLocalSProvider(data: AddLocalsProviderDTO): Promise<void>;
 };
 type ProviderDaysAvailability = {
   id: string;
@@ -91,7 +106,7 @@ export type Phone = {
   id: string;
 };
 
-type Addresses = {
+export type Addresses = {
   street: string;
   number: string;
   zipcode: string;
@@ -221,6 +236,69 @@ export type Image_Provider = {
   deleted_at: null;
   image: Image;
 };
+type Payment = {
+  id: string;
+  name: PAYMENT_TYPES_ENUM;
+  description: string | null;
+  active: boolean;
+  created_at: string;
+  updated_at: null;
+  deleted_at: null;
+};
+
+type PaymentType = {
+  id: string;
+  provider_id: string;
+  payment_type_id: string;
+  active: boolean;
+  payment: Payment;
+};
+interface DataBank {
+  name: string;
+  id: string;
+}
+
+interface StripeAccount {
+  id: string;
+  bank_accounts: Array<DataBank>;
+}
+interface Stripe {
+  account: StripeAccount;
+  customer: StripeAccount;
+}
+
+interface BankAccount {
+  name: string;
+}
+
+export interface Details {
+  stripe?: Stripe;
+  fantasy_name?: string;
+  color_hair?: string;
+  nuance_hair?: string;
+  style_hair?: string;
+  height?: number;
+  weight?: number;
+  description?: string;
+  ethnicity?: string;
+  color_eye?: string;
+}
+export type LocalType = {
+  id: string;
+  provider_id: string;
+  local_type: LOCALS_TYPES_ENUM;
+  active: boolean;
+};
+export type Local = {
+  id: string;
+  provider_id: string;
+  address_id: string;
+  active: boolean;
+  amount: string;
+  details: null;
+  address: Addresses;
+};
+
 export type UserProvider = {
   id: string;
   name: string;
@@ -234,11 +312,13 @@ export type UserProvider = {
   birth_date: string;
   status: string;
   gender: GENDER_ENUM;
-  details?: any;
+  details?: Details;
   phones?: Phone[];
   addresses?: Addresses[];
   types?: User_Type[];
   term?: Term[];
+  locals?: Local[];
+  locals_types: LocalType[];
   image_profile?: Image_Profile[];
   transactions?: Transaction[];
   token?: string;
@@ -247,11 +327,24 @@ export type UserProvider = {
   images?: Image_Provider[];
   days?: ProviderDaysAvailability[];
   hours?: ProviderHoursAvailability[];
+  payments_types?: PaymentType[];
 };
 
 interface handleAddHoursAvailableParams {
   startHour: string;
   endHour: string;
+}
+
+interface AddLocalsProviderDTO {
+  zipcode: string;
+  address: string;
+  number: string;
+  district: string;
+  state: string;
+  complement: string;
+  reference: string;
+  country: string;
+  amount: string;
 }
 
 export type Token = {
@@ -282,6 +375,10 @@ function ProviderUserProvider({ children }: ProviderUserProviderProps) {
   const [hoursAvailable, setHoursAvailable] = useState<Array<string>>(
     [] as Array<string>,
   );
+  const [paymentTypesAvailable, setPaymentTypesAvailable] = useState<Payment[]>(
+    [] as Payment[],
+  );
+  const [requirementRegister, setRequirementRegister] = useState<boolean>(true);
   const { setIsLoading } = useCommon();
   const { appErrorVerifyError } = useError();
 
@@ -475,6 +572,130 @@ function ProviderUserProvider({ children }: ProviderUserProviderProps) {
     }
   }
 
+  async function getAllPaymentTypesAvailable(): Promise<void> {
+    setIsLoading(true);
+    try {
+      const { data } = await api.get('/v1/users/providers/payments_types');
+      setPaymentTypesAvailable(data);
+    } catch (error) {
+      appErrorVerifyError(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function addPaymentTypesAvailableProvider(
+    paymentsTypes: PAYMENT_TYPES_ENUM[],
+  ): Promise<void> {
+    setIsLoading(true);
+    try {
+      const { data } = await api.patch('/v1/users/providers/payment_type', {
+        payments_types: paymentsTypes,
+      });
+      setUserProvider({ ...userProvider, payments_types: data });
+    } catch (error) {
+      appErrorVerifyError(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function getAllLocalsTypesAvailable(): Promise<void> {
+    setIsLoading(true);
+    try {
+      const {
+        data: { locals, locals_types },
+      } = await api.get('/v1/users/providers/locals/types');
+      setUserProvider({ ...userProvider, locals, locals_types });
+    } catch (error) {
+      appErrorVerifyError(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function createLocalsTypesAvailable(
+    localsTypes: string[],
+  ): Promise<void> {
+    setIsLoading(true);
+    try {
+      const data = {
+        locals_types: localsTypes,
+      };
+      const {
+        data: { locals, locals_types },
+      } = await api.post('/v1/users/providers/locals/types', data);
+      setUserProvider({ ...userProvider, locals, locals_types });
+    } catch (error) {
+      appErrorVerifyError(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function deleteLocalsTypesAvailable(
+    localTypeIds: string[],
+  ): Promise<void> {
+    setIsLoading(true);
+    try {
+      const data = {
+        provider_locals_types_ids: localTypeIds,
+      };
+
+      const {
+        data: { locals, locals_types },
+      } = await api.delete('/v1/users/providers/locals/types', { data });
+
+      setUserProvider({ ...userProvider, locals, locals_types });
+    } catch (error) {
+      appErrorVerifyError(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function getAllRequirementRegister(): Promise<void> {
+    setIsLoading(true);
+    try {
+      const { data } = await api.get<Array<string>>(
+        '/v1/users/providers/verify/payment/infos',
+      );
+
+      setRequirementRegister(
+        !data.every(
+          requirement =>
+            requirement === STRIPE_PAYMENT_REQUIRES_ENUM.EXTERNAL_ACCOUNT,
+        ),
+      );
+    } catch (error) {
+      appErrorVerifyError(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function updatePaymentAccountPerson(): Promise<void> {
+    setIsLoading(true);
+    try {
+      await api.put('/v1/users/providers/update/payment/person');
+    } catch (error) {
+      appErrorVerifyError(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function addLocalSProvider(data: AddLocalsProviderDTO): Promise<void> {
+    setIsLoading(true);
+    try {
+      await api.put('/v1/users/providers/update/payment/person');
+    } catch (error) {
+      appErrorVerifyError(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   return (
     <ProviderUserContext.Provider
       value={{
@@ -491,6 +712,16 @@ function ProviderUserProvider({ children }: ProviderUserProviderProps) {
         availableDaysToProviderWork,
         addHoursProviderWorkAvailable,
         removeHourProviderWorkAvailable,
+        paymentTypesAvailable,
+        getAllPaymentTypesAvailable,
+        addPaymentTypesAvailableProvider,
+        getAllRequirementRegister,
+        requirementRegister,
+        updatePaymentAccountPerson,
+        getAllLocalsTypesAvailable,
+        deleteLocalsTypesAvailable,
+        createLocalsTypesAvailable,
+        addLocalSProvider,
       }}
     >
       {children}

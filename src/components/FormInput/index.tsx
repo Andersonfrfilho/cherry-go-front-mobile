@@ -2,12 +2,14 @@ import React from 'react';
 import { Control, Controller } from 'react-hook-form';
 import { TextInputProps } from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import CurrencyInput from 'react-native-currency-input';
 import { Input } from '../Input';
 import { Container, Error } from './styles';
 import { PasswordInput } from '../PasswordInput';
 import { MaskInput } from '../MaskInput';
 import { ButtonInput } from '../ButtonInput';
 import { TextInputTypeEnum } from '../../enums/TextInputType.enum';
+import { MoneyInput } from '../MoneyInput';
 
 interface Props extends TextInputProps {
   control: Control;
@@ -24,6 +26,11 @@ interface Props extends TextInputProps {
   mask?: string;
   type?: TextInputTypeEnum;
   inputRef?: React.RefObject<unknown>;
+  percentWidth?: number;
+  prefix?: string;
+  delimiter?: string;
+  separator?: string;
+  precision?: number;
 }
 
 export function FormInput({
@@ -37,10 +44,15 @@ export function FormInput({
   functionOnPress = () => {},
   type = TextInputTypeEnum.default,
   inputRef,
+  percentWidth = 100,
+  prefix,
+  delimiter,
+  separator,
+  precision,
   ...rest
 }: Props) {
   return (
-    <Container>
+    <Container percent={percentWidth}>
       {error && <Error>{error}</Error>}
       <Controller
         control={control}
@@ -83,6 +95,24 @@ export function FormInput({
                 functionOnPress={functionOnPress}
                 inputRef={inputRef}
                 {...rest}
+              />
+            );
+          }
+
+          if (type === TextInputTypeEnum.money) {
+            return (
+              <MoneyInput
+                error={error}
+                iconColor={iconColor}
+                {...rest}
+                inputRef={inputRef}
+                value={value}
+                onChangeValue={onChange}
+                prefix="R$ "
+                signPosition="beforePrefix"
+                delimiter="."
+                precision={2}
+                separator=","
               />
             );
           }

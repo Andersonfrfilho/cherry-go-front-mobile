@@ -1,19 +1,15 @@
-import React, { useEffect } from 'react';
-import brazilLocale from 'date-fns/locale/pt-BR';
-import { Button, StatusBar } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StatusBar } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from 'styled-components';
 import { RFValue } from 'react-native-responsive-fontsize';
-import { format } from 'date-fns';
 import {
   Container,
-  AreaAppointmentTitle,
-  AreaAppointments,
-  AreaAppointmentContent,
   AreaTitle,
   Title,
   Form,
   Icon,
+  AreaLocalClient,
   AreaTextInfoDateLocal,
   AreaAppointmentButton,
   AreaIcon,
@@ -29,41 +25,125 @@ import {
   AreaAmount,
   ValueAmount,
   AreaInfoDate,
+  AreaLocals,
+  AreaLocalTitle,
+  AreaLocalsContent,
+  AreaCheckBox,
+  AreaTitleLocalType,
+  TitleLocalType,
+  AreaLocalOwn,
+  AreaLocalOwners,
+  AreaLocalOwnLocals,
+  AreaLocalOwnLocal,
+  IconMaterialCommunity,
+  AreaCheckBoxAddAddress,
+  AreaCheckBoxLocal,
+  AreaLocalsAvailable,
+  AreaIconRemoveLocal,
+  TitleLocal,
+  TitleAddLocal,
 } from './styles';
-
-import { useCommon } from '../../../hooks/common';
-import { WarningText } from '../../../components/WarningText';
-import { ScreenNavigationProp } from '../../../routes';
-import { HeaderProfile } from '../../../components/HeaderProfile';
-import { Appointment, useProviderUser } from '../../../hooks/providerUser';
-import { getPlatformDate } from '../../../utils/getPlatformDate';
-import { getValueAmount } from '../../../utils/formatValueAmount';
-import { Load } from '../../../components/Load';
-import { useError } from '../../../hooks/error';
+import { useCommon } from '../../../../hooks/common';
+import { WarningText } from '../../../../components/WarningText';
+import { ScreenNavigationProp } from '../../../../routes';
+import { HeaderProfile } from '../../../../components/HeaderProfile';
+import { Appointment, useProviderUser } from '../../../../hooks/providerUser';
+import { Load } from '../../../../components/Load';
+import { useError } from '../../../../hooks/error';
+import { useLocal } from '../../../../hooks/local';
+import { LOCALS_TYPES_ENUM } from '../../../../enums/localsTypes.enum';
+import { useClientUser } from '../../../../hooks/clientUser';
+import { getValueAmount } from '../../../../utils/formatValueAmount';
 
 export interface Focusable {
   focus(): void;
 }
-export function HomeProvider() {
+interface HandleCrateTypeClientLocalParamsDTO {
+  selected?: boolean;
+  id?: string;
+}
+
+export function RegistrationsAvailabilitiesLocalsProvider() {
+  const [localClientAvailable, setLocalClientAvailable] =
+    useState<boolean>(false);
+  const [localOwnAvailable, setLocalOwnAvailable] = useState<boolean>(false);
   const theme = useTheme();
-  const { isLoading } = useCommon();
+  const { isLoading, setIsLoading } = useCommon();
   const { appError } = useError();
-  const { userProvider, loadUserData } = useProviderUser();
+  const { getAllLocalsAvailable, deleteLocalProvider } = useLocal();
+  const {
+    userProvider,
+    loadUserData,
+    deleteLocalsTypesAvailable,
+    createLocalsTypesAvailable,
+  } = useProviderUser();
 
   const navigation = useNavigation<ScreenNavigationProp>();
   const {
     name,
     last_name: lastName,
     image_profile: imageProfile,
+    locals_types,
+    locals,
   } = userProvider;
 
   async function handleSelectedAppointment(appointment: Appointment) {
     navigation.navigate('AppointmentsDetailsProvider', { appointment });
   }
+  async function handleSetClientTypeLocal({
+    selected,
+    id,
+  }: HandleCrateTypeClientLocalParamsDTO) {
+    if (selected && id) {
+      deleteLocalsTypesAvailable([id]);
+      return;
+    }
+    createLocalsTypesAvailable(['client']);
+  }
+
+  async function handleSetOwnTypeLocal({
+    selected,
+    id,
+  }: HandleCrateTypeClientLocalParamsDTO) {
+    if (selected && id) {
+      deleteLocalsTypesAvailable([id]);
+      return;
+    }
+    createLocalsTypesAvailable(['own']);
+  }
 
   useEffect(() => {
     loadUserData();
+    getAllLocalsAvailable();
+    return () => {
+      setLocalClientAvailable(false);
+      setLocalOwnAvailable(false);
+    };
   }, []);
+
+  useEffect(() => {
+    if (!!locals_types && !!locals_types.length) {
+      setLocalClientAvailable(
+        locals_types.some(
+          local => local.local_type === LOCALS_TYPES_ENUM.CLIENT,
+        ),
+      );
+      setLocalOwnAvailable(
+        locals_types.some(local => local.local_type === LOCALS_TYPES_ENUM.OWN),
+      );
+    } else {
+      setLocalClientAvailable(false);
+      setLocalOwnAvailable(false);
+    }
+  }, [locals_types]);
+
+  function handlePageAddAddress() {
+    navigation.push('RegistrationsAvailabilitiesAddressesProviderStack');
+  }
+
+  async function handleDeleteLocal(local_id: string) {
+    await deleteLocalProvider([local_id]);
+  }
 
   return (
     <Container>
@@ -83,219 +163,161 @@ export function HomeProvider() {
         {isLoading ? (
           <Load color={theme.colors.white_medium} />
         ) : (
-          <>
-            <AreaAppointments>
-              <AreaAppointmentTitle>
-                {appError && appError.message ? (
+          <AreaLocals>
+            <AreaLocalTitle>
+              {appError && appError.message ? (
+                <AreaTitle>
+                  <WarningText title={appError.message} />
+                </AreaTitle>
+              ) : (
+                <>
                   <AreaTitle>
-                    <WarningText title={appError.message} />
+                    <Title>Locais cadastrados</Title>
                   </AreaTitle>
-                ) : (
-                  <>
-                    <AreaTitle>
-                      <Title>Agendamentos pendentes</Title>
-                    </AreaTitle>
+                  <AreaIcon>
+                    <Icon
+                      name="calendar"
+                      size={RFValue(25)}
+                      color={theme.colors.white_medium}
+                    />
+                  </AreaIcon>
+                </>
+              )}
+            </AreaLocalTitle>
+            <AreaLocalsContent>
+              <AreaLocalClient>
+                <AreaCheckBox
+                  selected={localClientAvailable}
+                  onPress={() =>
+                    localClientAvailable
+                      ? handleSetClientTypeLocal({
+                          id: locals_types.find(
+                            local =>
+                              local.local_type === LOCALS_TYPES_ENUM.CLIENT,
+                          )?.id,
+                          selected: localClientAvailable,
+                        })
+                      : handleSetClientTypeLocal({
+                          id: '',
+                          selected: localClientAvailable,
+                        })
+                  }
+                >
+                  <AreaIcon>
+                    <Icon
+                      name={localClientAvailable ? 'check-square' : 'square'}
+                      size={RFValue(25)}
+                      color={
+                        localClientAvailable
+                          ? theme.colors.main_light
+                          : theme.colors.background_primary
+                      }
+                    />
+                  </AreaIcon>
+                  <AreaTitleLocalType>
+                    <TitleLocalType selected={localClientAvailable}>
+                      Cliente
+                    </TitleLocalType>
+                  </AreaTitleLocalType>
+                </AreaCheckBox>
+              </AreaLocalClient>
+              <AreaLocalOwners>
+                <AreaLocalOwn>
+                  <AreaCheckBox
+                    selected={localOwnAvailable}
+                    onPress={() =>
+                      localOwnAvailable
+                        ? handleSetOwnTypeLocal({
+                            id: locals_types.find(
+                              local =>
+                                local.local_type === LOCALS_TYPES_ENUM.OWN,
+                            )?.id,
+                            selected: localOwnAvailable,
+                          })
+                        : handleSetOwnTypeLocal({
+                            id: '',
+                            selected: localOwnAvailable,
+                          })
+                    }
+                  >
                     <AreaIcon>
                       <Icon
-                        name="calendar"
+                        name={localOwnAvailable ? 'check-square' : 'square'}
                         size={RFValue(25)}
-                        color={theme.colors.white_medium}
+                        color={
+                          localOwnAvailable
+                            ? theme.colors.main_light
+                            : theme.colors.background_primary
+                        }
                       />
                     </AreaIcon>
-                  </>
-                )}
-              </AreaAppointmentTitle>
-              <AreaAppointmentContent>
-                <List
-                  keyExtractor={(item, index) => index.toString()}
-                  data={userProvider.appointments?.opens}
-                  ListEmptyComponent={() => (
-                    <AreaTitle>
-                      <Title>Sem agendamentos no momento</Title>
-                    </AreaTitle>
-                  )}
-                  renderItem={({ item }) => {
-                    return (
-                      <AreaAppointmentButton
-                        onPress={() => handleSelectedAppointment(item)}
-                      >
-                        <AreaPhoto>
-                          <PhotoClientAppointment
-                            source={{
-                              uri:
-                                item.clients &&
-                                item.clients[0].client.image_profile &&
-                                item.clients[0].client.image_profile[0].image
-                                  .link,
-                            }}
-                          />
-                        </AreaPhoto>
-                        <AreaInfoLocalDate>
-                          <AreaInfoLocal
-                            color="transparent"
-                            style={{ marginBottom: 5 }}
-                          >
-                            <IconInfoLocal>
+                    <AreaTitleLocalType>
+                      <TitleLocalType selected={localOwnAvailable}>
+                        Próprios
+                      </TitleLocalType>
+                    </AreaTitleLocalType>
+                  </AreaCheckBox>
+                </AreaLocalOwn>
+                <AreaLocalOwnLocals>
+                  <AreaLocalOwnLocal>
+                    <AreaCheckBoxAddAddress
+                      selected={localOwnAvailable}
+                      onPress={handlePageAddAddress}
+                    >
+                      <AreaIcon>
+                        <IconMaterialCommunity
+                          name="map-marker-plus"
+                          size={RFValue(30)}
+                          color={
+                            localOwnAvailable
+                              ? theme.colors.main_light
+                              : theme.colors.background_primary
+                          }
+                        />
+                      </AreaIcon>
+                      <AreaTitleLocalType>
+                        <TitleAddLocal>Adicionar local</TitleAddLocal>
+                      </AreaTitleLocalType>
+                    </AreaCheckBoxAddAddress>
+                    <AreaLocalsAvailable>
+                      {locals &&
+                        locals?.map((local, index) => (
+                          <AreaCheckBoxLocal key={index.toString()}>
+                            <AreaIcon>
                               <Icon
-                                name="map-pin"
+                                name="home"
                                 size={RFValue(25)}
-                                color={theme.colors.shape}
+                                color={theme.colors.background_primary}
                               />
-                            </IconInfoLocal>
-                            <AreaTextInfoLocal>
-                              <TextInfoLocal numberOfLines={1}>
-                                {item.addresses[0].address.street}
-                                {' ,'}
-                                {item.addresses[0].address.number}
-                              </TextInfoLocal>
-                            </AreaTextInfoLocal>
-                            <AreaAmount>
-                              <ValueAmount size={12}>
-                                {getValueAmount(
-                                  item.transactions[0].current_amount,
-                                )}
-                              </ValueAmount>
-                            </AreaAmount>
-                          </AreaInfoLocal>
-                          <AreaInfoDate color="transparent">
-                            <IconInfoDateLocal>
+                            </AreaIcon>
+                            <AreaTitleLocalType>
+                              <TitleLocal numberOfLines={3}>
+                                {`${local.address.street}, ${
+                                  local.address.number
+                                } - ${local.address.district} ${
+                                  local.address.city
+                                }/${local.address.state} - ${
+                                  local.address.zipcode
+                                } ${getValueAmount(local.amount)}`}
+                              </TitleLocal>
+                            </AreaTitleLocalType>
+                            <AreaIconRemoveLocal
+                              onPress={() => handleDeleteLocal(local.id)}
+                            >
                               <Icon
-                                name="calendar"
+                                name="x-circle"
                                 size={RFValue(25)}
-                                color={theme.colors.shape}
+                                color={theme.colors.red_ku_crimson}
                               />
-                            </IconInfoDateLocal>
-                            <AreaTextInfoDateLocal>
-                              <TextInfoLocal size={14} numberOfLines={1}>
-                                {format(
-                                  getPlatformDate(new Date(item.initial_date)),
-                                  'dd/MMM - HH:mm',
-                                  { locale: brazilLocale },
-                                )}
-                              </TextInfoLocal>
-                            </AreaTextInfoDateLocal>
-                            <AreaTextInfoDateLocal>
-                              <TextInfoLocal size={14} numberOfLines={1}>
-                                {format(
-                                  getPlatformDate(new Date(item.final_date)),
-                                  'dd/MMM - HH:mm',
-                                  { locale: brazilLocale },
-                                )}
-                              </TextInfoLocal>
-                            </AreaTextInfoDateLocal>
-                          </AreaInfoDate>
-                        </AreaInfoLocalDate>
-                      </AreaAppointmentButton>
-                    );
-                  }}
-                />
-              </AreaAppointmentContent>
-            </AreaAppointments>
-            <AreaAppointments>
-              <AreaAppointmentTitle
-                style={{ backgroundColor: theme.colors.success }}
-              >
-                <AreaTitle>
-                  <Title>Agendamentos Confirmados</Title>
-                </AreaTitle>
-                <AreaIcon>
-                  <Icon
-                    name="calendar"
-                    size={RFValue(25)}
-                    color={theme.colors.white_medium}
-                  />
-                </AreaIcon>
-              </AreaAppointmentTitle>
-              <AreaAppointmentContent
-                style={{ borderColor: theme.colors.success }}
-              >
-                <List
-                  keyExtractor={(item, index) => index.toString()}
-                  data={userProvider.appointments?.confirmed}
-                  ListEmptyComponent={() => (
-                    <AreaTitle>
-                      <Title>Sem agendamentos no momento</Title>
-                    </AreaTitle>
-                  )}
-                  renderItem={({ item }) => {
-                    return (
-                      <AreaAppointmentButton
-                        color={theme.colors.success}
-                        onPress={() => handleSelectedAppointment(item)}
-                      >
-                        <AreaPhoto>
-                          <PhotoClientAppointment
-                            source={{
-                              uri:
-                                item.clients &&
-                                item.clients[0].client.image_profile &&
-                                item.clients[0].client.image_profile[0].image
-                                  .link,
-                            }}
-                          />
-                        </AreaPhoto>
-                        <AreaInfoLocalDate>
-                          <AreaInfoLocal
-                            color="transparent"
-                            style={{ marginBottom: 5 }}
-                          >
-                            <IconInfoLocal>
-                              <Icon
-                                name="map-pin"
-                                size={RFValue(25)}
-                                color={theme.colors.shape}
-                              />
-                            </IconInfoLocal>
-                            <AreaTextInfoLocal>
-                              <TextInfoLocal numberOfLines={1}>
-                                {item.addresses[0].address.street}
-                                {' ,'}
-                                {item.addresses[0].address.number}
-                              </TextInfoLocal>
-                            </AreaTextInfoLocal>
-                            <AreaAmount>
-                              <ValueAmount size={12}>
-                                {getValueAmount(
-                                  item.transactions[0].current_amount,
-                                )}
-                              </ValueAmount>
-                            </AreaAmount>
-                          </AreaInfoLocal>
-                          <AreaInfoDate color="transparent">
-                            <IconInfoDateLocal>
-                              <Icon
-                                name="calendar"
-                                size={RFValue(25)}
-                                color={theme.colors.shape}
-                              />
-                            </IconInfoDateLocal>
-                            <AreaTextInfoDateLocal>
-                              <TextInfoLocal size={14} numberOfLines={1}>
-                                {format(
-                                  getPlatformDate(new Date(item.initial_date)),
-                                  'dd/MMM - HH:mm',
-                                  { locale: brazilLocale },
-                                )}
-                              </TextInfoLocal>
-                            </AreaTextInfoDateLocal>
-                            <AreaTextInfoDateLocal>
-                              <TextInfoLocal size={14} numberOfLines={1}>
-                                {format(
-                                  getPlatformDate(new Date(item.final_date)),
-                                  'dd/MMM - HH:mm',
-                                  { locale: brazilLocale },
-                                )}
-                              </TextInfoLocal>
-                            </AreaTextInfoDateLocal>
-                          </AreaInfoDate>
-                        </AreaInfoLocalDate>
-                      </AreaAppointmentButton>
-                    );
-                  }}
-                />
-              </AreaAppointmentContent>
-            </AreaAppointments>
-          </>
+                            </AreaIconRemoveLocal>
+                          </AreaCheckBoxLocal>
+                        ))}
+                    </AreaLocalsAvailable>
+                  </AreaLocalOwnLocal>
+                </AreaLocalOwnLocals>
+              </AreaLocalOwners>
+            </AreaLocalsContent>
+          </AreaLocals>
         )}
       </Form>
     </Container>

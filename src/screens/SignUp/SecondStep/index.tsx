@@ -138,10 +138,12 @@ export function SignUpSecondStep() {
   function handleChangeValuesCityName(value: string) {
     setCityFind(value);
   }
+
   function handleSetCity(value: string) {
     setCityFind(value);
     setFilteredCities([]);
   }
+
   async function handleSelectState(value: string) {
     setIsLoading(true);
     setSubTitle('Estamos buscando as cidades do estado selecionado 🧐');
@@ -204,6 +206,7 @@ export function SignUpSecondStep() {
       setIsLoading(false);
     }
   }
+
   function handleNumberOnEndEditing() {
     if (
       getValues('street') &&
@@ -216,6 +219,7 @@ export function SignUpSecondStep() {
     }
     refDistrict.current?.focus();
   }
+
   useEffect(() => {
     async function getInformationLocation() {
       setIsLoading(true);

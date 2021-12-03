@@ -3,7 +3,7 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { FlatList } from 'react-native';
 import FastImage from 'react-native-fast-image';
-import { Appointment } from '../../../../hooks/providerUser';
+import { Appointment } from '../../../../../hooks/providerUser';
 
 interface CheckSelected {
   selected: boolean;
@@ -18,7 +18,9 @@ export const Container = styled.View`
   flex: 1;
   background-color: ${({ theme }) => theme.colors.background_primary};
 `;
-
+export const AreaListBankSelected = styled.ScrollView`
+  flex: 1;
+`;
 export const Form = styled.View`
   flex: 1;
 
@@ -27,12 +29,16 @@ export const Form = styled.View`
   padding: 0 20px;
 `;
 
-export const AreaPaymentType = styled.View`
+export const AreaRegisterBankAccount = styled.View`
   flex: 1;
   padding-bottom: 10px;
 `;
 
-export const AreaPaymentTypeTitle = styled.View`
+export const AreaSelectBank = styled.View`
+  flex: 1;
+`;
+
+export const AreaRegisterBankAccountTitle = styled.View`
   flex-direction: row;
   height: 60px;
 
@@ -42,14 +48,13 @@ export const AreaPaymentTypeTitle = styled.View`
   margin-bottom: 10px;
 `;
 
-export const AreaPaymentTypeContent = styled.View`
+export const AreaRegisterBankAccountContent = styled.ScrollView`
   flex: 1;
-
-  border-radius: 12px;
-  justify-content: flex-start;
-
-  padding: 3px;
+  margin: 10px 0;
+  padding: 0px 20px;
+  /* justify-content: space-between; */
 `;
+
 export const AreaCheckBox = styled.TouchableOpacity<CheckSelected>`
   flex: 1;
 
@@ -74,24 +79,6 @@ export const AreaCheckBox = styled.TouchableOpacity<CheckSelected>`
       background-color: ${theme.colors.success};
     `}
 `;
-export const AreaOnlinePaymentsTypes = styled.View`
-  flex: 1;
-
-  flex-direction: row;
-
-  justify-content: center;
-  align-items: center;
-
-  background-color: ${({ theme }) => theme.colors.main_light};
-
-  border-radius: 12px;
-
-  margin-bottom: 10px;
-
-  border: solid;
-  border-width: 3px;
-  border-color: ${({ theme }) => theme.colors.bon_jour_dark_shade};
-`;
 export const AreaSavedPaymentsTypes = styled.TouchableOpacity`
   flex: 1;
 
@@ -100,7 +87,7 @@ export const AreaSavedPaymentsTypes = styled.TouchableOpacity`
   justify-content: center;
   align-items: center;
 
-  background-color: ${({ theme }) => theme.colors.success};
+  background-color: ${({ theme }) => theme.colors.success_chateau};
 
   border-radius: 12px;
 
@@ -154,13 +141,6 @@ export const Title = styled.Text`
   color: ${({ theme }) => theme.colors.text};
 `;
 
-export const AreaIconExclude = styled.TouchableOpacity`
-  flex: 1;
-
-  justify-content: center;
-  align-items: center;
-`;
-
 export const AreaIcon = styled.View`
   flex: 1;
 
@@ -187,12 +167,12 @@ export const TitlePaymentType = styled.Text<CheckSelected>`
 export const TitlePaymentTypeButton = styled.Text`
   font-size: ${RFValue(20)}px;
   font-family: ${({ theme }) => theme.fonts.primary_700};
-  color: ${({ theme }) => theme.colors.background_primary};
+  color: ${({ theme }) => theme.colors.main_light};
 `;
 
 export const Icon = styled(Feather)``;
 
-export const IconMaterialCommunityIcons = styled(MaterialCommunityIcons)``;
+export const IconMaterialCommunity = styled(MaterialCommunityIcons)``;
 
 export const Footer = styled.View`
   flex: 1;
@@ -335,4 +315,23 @@ export const AreaValueAmount = styled.View`
   flex: 1;
 
   flex-direction: row;
+`;
+
+export const AreaButtonSelectBank = styled.TouchableOpacity``;
+export const TitleSelectBank = styled.Text``;
+
+export const AreaButtonSave = styled.View`
+  flex: 1;
+  margin-top: 10px;
+
+  justify-content: center;
+  align-items: center;
+`;
+export const ButtonIcons = styled.View`
+  width: 100%;
+
+  flex-direction: row;
+  justify-content: space-between;
+
+  margin-top: 0px;
 `;
