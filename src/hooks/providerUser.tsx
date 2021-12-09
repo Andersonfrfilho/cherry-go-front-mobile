@@ -21,6 +21,7 @@ import { DAYS_WEEK_ENUM } from '../enums/DaysProviders.enum';
 import { PAYMENT_TYPES_ENUM } from '../enums/PaymentTypes.enum';
 import { STRIPE_PAYMENT_REQUIRES_ENUM } from '../enums/stripe.enums';
 import { LOCALS_TYPES_ENUM } from '../enums/localsTypes.enum';
+import { TransportTypeProviderEnum } from '../enums/transportTypeProvider';
 
 type ProviderUserContextData = {
   userProvider: UserProvider;
@@ -38,7 +39,7 @@ type ProviderUserContextData = {
   hoursAvailable: Array<string>;
   availableDaysToProviderWork(days: DAYS_WEEK_ENUM[]): Promise<void>;
   addHoursProviderWorkAvailable(
-    data: handleAddHoursAvailableParams,
+    data: HandleAddHoursAvailableParams,
   ): Promise<void>;
   removeHourProviderWorkAvailable(id: string): Promise<void>;
   paymentTypesAvailable: Payment[];
@@ -52,6 +53,9 @@ type ProviderUserContextData = {
   deleteLocalsTypesAvailable(localTypeIds: string[]): Promise<void>;
   createLocalsTypesAvailable(localsTypes: string[]): Promise<void>;
   addLocalSProvider(data: AddLocalsProviderDTO): Promise<void>;
+  createUpdateTransportTypeByProvider(
+    elements: TransportsSelects[],
+  ): Promise<void>;
 };
 type ProviderDaysAvailability = {
   id: string;
@@ -129,12 +133,23 @@ type AddressesAppointment = {
   deleted_at: string;
   address: Addresses;
 };
-type TransportTypes = {
+export type TransportType = {
   id: string;
   name: string;
+  description?: any;
+  active: boolean;
+};
+export type ProviderTransportTypes = {
+  id: string;
+  provider_id: string;
+  transport_type_id: string;
+  details?: any;
+  name: TransportTypeProviderEnum;
   description?: string;
+  amount?: number;
   active: boolean;
   created_at: string;
+  transport_type: TransportType;
 };
 
 type Transport = {
@@ -152,7 +167,7 @@ type Transport = {
   arrival_time_return: string;
   return_time: string;
   created_at: string;
-  transport_type: TransportTypes;
+  transport_type: TransportType;
   origin_address: Addresses;
   destination_address: Addresses;
 };
@@ -319,6 +334,7 @@ export type UserProvider = {
   term?: Term[];
   locals?: Local[];
   locals_types: LocalType[];
+  transports_types?: ProviderTransportTypes[];
   image_profile?: Image_Profile[];
   transactions?: Transaction[];
   token?: string;
@@ -330,7 +346,7 @@ export type UserProvider = {
   payments_types?: PaymentType[];
 };
 
-interface handleAddHoursAvailableParams {
+interface HandleAddHoursAvailableParams {
   startHour: string;
   endHour: string;
 }
@@ -354,6 +370,10 @@ export type Token = {
   user_id?: string;
 };
 
+type TransportsSelects = {
+  transport_type_id: string;
+  amount: string | undefined;
+};
 interface ProviderUserProviderProps {
   children: ReactNode;
 }
@@ -541,7 +561,7 @@ function ProviderUserProvider({ children }: ProviderUserProviderProps) {
   async function addHoursProviderWorkAvailable({
     startHour,
     endHour,
-  }: handleAddHoursAvailableParams): Promise<void> {
+  }: HandleAddHoursAvailableParams): Promise<void> {
     setIsLoading(true);
     try {
       const { data } = await api.patch('/v1/users/providers/hours', {
@@ -696,6 +716,36 @@ function ProviderUserProvider({ children }: ProviderUserProviderProps) {
     }
   }
 
+  async function getTranportTypesProvider(): Promise<void> {
+    setIsLoading(true);
+    try {
+      await api.get('/v1/users/providers/update/payment/person');
+    } catch (error) {
+      appErrorVerifyError(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function createUpdateTransportTypeByProvider(
+    elements: TransportsSelects[],
+  ) {
+    setIsLoading(true);
+    try {
+      const { data: transport_types } = await api.patch(
+        '/v1/users/providers/transports/types',
+        {
+          transports_types: elements,
+        },
+      );
+      setUserProvider({ ...userProvider, transports_types: transport_types });
+    } catch (error) {
+      appErrorVerifyError(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   return (
     <ProviderUserContext.Provider
       value={{
@@ -722,6 +772,7 @@ function ProviderUserProvider({ children }: ProviderUserProviderProps) {
         deleteLocalsTypesAvailable,
         createLocalsTypesAvailable,
         addLocalSProvider,
+        createUpdateTransportTypeByProvider,
       }}
     >
       {children}

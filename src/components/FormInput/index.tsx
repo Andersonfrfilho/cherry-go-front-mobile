@@ -2,7 +2,7 @@ import React from 'react';
 import { Control, Controller } from 'react-hook-form';
 import { TextInputProps } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import CurrencyInput from 'react-native-currency-input';
+
 import { Input } from '../Input';
 import { Container, Error } from './styles';
 import { PasswordInput } from '../PasswordInput';

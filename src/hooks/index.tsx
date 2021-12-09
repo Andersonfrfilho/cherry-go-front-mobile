@@ -11,6 +11,7 @@ import { AppointmentProvider } from './appointment';
 import { BankProvider } from './bank';
 import { LocalProvider } from './local';
 import { AddressProvider } from './address';
+import { TransportProvider } from './transport';
 
 interface AppProviderProps {
   children: ReactNode;
@@ -26,11 +27,13 @@ function AppProvider({ children }: AppProviderProps) {
               <ProviderUserProvider>
                 <BankProvider>
                   <LocalProvider>
-                    <AddressProvider>
-                      <AppointmentProvider>
-                        <AuthProvider>{children}</AuthProvider>
-                      </AppointmentProvider>
-                    </AddressProvider>
+                    <TransportProvider>
+                      <AddressProvider>
+                        <AppointmentProvider>
+                          <AuthProvider>{children}</AuthProvider>
+                        </AppointmentProvider>
+                      </AddressProvider>
+                    </TransportProvider>
                   </LocalProvider>
                 </BankProvider>
               </ProviderUserProvider>

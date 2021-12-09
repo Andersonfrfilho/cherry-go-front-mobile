@@ -1,11 +1,7 @@
 import styled, { css } from 'styled-components/native';
 import { RFValue } from 'react-native-responsive-fontsize';
 
-import CurrencyInput, {
-  CurrencyInputProps,
-  FakeCurrencyInput,
-  FakeCurrencyInputProps,
-} from 'react-native-currency-input';
+import CurrencyInput, { CurrencyInputProps } from 'react-native-currency-input';
 import themeFile from '../../styles/theme';
 
 interface ContainerProps {

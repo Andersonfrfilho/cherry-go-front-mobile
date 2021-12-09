@@ -13,6 +13,7 @@ import { RegistrationsAvailabilitiesPaymentsMethodsProvider } from '../../screen
 import { RegistrationsAvailabilitiesLocalsProvider } from '../../screens/Providers/Registrations/Locals';
 import { RegistrationsAvailabilitiesAddressesProvider } from '../../screens/Providers/Registrations/Locals/Address';
 import { RegisterAccountBank } from '../../screens/Providers/Registrations/PaymentsMethods/RegisterAccountBank';
+import { RegistrationsAvailabilitiesTransportTypesProvider } from '../../screens/Providers/Registrations/TransportTypes';
 
 const { Navigator, Screen } = createNativeStackNavigator();
 
@@ -62,6 +63,10 @@ export function AppProviderNativeStackRoutes() {
       <Screen
         name="RegistrationsAvailabilitiesAddressesProviderStack"
         component={RegistrationsAvailabilitiesAddressesProvider}
+      />
+      <Screen
+        name="RegistrationsAvailabilitiesTransportTypesProviderStack"
+        component={RegistrationsAvailabilitiesTransportTypesProvider}
       />
       <Screen
         name="RegistrationsAccountBankProviderStack"

@@ -207,7 +207,13 @@ export function RegistrationsProvider() {
                       </SubTitle>
                     </AreaOptionSubTitle>
                   </AreaOptionButton>
-                  <AreaOptionButton onPress={() => {}}>
+                  <AreaOptionButton
+                    onPress={() =>
+                      handlePageOptionRegister(
+                        'RegistrationsAvailabilitiesTransportTypesProviderStack',
+                      )
+                    }
+                  >
                     <AreaOptionImage>
                       <Icon
                         name="navigation"
@@ -217,7 +223,7 @@ export function RegistrationsProvider() {
                     </AreaOptionImage>
                     <AreaOptionSubTitle>
                       <SubTitle color={theme.colors.background_primary}>
-                        Transports
+                        Transportes
                       </SubTitle>
                     </AreaOptionSubTitle>
                   </AreaOptionButton>

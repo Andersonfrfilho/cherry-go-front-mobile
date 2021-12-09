@@ -87,9 +87,6 @@ export function RegistrationsAvailabilitiesLocalsProvider() {
     locals,
   } = userProvider;
 
-  async function handleSelectedAppointment(appointment: Appointment) {
-    navigation.navigate('AppointmentsDetailsProvider', { appointment });
-  }
   async function handleSetClientTypeLocal({
     selected,
     id,

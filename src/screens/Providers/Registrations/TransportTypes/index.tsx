@@ -1,23 +1,18 @@
-import React, { useEffect } from 'react';
-import brazilLocale from 'date-fns/locale/pt-BR';
-import { Button, StatusBar } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StatusBar } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from 'styled-components';
 import { RFValue } from 'react-native-responsive-fontsize';
-import { format } from 'date-fns';
 import {
   Container,
-  AreaAppointmentTitle,
-  AreaAppointments,
-  AreaAppointmentContent,
   AreaTitle,
   Title,
   Form,
   Icon,
+  AreaLocalClient,
   AreaTextInfoDateLocal,
   AreaAppointmentButton,
   AreaIcon,
-  List,
   AreaPhoto,
   PhotoClientAppointment,
   IconInfoDateLocal,
@@ -29,42 +24,234 @@ import {
   AreaAmount,
   ValueAmount,
   AreaInfoDate,
+  AreaLocals,
+  AreaLocalTitle,
+  AreaLocalsContent,
+  AreaCheckBox,
+  AreaTitleLocalType,
+  TitleLocalType,
+  AreaLocalOwn,
+  AreaLocalOwners,
+  AreaLocalOwnLocals,
+  AreaLocalOwnLocal,
+  IconMaterialCommunity,
+  AreaCheckBoxAddAddress,
+  AreaCheckBoxLocal,
+  AreaLocalsAvailable,
+  AreaIconRemoveLocal,
+  TitleLocal,
+  TitleAddLocal,
+  AreaTransportTypeProvider,
+  AreaIconMark,
+  AreaTransportTypeProviderTitle,
+  TransportTypeProviderTitle,
+  AreaInputAmount,
+  TextInputSC,
+  AreaButtonSave,
+  TitleButtonSave,
 } from './styles';
-
-import { useCommon } from '../../../hooks/common';
-import { WarningText } from '../../../components/WarningText';
-import { ScreenNavigationProp } from '../../../routes';
-import { HeaderProfile } from '../../../components/HeaderProfile';
-import { Appointment, useProviderUser } from '../../../hooks/providerUser';
-import { getPlatformDate } from '../../../utils/getPlatformDate';
-import { getValueAmount } from '../../../utils/formatValueAmount';
-import { Load } from '../../../components/Load';
-import { useError } from '../../../hooks/error';
+import { useCommon } from '../../../../hooks/common';
+import { WarningText } from '../../../../components/WarningText';
+import { ScreenNavigationProp } from '../../../../routes';
+import { HeaderProfile } from '../../../../components/HeaderProfile';
+import { Appointment, useProviderUser } from '../../../../hooks/providerUser';
+import { Load } from '../../../../components/Load';
+import { useError } from '../../../../hooks/error';
+import { useLocal } from '../../../../hooks/local';
+import { LOCALS_TYPES_ENUM } from '../../../../enums/localsTypes.enum';
+import { useClientUser } from '../../../../hooks/clientUser';
+import { getValueAmount } from '../../../../utils/formatValueAmount';
+import { useTransport } from '../../../../hooks/transport';
+import {
+  TransportTypeProviderEnum,
+  TransportTypeProviderTranslateEnum,
+} from '../../../../enums/transportTypeProvider';
+import { onlyNumber } from '../../../../utils/onlyNumber';
 
 export interface Focusable {
   focus(): void;
 }
-export function HomeProvider() {
+interface HandleCrateTypeClientLocalParamsDTO {
+  selected?: boolean;
+  id?: string;
+}
+
+interface TransportsAvailableType {
+  selected: boolean;
+  id: string;
+  name: TransportTypeProviderTranslateEnum;
+  description: null;
+  active: boolean;
+  amount?: string;
+}
+
+export function RegistrationsAvailabilitiesTransportTypesProvider() {
+  const [transportTypeListOriginal, setTransportTypeListOriginal] = useState<
+    TransportsAvailableType[]
+  >([] as TransportsAvailableType[]);
+  const [transportTypeList, setTransportTypeList] = useState<
+    TransportsAvailableType[]
+  >([] as TransportsAvailableType[]);
+  const [changeTransportType, setChangeTransportType] =
+    useState<boolean>(false);
+  const [amountTransport, setAmountTransport] = useState<string>('0');
   const theme = useTheme();
   const { isLoading } = useCommon();
   const { appError } = useError();
-  const { userProvider, loadUserData } = useProviderUser();
+  const { getAllTransportTypes, transportTypes } = useTransport();
+  const { userProvider, loadUserData, createUpdateTransportTypeByProvider } =
+    useProviderUser();
 
   const navigation = useNavigation<ScreenNavigationProp>();
   const {
     name,
     last_name: lastName,
     image_profile: imageProfile,
+    transports_types: transportsTypesProvider,
   } = userProvider;
-
-  async function handleSelectedAppointment(appointment: Appointment) {
-    navigation.navigate('AppointmentsDetailsProvider', { appointment });
-  }
 
   useEffect(() => {
     loadUserData();
+    getAllTransportTypes();
+    const transportsAvailable = transportTypes.map(transport => {
+      if (
+        TransportTypeProviderTranslateEnum[transport.name] ===
+        TransportTypeProviderTranslateEnum.provider
+      ) {
+        const amount =
+          transportsTypesProvider &&
+          transportsTypesProvider?.find(
+            transport_type_provider =>
+              transport_type_provider.transport_type_id === transport.id,
+          )?.amount;
+
+        setAmountTransport(
+          !!amount && Number(amount) > 0 ? String(Number(amount) / 100) : '0',
+        );
+        return {
+          ...transport,
+          selected:
+            transportsTypesProvider &&
+            transportsTypesProvider.some(
+              transportTypeProvider =>
+                transportTypeProvider.transport_type_id === transport.id,
+            ),
+          amount:
+            !!amount && Number(amount) > 0 ? String(Number(amount) / 100) : '0',
+        };
+      }
+
+      return {
+        ...transport,
+        selected:
+          transportsTypesProvider &&
+          transportsTypesProvider.some(
+            transportTypeProvider =>
+              transportTypeProvider.transport_type_id === transport.id,
+          ),
+      };
+    });
+    setTransportTypeListOriginal(transportsAvailable);
+    setTransportTypeList(transportsAvailable);
+    return () => {
+      // deixar variaveis no default
+    };
   }, []);
 
+  useEffect(() => {
+    const transportsAvailable = transportTypes.map(transport => {
+      if (
+        TransportTypeProviderTranslateEnum[transport.name] ===
+        TransportTypeProviderTranslateEnum.provider
+      ) {
+        const amount =
+          transportsTypesProvider &&
+          transportsTypesProvider?.find(
+            transport_type_provider =>
+              transport_type_provider.transport_type_id === transport.id,
+          )?.amount;
+
+        setAmountTransport(
+          !!amount && Number(amount) > 0 ? String(Number(amount) / 100) : '0',
+        );
+        return {
+          ...transport,
+          selected:
+            transportsTypesProvider &&
+            transportsTypesProvider.some(
+              transportTypeProvider =>
+                transportTypeProvider.transport_type_id === transport.id,
+            ),
+          amount:
+            !!amount && Number(amount) > 0 ? String(Number(amount) / 100) : '0',
+        };
+      }
+
+      return {
+        ...transport,
+        selected:
+          transportsTypesProvider &&
+          transportsTypesProvider.some(
+            transportTypeProvider =>
+              transportTypeProvider.transport_type_id === transport.id,
+          ),
+      };
+    });
+    setTransportTypeListOriginal(transportsAvailable);
+    setTransportTypeList(transportsAvailable);
+  }, [transportTypes]);
+
+  useEffect(() => {
+    setChangeTransportType(
+      !transportTypeList.every(transportType =>
+        transportTypeListOriginal.some(
+          transportTypeOriginal =>
+            transportType.id === transportTypeOriginal.id &&
+            transportType.selected === transportTypeOriginal.selected &&
+            transportType.amount === transportTypeOriginal.amount,
+        ),
+      ),
+    );
+  }, [transportTypeList]);
+
+  useEffect(() => {
+    setChangeTransportType(
+      transportTypeListOriginal.some(
+        transportTypeOriginal =>
+          transportTypeOriginal.amount &&
+          transportTypeOriginal.amount !== amountTransport,
+      ),
+    );
+  }, [amountTransport]);
+
+  function handleSelectedUnselect(item: TransportsAvailableType) {
+    const newItemListSelected = transportTypeList.map(transportType => ({
+      ...transportType,
+      selected:
+        transportType.id === item.id
+          ? !transportType.selected
+          : transportType.selected,
+    }));
+    setTransportTypeList(newItemListSelected);
+  }
+
+  async function handleUpdateTransportTypes() {
+    try {
+      const transportsSelects = transportTypeList
+        .filter(transportType => transportType.selected)
+        .map(transportType => ({
+          transport_type_id: transportType.id,
+          amount: transportType.amount && onlyNumber(String(amountTransport)),
+        }));
+      await createUpdateTransportTypeByProvider(transportsSelects);
+      setChangeTransportType(false);
+      navigation.replace('HomeProviderStack');
+    } catch {
+      setChangeTransportType(true);
+    }
+  }
+  console.log('amountTransport');
+  console.log(amountTransport);
   return (
     <Container>
       <StatusBar
@@ -83,219 +270,100 @@ export function HomeProvider() {
         {isLoading ? (
           <Load color={theme.colors.white_medium} />
         ) : (
-          <>
-            <AreaAppointments>
-              <AreaAppointmentTitle>
-                {appError && appError.message ? (
-                  <AreaTitle>
-                    <WarningText title={appError.message} />
-                  </AreaTitle>
-                ) : (
-                  <>
-                    <AreaTitle>
-                      <Title>Agendamentos pendentes</Title>
-                    </AreaTitle>
-                    <AreaIcon>
-                      <Icon
-                        name="calendar"
-                        size={RFValue(25)}
-                        color={theme.colors.white_medium}
-                      />
-                    </AreaIcon>
-                  </>
-                )}
-              </AreaAppointmentTitle>
-              <AreaAppointmentContent>
-                <List
-                  keyExtractor={(item, index) => index.toString()}
-                  data={userProvider.appointments?.opens}
-                  ListEmptyComponent={() => (
-                    <AreaTitle>
-                      <Title>Sem agendamentos no momento</Title>
-                    </AreaTitle>
-                  )}
-                  renderItem={({ item }) => {
-                    return (
-                      <AreaAppointmentButton
-                        onPress={() => handleSelectedAppointment(item)}
-                      >
-                        <AreaPhoto>
-                          <PhotoClientAppointment
-                            source={{
-                              uri:
-                                item.clients &&
-                                item.clients[0].client.image_profile &&
-                                item.clients[0].client.image_profile[0].image
-                                  .link,
-                            }}
-                          />
-                        </AreaPhoto>
-                        <AreaInfoLocalDate>
-                          <AreaInfoLocal
-                            color="transparent"
-                            style={{ marginBottom: 5 }}
-                          >
-                            <IconInfoLocal>
-                              <Icon
-                                name="map-pin"
-                                size={RFValue(25)}
-                                color={theme.colors.shape}
-                              />
-                            </IconInfoLocal>
-                            <AreaTextInfoLocal>
-                              <TextInfoLocal numberOfLines={1}>
-                                {item.addresses[0].address.street}
-                                {' ,'}
-                                {item.addresses[0].address.number}
-                              </TextInfoLocal>
-                            </AreaTextInfoLocal>
-                            <AreaAmount>
-                              <ValueAmount size={12}>
-                                {getValueAmount(
-                                  item.transactions[0].current_amount,
-                                )}
-                              </ValueAmount>
-                            </AreaAmount>
-                          </AreaInfoLocal>
-                          <AreaInfoDate color="transparent">
-                            <IconInfoDateLocal>
-                              <Icon
-                                name="calendar"
-                                size={RFValue(25)}
-                                color={theme.colors.shape}
-                              />
-                            </IconInfoDateLocal>
-                            <AreaTextInfoDateLocal>
-                              <TextInfoLocal size={14} numberOfLines={1}>
-                                {format(
-                                  getPlatformDate(new Date(item.initial_date)),
-                                  'dd/MMM - HH:mm',
-                                  { locale: brazilLocale },
-                                )}
-                              </TextInfoLocal>
-                            </AreaTextInfoDateLocal>
-                            <AreaTextInfoDateLocal>
-                              <TextInfoLocal size={14} numberOfLines={1}>
-                                {format(
-                                  getPlatformDate(new Date(item.final_date)),
-                                  'dd/MMM - HH:mm',
-                                  { locale: brazilLocale },
-                                )}
-                              </TextInfoLocal>
-                            </AreaTextInfoDateLocal>
-                          </AreaInfoDate>
-                        </AreaInfoLocalDate>
-                      </AreaAppointmentButton>
-                    );
-                  }}
-                />
-              </AreaAppointmentContent>
-            </AreaAppointments>
-            <AreaAppointments>
-              <AreaAppointmentTitle
-                style={{ backgroundColor: theme.colors.success }}
-              >
+          <AreaLocals>
+            <AreaLocalTitle>
+              {appError && appError.message ? (
                 <AreaTitle>
-                  <Title>Agendamentos Confirmados</Title>
+                  <WarningText title={appError.message} />
                 </AreaTitle>
-                <AreaIcon>
-                  <Icon
-                    name="calendar"
-                    size={RFValue(25)}
-                    color={theme.colors.white_medium}
-                  />
-                </AreaIcon>
-              </AreaAppointmentTitle>
-              <AreaAppointmentContent
-                style={{ borderColor: theme.colors.success }}
-              >
-                <List
-                  keyExtractor={(item, index) => index.toString()}
-                  data={userProvider.appointments?.confirmed}
-                  ListEmptyComponent={() => (
-                    <AreaTitle>
-                      <Title>Sem agendamentos no momento</Title>
-                    </AreaTitle>
-                  )}
-                  renderItem={({ item }) => {
-                    return (
-                      <AreaAppointmentButton
-                        color={theme.colors.success}
-                        onPress={() => handleSelectedAppointment(item)}
+              ) : (
+                <>
+                  <AreaTitle>
+                    <Title>Transportes habilitados</Title>
+                  </AreaTitle>
+                  <AreaIcon>
+                    <Icon
+                      name="send"
+                      size={RFValue(25)}
+                      color={theme.colors.white_medium}
+                    />
+                  </AreaIcon>
+                </>
+              )}
+            </AreaLocalTitle>
+            <AreaLocalsContent>
+              {transportTypeList &&
+                transportTypeList.map((transportTypeProvider, index) => (
+                  <AreaTransportTypeProvider
+                    key={index.toString()}
+                    selected={!!transportTypeProvider.selected}
+                  >
+                    <AreaIconMark
+                      onPress={() =>
+                        handleSelectedUnselect(transportTypeProvider)
+                      }
+                    >
+                      <Icon
+                        name={
+                          transportTypeProvider.selected
+                            ? 'check-square'
+                            : 'square'
+                        }
+                        size={RFValue(25)}
+                        color={
+                          transportTypeProvider.selected
+                            ? theme.colors.main_light
+                            : theme.colors.background_primary
+                        }
+                      />
+                    </AreaIconMark>
+                    <AreaTransportTypeProviderTitle>
+                      <TransportTypeProviderTitle
+                        selected={!!transportTypeProvider.selected}
                       >
-                        <AreaPhoto>
-                          <PhotoClientAppointment
-                            source={{
-                              uri:
-                                item.clients &&
-                                item.clients[0].client.image_profile &&
-                                item.clients[0].client.image_profile[0].image
-                                  .link,
-                            }}
+                        {
+                          TransportTypeProviderTranslateEnum[
+                            transportTypeProvider.name
+                          ]
+                        }
+                      </TransportTypeProviderTitle>
+                    </AreaTransportTypeProviderTitle>
+                    <AreaInputAmount>
+                      {transportTypeProvider &&
+                        TransportTypeProviderEnum[
+                          transportTypeProvider.name
+                        ] === TransportTypeProviderEnum.provider && (
+                          <TextInputSC
+                            value={amountTransport}
+                            onChangeValue={setAmountTransport}
+                            placeholder="valor / km"
+                            editable={transportTypeProvider.selected}
+                            error={false}
+                            prefix="R$ "
+                            suffix="/km"
+                            signPosition="beforePrefix"
+                            delimiter="."
+                            precision={2}
+                            separator=","
                           />
-                        </AreaPhoto>
-                        <AreaInfoLocalDate>
-                          <AreaInfoLocal
-                            color="transparent"
-                            style={{ marginBottom: 5 }}
-                          >
-                            <IconInfoLocal>
-                              <Icon
-                                name="map-pin"
-                                size={RFValue(25)}
-                                color={theme.colors.shape}
-                              />
-                            </IconInfoLocal>
-                            <AreaTextInfoLocal>
-                              <TextInfoLocal numberOfLines={1}>
-                                {item.addresses[0].address.street}
-                                {' ,'}
-                                {item.addresses[0].address.number}
-                              </TextInfoLocal>
-                            </AreaTextInfoLocal>
-                            <AreaAmount>
-                              <ValueAmount size={12}>
-                                {getValueAmount(
-                                  item.transactions[0].current_amount,
-                                )}
-                              </ValueAmount>
-                            </AreaAmount>
-                          </AreaInfoLocal>
-                          <AreaInfoDate color="transparent">
-                            <IconInfoDateLocal>
-                              <Icon
-                                name="calendar"
-                                size={RFValue(25)}
-                                color={theme.colors.shape}
-                              />
-                            </IconInfoDateLocal>
-                            <AreaTextInfoDateLocal>
-                              <TextInfoLocal size={14} numberOfLines={1}>
-                                {format(
-                                  getPlatformDate(new Date(item.initial_date)),
-                                  'dd/MMM - HH:mm',
-                                  { locale: brazilLocale },
-                                )}
-                              </TextInfoLocal>
-                            </AreaTextInfoDateLocal>
-                            <AreaTextInfoDateLocal>
-                              <TextInfoLocal size={14} numberOfLines={1}>
-                                {format(
-                                  getPlatformDate(new Date(item.final_date)),
-                                  'dd/MMM - HH:mm',
-                                  { locale: brazilLocale },
-                                )}
-                              </TextInfoLocal>
-                            </AreaTextInfoDateLocal>
-                          </AreaInfoDate>
-                        </AreaInfoLocalDate>
-                      </AreaAppointmentButton>
-                    );
-                  }}
-                />
-              </AreaAppointmentContent>
-            </AreaAppointments>
-          </>
+                        )}
+                    </AreaInputAmount>
+                  </AreaTransportTypeProvider>
+                ))}
+              {changeTransportType && (
+                <AreaTransportTypeProvider
+                  selected={!!changeTransportType}
+                  onPress={handleUpdateTransportTypes}
+                >
+                  <AreaTransportTypeProviderTitle>
+                    <TransportTypeProviderTitle selected={changeTransportType}>
+                      Salvar
+                    </TransportTypeProviderTitle>
+                  </AreaTransportTypeProviderTitle>
+                </AreaTransportTypeProvider>
+              )}
+            </AreaLocalsContent>
+          </AreaLocals>
         )}
       </Form>
     </Container>
