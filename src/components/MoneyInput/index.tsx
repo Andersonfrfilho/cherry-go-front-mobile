@@ -52,11 +52,6 @@ export function MoneyInput({
           error={!!error}
           isFilled={isFilled}
           value={value}
-          prefix="R$ "
-          signPosition="beforePrefix"
-          delimiter="."
-          precision={2}
-          separator=","
           {...rest}
           ref={inputRef}
         />

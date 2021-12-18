@@ -35,7 +35,7 @@ import { eyeColors } from './itens/EyeColors';
 import { ButtonIcon } from '../../../../components/ButtonIcon';
 import { TextInputTypeEnum } from '../../../../enums/TextInputType.enum';
 import { useClientUser } from '../../../../hooks/clientUser';
-import { onlyNumbers } from '../../../../utils/validations';
+import { onlyNumber } from '../../../../utils/onlyNumber';
 
 export interface Focusable {
   focus(): void;
@@ -106,7 +106,7 @@ export function RegistrationsDetailsProvider() {
     await updateDetails({
       details: {
         ...details,
-        height: onlyNumbers(String(form.height)),
+        height: onlyNumber(String(form.height)),
       },
     });
   }

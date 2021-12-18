@@ -100,7 +100,8 @@ export const AreaButtonSave = styled.View`
   flex: 1;
   margin-top: 10px;
 
-  justify-content: center;
+  flex-direction: row;
+  justify-content: space-between;
   align-items: center;
 `;
 export const AreaPhoto = styled.View`

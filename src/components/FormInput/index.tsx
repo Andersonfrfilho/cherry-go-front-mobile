@@ -31,6 +31,7 @@ interface Props extends TextInputProps {
   delimiter?: string;
   separator?: string;
   precision?: number;
+  suffix?: string;
 }
 
 export function FormInput({
@@ -45,10 +46,11 @@ export function FormInput({
   type = TextInputTypeEnum.default,
   inputRef,
   percentWidth = 100,
-  prefix,
-  delimiter,
-  separator,
-  precision,
+  prefix = 'R$ ',
+  delimiter = '.',
+  separator = ',',
+  precision = 2,
+  suffix = '',
   ...rest
 }: Props) {
   return (
@@ -108,11 +110,12 @@ export function FormInput({
                 inputRef={inputRef}
                 value={value}
                 onChangeValue={onChange}
-                prefix="R$ "
+                prefix={prefix}
                 signPosition="beforePrefix"
-                delimiter="."
-                precision={2}
-                separator=","
+                delimiter={delimiter}
+                precision={precision}
+                separator={separator}
+                suffix={suffix}
               />
             );
           }

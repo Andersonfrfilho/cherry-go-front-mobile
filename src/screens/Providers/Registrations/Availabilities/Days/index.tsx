@@ -86,6 +86,10 @@ export function RegistrationsAvailabilitiesDaysProvider() {
     await availableDaysToProviderWork(daysSelected);
     navigation.replace('HomeProviderStack');
   }
+
+  function handleBackPage() {
+    navigation.replace('RegistrationsAvailabilitiesProviderStack');
+  }
   return (
     <Container>
       <StatusBar
@@ -155,6 +159,17 @@ export function RegistrationsAvailabilitiesDaysProvider() {
                 );
               })}
               <AreaButtonSave>
+                <ButtonIcon
+                  iconName="chevron-left"
+                  title="Voltar"
+                  disabled={isLoading}
+                  loading={isLoading}
+                  light
+                  buttonColor={theme.colors.background_secondary}
+                  textColor={theme.colors.background_primary}
+                  iconColor={theme.colors.background_primary}
+                  onPress={handleBackPage}
+                />
                 <ButtonIcon
                   iconName="save"
                   title="Salvar"

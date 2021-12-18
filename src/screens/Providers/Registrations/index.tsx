@@ -106,7 +106,7 @@ export function RegistrationsProvider() {
                   <AreaOptionButton
                     onPress={() =>
                       handlePageOptionRegister(
-                        'RegistrationsDetailsProviderStack',
+                        'RegistrationsDetailsRoutesProviderStack',
                       )
                     }
                   >
@@ -126,7 +126,7 @@ export function RegistrationsProvider() {
                   <AreaOptionButton
                     onPress={() =>
                       handlePageOptionRegister(
-                        'RegistrationsPhotosProviderStack',
+                        'RegistrationsPhotosRoutesProviderStack',
                       )
                     }
                   >
@@ -148,7 +148,7 @@ export function RegistrationsProvider() {
                   <AreaOptionButton
                     onPress={() =>
                       handlePageOptionRegister(
-                        'RegistrationsAvailabilitiesProviderStack',
+                        'RegistrationsAvailabilitiesRoutesProviderStack',
                       )
                     }
                   >
@@ -168,7 +168,7 @@ export function RegistrationsProvider() {
                   <AreaOptionButton
                     onPress={() =>
                       handlePageOptionRegister(
-                        'RegistrationsAvailabilitiesPaymentsMethodsProviderStack',
+                        'AppProviderNativeRegistrationPaymentMethodsRoutesProviderStack',
                       )
                     }
                   >
@@ -190,7 +190,7 @@ export function RegistrationsProvider() {
                   <AreaOptionButton
                     onPress={() =>
                       handlePageOptionRegister(
-                        'RegistrationsAvailabilitiesLocalsProviderStack',
+                        'RegistrationsAvailabilitiesLocalsRoutesProviderStack',
                       )
                     }
                   >
@@ -210,7 +210,7 @@ export function RegistrationsProvider() {
                   <AreaOptionButton
                     onPress={() =>
                       handlePageOptionRegister(
-                        'RegistrationsAvailabilitiesTransportTypesProviderStack',
+                        'RegistrationsAvailabilitiesTransportTypesRoutesProviderStack',
                       )
                     }
                   >
@@ -229,7 +229,13 @@ export function RegistrationsProvider() {
                   </AreaOptionButton>
                 </AreaOptionLine>
                 <AreaOptionLine>
-                  <AreaOptionButton onPress={() => {}}>
+                  <AreaOptionButton
+                    onPress={() =>
+                      handlePageOptionRegister(
+                        'RegistrationsAvailabilitiesServicesRoutesProviderStack',
+                      )
+                    }
+                  >
                     <AreaOptionImage>
                       <Icon
                         name="layers"

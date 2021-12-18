@@ -7,6 +7,7 @@ import React, {
   Dispatch,
 } from 'react';
 import { Platform } from 'react-native';
+import { string } from 'yup/lib/locale';
 import { GENDER_ENUM } from '../enums/genderType.enum';
 import { api } from '../services/api';
 import { useCommon } from './common';
@@ -22,6 +23,13 @@ import { PAYMENT_TYPES_ENUM } from '../enums/PaymentTypes.enum';
 import { STRIPE_PAYMENT_REQUIRES_ENUM } from '../enums/stripe.enums';
 import { LOCALS_TYPES_ENUM } from '../enums/localsTypes.enum';
 import { TransportTypeProviderEnum } from '../enums/transportTypeProvider';
+
+interface RegisterServiceProviderDTO {
+  amount: string;
+  duration: number;
+  name: string;
+  tags: string[];
+}
 
 type ProviderUserContextData = {
   userProvider: UserProvider;
@@ -56,6 +64,8 @@ type ProviderUserContextData = {
   createUpdateTransportTypeByProvider(
     elements: TransportsSelects[],
   ): Promise<void>;
+  registerServiceProvider(data: RegisterServiceProviderDTO): Promise<void>;
+  deleteServiceProvider(service_id: string): Promise<void>;
 };
 type ProviderDaysAvailability = {
   id: string;
@@ -313,7 +323,22 @@ export type Local = {
   details: null;
   address: Addresses;
 };
-
+type Tag = {
+  id: string;
+  name: string;
+  description?: null;
+  image: Image;
+};
+export type Services = {
+  id: string;
+  name: string;
+  amount: number;
+  duration: number;
+  active: boolean;
+  details?: null | any;
+  provider_id: string;
+  tags: Tag[];
+};
 export type UserProvider = {
   id: string;
   name: string;
@@ -344,6 +369,7 @@ export type UserProvider = {
   days?: ProviderDaysAvailability[];
   hours?: ProviderHoursAvailability[];
   payments_types?: PaymentType[];
+  services?: Services[];
 };
 
 interface HandleAddHoursAvailableParams {
@@ -746,6 +772,46 @@ function ProviderUserProvider({ children }: ProviderUserProviderProps) {
     }
   }
 
+  async function registerServiceProvider({
+    amount,
+    duration,
+    name,
+    tags,
+  }: RegisterServiceProviderDTO) {
+    setIsLoading(true);
+    try {
+      await api.post('/v1/users/providers/services', {
+        amount,
+        duration,
+        name,
+        tags_id: tags,
+      });
+    } catch (error) {
+      appErrorVerifyError(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function deleteServiceProvider(service_id: string) {
+    setIsLoading(true);
+    try {
+      const { data: services } = await api.delete(
+        '/v1/users/providers/services',
+        {
+          data: {
+            service_id,
+          },
+        },
+      );
+      setUserProvider({ ...userProvider, services });
+    } catch (error) {
+      appErrorVerifyError(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   return (
     <ProviderUserContext.Provider
       value={{
@@ -773,6 +839,8 @@ function ProviderUserProvider({ children }: ProviderUserProviderProps) {
         createLocalsTypesAvailable,
         addLocalSProvider,
         createUpdateTransportTypeByProvider,
+        registerServiceProvider,
+        deleteServiceProvider,
       }}
     >
       {children}

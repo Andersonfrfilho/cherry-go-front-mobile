@@ -2,12 +2,11 @@ import React from 'react';
 
 import { TransitionPresets } from '@react-navigation/stack';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { HomeProvider } from '../../screens/Providers/Home';
-import { AppointmentsDetailsProvider } from '../../screens/Providers/Appointment/Details';
+import { RegistrationsAvailabilitiesTransportTypesProvider } from '../../../screens/Providers/Registrations/TransportTypes';
 
 const { Navigator, Screen } = createNativeStackNavigator();
 
-export function AppProviderNativeStackRoutes() {
+export function AppProviderNativeRegistrationTransportTypesStackRoutes() {
   return (
     <Navigator
       screenOptions={{
@@ -15,12 +14,11 @@ export function AppProviderNativeStackRoutes() {
         gestureEnabled: true,
         ...TransitionPresets.ModalPresentationIOS,
       }}
-      initialRouteName="HomeProviderStack"
+      initialRouteName="RegistrationsAvailabilitiesTransportTypesProviderStack"
     >
-      <Screen name="HomeProviderStack" component={HomeProvider} />
       <Screen
-        name="AppointmentsDetailsProvider"
-        component={AppointmentsDetailsProvider}
+        name="RegistrationsAvailabilitiesTransportTypesProviderStack"
+        component={RegistrationsAvailabilitiesTransportTypesProvider}
       />
     </Navigator>
   );

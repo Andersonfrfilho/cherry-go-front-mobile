@@ -71,10 +71,6 @@ import { onlyNumber } from '../../../../utils/onlyNumber';
 export interface Focusable {
   focus(): void;
 }
-interface HandleCrateTypeClientLocalParamsDTO {
-  selected?: boolean;
-  id?: string;
-}
 
 interface TransportsAvailableType {
   selected: boolean;
@@ -250,8 +246,7 @@ export function RegistrationsAvailabilitiesTransportTypesProvider() {
       setChangeTransportType(true);
     }
   }
-  console.log('amountTransport');
-  console.log(amountTransport);
+
   return (
     <Container>
       <StatusBar

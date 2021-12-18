@@ -5,10 +5,9 @@ import { Feather } from '@expo/vector-icons';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { useTheme } from 'styled-components';
 import { Profile } from '../../screens/Profile';
-import { MyCars } from '../../screens/MyCars';
 
 import { AppProviderDrawerRoutes } from './app.provider.drawer.routes';
-import { RegistrationsProvider } from '../../screens/Providers/Registrations';
+import { AppProviderNativeRegistrationIndexStackRoutes } from './registration/app.registration.index.routes';
 
 const { Navigator, Screen } = createBottomTabNavigator();
 export function AppProviderTabRoutes() {
@@ -40,7 +39,7 @@ export function AppProviderTabRoutes() {
       />
       <Screen
         name="RegisterTabProvider"
-        component={RegistrationsProvider}
+        component={AppProviderNativeRegistrationIndexStackRoutes}
         options={{
           tabBarLabel: 'Cadastros',
           tabBarActiveTintColor: theme.colors.text,
