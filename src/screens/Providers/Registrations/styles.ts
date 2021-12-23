@@ -1,4 +1,4 @@
-import styled from 'styled-components/native';
+import styled, { css } from 'styled-components/native';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { Feather } from '@expo/vector-icons';
 import { FlatList } from 'react-native';
@@ -101,6 +101,12 @@ export const AreaOptionButton = styled.TouchableOpacity<AreaInfoProps>`
   border-color: ${({ theme }) => theme.colors.shape};
 
   border-radius: 12px;
+
+  ${({ theme, disabled }) =>
+    disabled &&
+    css`
+      background-color: ${theme.colors.desative_shade};
+    `}
 `;
 export const AreaOptionImage = styled.View`
   flex: 3;

@@ -2,7 +2,7 @@ import { Q } from '@nozbe/watermelondb';
 import { database } from '..';
 import { User as ModelUser } from '../model/User';
 import { Address as ModelAddress } from '../model/Address';
-import { UserClient } from '../../hooks/clientUser';
+import { UserClientDatabase } from '../../hooks/clientUser';
 import { UserPhone as ModelUserPhone } from '../model/UserPhones';
 import { CreateUserPhoneDTO } from './dtos/CreateUserPhone.dto';
 import { UserAddress as ModelUserAddress } from '../model/UserAddress';
@@ -18,7 +18,7 @@ import { Image as ModelImage } from '../model/Image';
 import { Phone as ModelPhone } from '../model/Phone';
 import { Term as ModelTerm } from '../model/Term';
 import { TypeUser as ModelTypeUser } from '../model/TypeUser';
-import { GetModelResponse } from '../model/dtos/getUser.dto';
+import { UserClient } from '../model/dtos/getUser.dto';
 
 async function createOrUpdate(user: UserClient): Promise<ModelUser> {
   const userCollection = database.get<ModelUser>('users');
@@ -72,7 +72,7 @@ async function findByUserId(id: string): Promise<ModelUser> {
 
   return user;
 }
-async function getUser(): Promise<GetModelResponse | null> {
+async function getUser(): Promise<UserClient | null> {
   const [userDatabase] = await database.get<ModelUser>('users').query().fetch();
   if (!userDatabase) {
     return null;
@@ -160,6 +160,7 @@ async function createUserImageProfile({
     const userImageProfileCollection = database.get<ModelUserImageProfile>(
       'users_images_profile',
     );
+
     await userImageProfileCollection.create(newUserImageProfile => {
       newUserImageProfile.user.set(user);
       newUserImageProfile.image.set(imageProfile);

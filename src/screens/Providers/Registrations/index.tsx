@@ -48,6 +48,9 @@ export function RegistrationsProvider() {
     name,
     last_name: lastName,
     image_profile: imageProfile,
+    payments_types,
+    days,
+    hours,
   } = userProvider;
 
   useEffect(() => {
@@ -171,16 +174,27 @@ export function RegistrationsProvider() {
                         'AppProviderNativeRegistrationPaymentMethodsRoutesProviderStack',
                       )
                     }
+                    disabled={days?.length === 0 || hours?.length === 0}
                   >
                     <AreaOptionImage>
                       <Icon
                         name="dollar-sign"
                         size={RFValue(40)}
-                        color={theme.colors.background_primary}
+                        color={
+                          days?.length === 0 || hours?.length === 0
+                            ? theme.colors.main_light
+                            : theme.colors.background_primary
+                        }
                       />
                     </AreaOptionImage>
                     <AreaOptionSubTitle>
-                      <SubTitle color={theme.colors.background_primary}>
+                      <SubTitle
+                        color={
+                          days?.length === 0 || hours?.length === 0
+                            ? theme.colors.main_light
+                            : theme.colors.background_primary
+                        }
+                      >
                         Pagamentos
                       </SubTitle>
                     </AreaOptionSubTitle>
@@ -193,16 +207,27 @@ export function RegistrationsProvider() {
                         'RegistrationsAvailabilitiesLocalsRoutesProviderStack',
                       )
                     }
+                    disabled={payments_types?.length === 0}
                   >
                     <AreaOptionImage>
                       <Icon
                         name="map-pin"
                         size={RFValue(40)}
-                        color={theme.colors.background_primary}
+                        color={
+                          payments_types?.length === 0
+                            ? theme.colors.main_light
+                            : theme.colors.background_primary
+                        }
                       />
                     </AreaOptionImage>
                     <AreaOptionSubTitle>
-                      <SubTitle color={theme.colors.background_primary}>
+                      <SubTitle
+                        color={
+                          payments_types?.length === 0
+                            ? theme.colors.main_light
+                            : theme.colors.background_primary
+                        }
+                      >
                         Locais
                       </SubTitle>
                     </AreaOptionSubTitle>
@@ -213,16 +238,27 @@ export function RegistrationsProvider() {
                         'RegistrationsAvailabilitiesTransportTypesRoutesProviderStack',
                       )
                     }
+                    disabled={payments_types?.length === 0}
                   >
                     <AreaOptionImage>
                       <Icon
                         name="navigation"
                         size={RFValue(40)}
-                        color={theme.colors.background_primary}
+                        color={
+                          payments_types?.length === 0
+                            ? theme.colors.main_light
+                            : theme.colors.background_primary
+                        }
                       />
                     </AreaOptionImage>
                     <AreaOptionSubTitle>
-                      <SubTitle color={theme.colors.background_primary}>
+                      <SubTitle
+                        color={
+                          payments_types?.length === 0
+                            ? theme.colors.main_light
+                            : theme.colors.background_primary
+                        }
+                      >
                         Transportes
                       </SubTitle>
                     </AreaOptionSubTitle>
@@ -235,21 +271,32 @@ export function RegistrationsProvider() {
                         'RegistrationsAvailabilitiesServicesRoutesProviderStack',
                       )
                     }
+                    disabled={payments_types?.length === 0}
                   >
                     <AreaOptionImage>
                       <Icon
                         name="layers"
                         size={RFValue(40)}
-                        color={theme.colors.background_primary}
+                        color={
+                          payments_types?.length === 0
+                            ? theme.colors.main_light
+                            : theme.colors.background_primary
+                        }
                       />
                     </AreaOptionImage>
                     <AreaOptionSubTitle>
-                      <SubTitle color={theme.colors.background_primary}>
+                      <SubTitle
+                        color={
+                          payments_types?.length === 0
+                            ? theme.colors.main_light
+                            : theme.colors.background_primary
+                        }
+                      >
                         Serviços
                       </SubTitle>
                     </AreaOptionSubTitle>
                   </AreaOptionButton>
-                  <AreaOptionButton onPress={() => {}}>
+                  {/* <AreaOptionButton onPress={() => {}}>
                     <AreaOptionImage>
                       <Icon
                         name="settings"
@@ -262,7 +309,7 @@ export function RegistrationsProvider() {
                         Configurações
                       </SubTitle>
                     </AreaOptionSubTitle>
-                  </AreaOptionButton>
+                  </AreaOptionButton> */}
                 </AreaOptionLine>
               </AreaOptionsContent>
             </AreaOptions>

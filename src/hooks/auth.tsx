@@ -120,6 +120,7 @@ function AuthProvider({ children }: AuthProviderProps) {
         const imageProfileDatabase = await imagesRepository.createOrUpdate(
           user.image_profile[0],
         );
+
         await userRepository.createUserImageProfile({
           user: userDatabase,
           imageProfile: imageProfileDatabase,

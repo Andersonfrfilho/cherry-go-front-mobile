@@ -44,7 +44,7 @@ interface Term {
   accept: boolean;
   type: string;
 }
-export interface GetModelResponse {
+export interface UserClient {
   id: string;
   user_id: string;
   name: string;
@@ -59,7 +59,7 @@ export interface GetModelResponse {
   types: Type[];
   phones: Phone;
   addresses: Address;
-  image_profile: ImageProfile;
+  image_profile: ImageProfile[];
   terms: Term[];
   token: string;
   refresh_token: string;

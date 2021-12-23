@@ -49,6 +49,10 @@ export function SelectArea() {
     navigation.navigate('HomeProvider');
   }
 
+  function handleClientHome() {
+    navigation.navigate('HomeClient');
+  }
+
   return (
     <Container>
       <StatusBar
@@ -86,7 +90,7 @@ export function SelectArea() {
             buttonColor={theme.colors.yellow_orange}
             textColor={theme.colors.shape}
             iconColor={theme.colors.shape}
-            onPress={() => {}}
+            onPress={handleClientHome}
           />
           <ButtonIcon
             iconName="briefcase"

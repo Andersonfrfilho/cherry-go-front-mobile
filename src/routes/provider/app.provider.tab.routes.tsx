@@ -8,6 +8,7 @@ import { Profile } from '../../screens/Profile';
 
 import { AppProviderDrawerRoutes } from './app.provider.drawer.routes';
 import { AppProviderNativeRegistrationIndexStackRoutes } from './registration/app.registration.index.routes';
+import { ProviderProfile } from '../../screens/Providers/Profile';
 
 const { Navigator, Screen } = createBottomTabNavigator();
 export function AppProviderTabRoutes() {
@@ -55,7 +56,7 @@ export function AppProviderTabRoutes() {
       />
       <Screen
         name="Profile"
-        component={Profile}
+        component={ProviderProfile}
         options={{
           tabBarActiveTintColor: theme.colors.text,
           tabBarInactiveTintColor: theme.colors.background_primary,

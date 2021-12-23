@@ -2,7 +2,18 @@ import { Q } from '@nozbe/watermelondb';
 import { database } from '..';
 import { Image, Image as ModelImage } from '../model/Image';
 
-async function createOrUpdate(image: Image): Promise<ModelImage> {
+interface ImageProfileInterface {
+  id: string;
+  user_id: string;
+  image_id: string;
+  image: {
+    id: string;
+    link: string;
+  };
+}
+async function createOrUpdate(
+  image: ImageProfileInterface,
+): Promise<ModelImage> {
   const imageCollection = database.get<ModelImage>('images');
   const imageSaved = await database.write(async () => {
     let [imageDatabase] = await imageCollection
@@ -12,12 +23,12 @@ async function createOrUpdate(image: Image): Promise<ModelImage> {
     if (imageDatabase) {
       imageDatabase = await imageDatabase.update(imageExistDb => {
         imageExistDb.external_id = image.id;
-        imageExistDb.link = image.link;
+        imageExistDb.link = image.image.link;
       });
     } else {
       imageDatabase = await imageCollection.create(newImage => {
         newImage.external_id = image.id;
-        newImage.link = image.link;
+        newImage.link = image.image.link;
       });
     }
     return imageDatabase;

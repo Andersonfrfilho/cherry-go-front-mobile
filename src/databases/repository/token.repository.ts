@@ -34,6 +34,34 @@ async function createOrUpdate(token: Token): Promise<ModelToken> {
 
   return token_saved;
 }
+interface UpdateRefreshTokenDTO {
+  refresh_token: string;
+  token: string;
+  user_id: string;
+}
+async function updateRefreshToken({
+  refresh_token,
+  token,
+  user_id,
+}: UpdateRefreshTokenDTO): Promise<ModelToken> {
+  const tokenCollection = database.get<ModelToken>('tokens');
+  let tokenDatabase;
+  const token_saved = await database.write(async () => {
+    [tokenDatabase] = await tokenCollection
+      .query(Q.where('user_id', user_id))
+      .fetch();
+    if (tokenDatabase) {
+      tokenDatabase = await tokenDatabase.update(tokenExistDb => {
+        tokenExistDb.token = token;
+        tokenExistDb.refresh_token = refresh_token;
+      });
+    }
+
+    return tokenDatabase;
+  });
+
+  return token_saved;
+}
 
 async function findAll(): Promise<ModelToken[]> {
   const allToken = await database.get<ModelToken>('tokens').query().fetch();
@@ -52,4 +80,5 @@ export const tokenRepository = {
   findAll,
   createOrUpdate,
   removeAll,
+  updateRefreshToken,
 };

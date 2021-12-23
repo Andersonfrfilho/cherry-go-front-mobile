@@ -1,48 +1,13 @@
 import styled from 'styled-components/native';
-import { getStatusBarHeight } from 'react-native-iphone-x-helper';
-import { RFValue } from 'react-native-responsive-fontsize';
+import { Feather } from '@expo/vector-icons';
 
 export const Container = styled.View`
   background-color: ${({ theme }) => theme.colors.background_primary};
   margin-bottom: 20px;
 `;
 
-export const Header = styled.View`
-  margin-top: ${getStatusBarHeight()}px;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-`;
-
-export const AreaLogoTitle = styled.View`
-  height: ${RFValue(300)}px;
-  width: ${RFValue(300)}px;
-  margin-top: 10px;
-`;
-
-export const AreaTitle = styled.View`
-  align-items: center;
-`;
-
-export const Title = styled.Text`
-  font-size: ${RFValue(35)}px;
-  font-family: ${({ theme }) => theme.fonts.primary_700};
-  color: ${({ theme }) => theme.colors.text};
-`;
-
-export const SubTitle = styled.Text`
-  color: ${({ theme }) => theme.colors.shape};
-  font-family: ${({ theme }) => theme.fonts.secondary_400};
-  background-color: ${({ theme }) =>
-    theme.colors.warning_buttercup_light_shade};
-  font-size: ${RFValue(15)}px;
-  margin-top: 14px;
-`;
-
-export const Form = styled.View`
+export const Body = styled.View`
   width: 100%;
-  margin: 10px 0;
-  padding: 0px 20px;
 `;
 
 export const Footer = styled.View`
@@ -63,3 +28,25 @@ export const ButtonIcons = styled.View`
 
   margin-top: 0px;
 `;
+export const AreaSearch = styled.View`
+  height: 60px;
+  width: 100%;
+  flex-direction: row;
+  background-color: ${({ theme }) => theme.colors.header};
+`;
+export const AreaInput = styled.View`
+  flex: 4;
+  padding: 10px;
+`;
+export const Input = styled.TextInput`
+  flex: 1;
+  background-color: ${({ theme }) => theme.colors.bon_jour_light_shade};
+  padding-left: 10px;
+  border-radius: 12px;
+`;
+export const AreaIcon = styled.View`
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+`;
+export const Icon = styled(Feather)``;

@@ -11,14 +11,15 @@ import { AxiosError } from 'axios';
 import { UploadUserClientImageDocumentDTO, UploadUserClientImageProfileDTO, UserClientAddressRegisterDTO, UserClientPhoneCodeConfirmDTO, UserClientPhoneDTO, UserClientRegisterDTO } from './dtos/users';
 import { Dispatch, SetStateAction } from 'hoist-non-react-statics/node_modules/@types/react';
 import { useError } from './error';
-import { GetModelResponse } from '../databases/model/dtos/getUser.dto';
+import { UserClient } from '../databases/model/dtos/getUser.dto';
 import { useCommon } from './common';
 import { AppError } from '../errors/AppError'
-import { Details } from './providerUser';
+import { Details, UserProvider } from './providerUser';
 
 type ClientUserContextData = {
-  userClient: GetModelResponse;
-  setUserClient: React.Dispatch<React.SetStateAction<GetModelResponse>>;
+  userClient: UserClientDatabase;
+  providers:UserProvider[];
+  setUserClient: React.Dispatch<React.SetStateAction<UserClientDatabase>>;
   registerClient: (userData: UserClientRegisterDTO) => Promise<void>;
   registerAddressClient: (
     addressData: UserClientAddressRegisterDTO,
@@ -37,9 +38,22 @@ type ClientUserContextData = {
   userIdResetPassword: string;
   resetPassword(dataResetPassword: ResetPasswordProps): Promise<void>;
   updateDetails(data: UpdateDetailsProps): Promise<void>;
+  updateProfileUser(data: UpdateProfileUserProps): Promise<void>;
   registerAccountBank(data: RegisterAccountBankProps): Promise<Details>;
   removeAccountBank(accountBankId: string): Promise<Details>;
+  updateProfile({...rest}:UpdateProfileDTO):Promise<void>;
+  getProviders(data:GetProvidersDTO):Promise<void>;
 };
+interface GetProvidersDTO{
+  distance?:string;
+  latitude?:string;
+  longitude?:string;
+}
+interface UpdateProfileDTO{
+  name:string;
+  last_name:string;
+  email:string;
+}
 interface RegisterAccountBankProps {
   branch_number: string;
   account_number: string;
@@ -49,6 +63,11 @@ interface RegisterAccountBankProps {
 }
 interface UpdateDetailsProps {
   details: any;
+}
+interface UpdateProfileUserProps{
+  name?:string;
+  last_name?:string;
+  email?:string;
 }
 interface ResetPasswordProps {
   password: string;
@@ -84,11 +103,10 @@ type User_Type = {
 };
 type Image = {
   id: string;
+  external_id:string;
   link: string;
 }
-type Image_Profile = {
-  image: Image;
-};
+
 export type Phone = {
   country_code: string,
   ddd: string,
@@ -109,7 +127,7 @@ export type Addresses = {
   latitude?: string;
   longitude?: string;
 };
-export type UserClient = {
+export type UserClientDatabase = {
   id: string;
   name: string;
   last_name: string;
@@ -127,7 +145,7 @@ export type UserClient = {
   types?: User_Type[];
   term?: Term[];
   transactions?: [];
-  image_profile?: Image_Profile[];
+  image_profile?: Image;
 
 };
 export type ClientAppointment = {
@@ -150,11 +168,13 @@ export type Token = {
 
 
 function ClientUserProvider({ children }: ClientUserProviderProps) {
-  const [userClient, setUserClient] = useState<GetModelResponse>({} as GetModelResponse);
+  const [userClient, setUserClient] = useState<UserClientDatabase>({} as UserClientDatabase);
   const [token, setToken] = useState<Token>({} as Token);
   const [countdown, setCountdown] = useState(0);
   const [phone, setPhone] = useState('');
   const [userIdResetPassword, setUserIdResetPassword] = useState('');
+  const [providers, setProviders] = useState([] as UserProvider[]);
+
   const { setIsLoading } = useCommon();
   const { appErrorVerifyError } = useError();
 
@@ -539,6 +559,32 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
     }
   }
 
+  async function updateProfile({...rest}:UpdateProfileDTO): Promise<void> {
+    setIsLoading(true)
+    try {
+      await api.put('/v1/users', {
+        data: { ...rest }
+      });
+    } catch (err) {
+      appErrorVerifyError(err);
+    } finally{
+      setIsLoading(false)
+    }
+  }
+  async function getProviders({distance,longitude,latitude}:GetProvidersDTO):Promise<void>{
+    setIsLoading(true)
+    try {
+      const {data:providers} = await api.get('/v1/users/clients/providers/available', {
+        data: { distance,longitude,latitude }
+      });
+      setProviders(providers)
+    } catch (err) {
+      appErrorVerifyError(err);
+    } finally{
+      setIsLoading(false)
+    }
+  }
+
   return (
     <ClientUserContext.Provider
       value={{
@@ -561,7 +607,10 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
         setUserClient,
         updateDetails,
         registerAccountBank,
-        removeAccountBank
+        removeAccountBank,
+        updateProfile,
+        getProviders,
+        providers
       }}
     >
       {children}

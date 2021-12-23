@@ -9,7 +9,7 @@ export const Container = styled.View`
   height: 100px;
   background-color: ${({ theme }) => theme.colors.header};
 
-  margin-top: ${getStatusBarHeight() + 12}px;
+  margin-top: ${getStatusBarHeight()}px;
 
   flex-direction: row;
 

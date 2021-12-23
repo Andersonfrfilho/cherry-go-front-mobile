@@ -1,6 +1,4 @@
 import React from 'react';
-import { useClientUser } from '../../hooks/clientUser';
-import { useProviderUser } from '../../hooks/providerUser';
 import { Container, AreaName, Name, Photo, AreaButtonPhoto } from './styles';
 
 interface HeaderProps {

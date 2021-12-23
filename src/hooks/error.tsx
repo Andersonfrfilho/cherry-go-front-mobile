@@ -60,6 +60,11 @@ function ErrorProvider({ children }: ErrorProviderProps) {
       'color: green; background: yellow; font-size: 30px',
     );
     console.log(JSON.stringify(err, null, 2));
+    console.log(err.response);
+    console.log(!err.response);
+    if (!err.response) {
+      return;
+    }
 
     if (err.message === "Cannot read property '_raw' of undefined") {
       unknownServerError();
