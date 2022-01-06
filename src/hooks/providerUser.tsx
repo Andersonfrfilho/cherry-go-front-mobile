@@ -370,6 +370,8 @@ export type UserProvider = {
   hours?: ProviderHoursAvailability[];
   payments_types?: PaymentType[];
   services?: Services[];
+  ratings?: number;
+  favorite?: boolean;
 };
 
 interface HandleAddHoursAvailableParams {

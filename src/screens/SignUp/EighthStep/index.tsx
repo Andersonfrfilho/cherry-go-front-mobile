@@ -145,6 +145,7 @@ export function SignUpEighthStep() {
                     <ImageTag
                       source={{ uri: item.image.link }}
                       resizeMode="stretch"
+                      defaultSource={{ uri: 'default-placeholder.png' }}
                     />
                   </AreaImageTag>
                 </AreaButtonTag>

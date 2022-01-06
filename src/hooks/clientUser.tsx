@@ -15,10 +15,11 @@ import { UserClient } from '../databases/model/dtos/getUser.dto';
 import { useCommon } from './common';
 import { AppError } from '../errors/AppError'
 import { Details, UserProvider } from './providerUser';
+import { ServiceFormattedModalService } from '../components/ModalServices';
 
 type ClientUserContextData = {
   userClient: UserClientDatabase;
-  providers:UserProvider[];
+  providers: UserProvider[];
   setUserClient: React.Dispatch<React.SetStateAction<UserClientDatabase>>;
   registerClient: (userData: UserClientRegisterDTO) => Promise<void>;
   registerAddressClient: (
@@ -41,18 +42,38 @@ type ClientUserContextData = {
   updateProfileUser(data: UpdateProfileUserProps): Promise<void>;
   registerAccountBank(data: RegisterAccountBankProps): Promise<Details>;
   removeAccountBank(accountBankId: string): Promise<Details>;
-  updateProfile({...rest}:UpdateProfileDTO):Promise<void>;
-  getProviders(data:GetProvidersDTO):Promise<void>;
+  updateProfile({ ...rest }: UpdateProfileDTO): Promise<void>;
+  getProviders(data: GetProvidersDTO): Promise<void>;
+  setFavoriteProvider({ distance, longitude, latitude, provider_id }: SetFavoriteProviderDTO): Promise<void>;
+  setAppointmentStageClient(data: SetAppointmentStageClientDTO): Promise<void>;
+  getAppointmentStageClient(): Promise<void>;
 };
-interface GetProvidersDTO{
-  distance?:string;
-  latitude?:string;
-  longitude?:string;
+
+interface StageAppointment{
+  route:string;
+  children:string;
+  params_name:string;
 }
-interface UpdateProfileDTO{
-  name:string;
-  last_name:string;
-  email:string;
+interface SetAppointmentStageClientDTO {
+  provider: UserProvider;
+  services: ServiceFormattedModalService[]
+  stage:StageAppointment;
+}
+interface SetFavoriteProviderDTO {
+  distance?: string;
+  latitude?: string;
+  longitude?: string;
+  provider_id?: string;
+}
+interface GetProvidersDTO {
+  distance?: string;
+  latitude?: string;
+  longitude?: string;
+}
+interface UpdateProfileDTO {
+  name: string;
+  last_name: string;
+  email: string;
 }
 interface RegisterAccountBankProps {
   branch_number: string;
@@ -64,10 +85,10 @@ interface RegisterAccountBankProps {
 interface UpdateDetailsProps {
   details: any;
 }
-interface UpdateProfileUserProps{
-  name?:string;
-  last_name?:string;
-  email?:string;
+interface UpdateProfileUserProps {
+  name?: string;
+  last_name?: string;
+  email?: string;
 }
 interface ResetPasswordProps {
   password: string;
@@ -103,7 +124,7 @@ type User_Type = {
 };
 type Image = {
   id: string;
-  external_id:string;
+  external_id: string;
   link: string;
 }
 
@@ -540,12 +561,12 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
       return details
     } catch (err) {
       appErrorVerifyError(err);
-    } finally{
+    } finally {
       setIsLoading(false)
     }
   }
 
-  async function removeAccountBank(bankAccountId:string): Promise<Details> {
+  async function removeAccountBank(bankAccountId: string): Promise<Details> {
     setIsLoading(true)
     try {
       const { data: details } = await api.delete('/v1/users/banks', {
@@ -554,12 +575,12 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
       return details
     } catch (err) {
       appErrorVerifyError(err);
-    } finally{
+    } finally {
       setIsLoading(false)
     }
   }
 
-  async function updateProfile({...rest}:UpdateProfileDTO): Promise<void> {
+  async function updateProfile({ ...rest }: UpdateProfileDTO): Promise<void> {
     setIsLoading(true)
     try {
       await api.put('/v1/users', {
@@ -567,24 +588,71 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
       });
     } catch (err) {
       appErrorVerifyError(err);
-    } finally{
+    } finally {
       setIsLoading(false)
     }
   }
-  async function getProviders({distance,longitude,latitude}:GetProvidersDTO):Promise<void>{
+  async function getProviders({ distance, longitude, latitude }: GetProvidersDTO): Promise<void> {
     setIsLoading(true)
     try {
-      const {data:providers} = await api.get('/v1/users/clients/providers/available', {
-        data: { distance,longitude,latitude }
+      const { data: providers } = await api.get('/v1/users/clients/providers/available', {
+        data: { distance, longitude, latitude }
       });
       setProviders(providers)
     } catch (err) {
       appErrorVerifyError(err);
-    } finally{
+    } finally {
       setIsLoading(false)
     }
   }
 
+  async function setFavoriteProvider({ distance, longitude, latitude, provider_id }: SetFavoriteProviderDTO) {
+    setIsLoading(true);
+    try {
+      const data = { distance, longitude, latitude, provider_id };
+      const {
+        data: providers,
+      } = await api.post('/v1/users/clients/providers/favorite', data);
+
+      setProviders(providers);
+    } catch (error) {
+      appErrorVerifyError(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function setAppointmentStageClient({ services,provider,stage }: SetAppointmentStageClientDTO) {
+    setIsLoading(true);
+    try {
+      const data = { services,provider,stage };
+      await api.post('/v1/users/clients/appointment/stage', data);
+
+    } catch (error) {
+      appErrorVerifyError(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function getAppointmentStageClient() {
+    setIsLoading(true);
+    try {
+
+      const {
+        data: appointment,
+      } = await api.get('/v1/users/clients/appointment/stage');
+      console.log(appointment)
+
+    } catch (error) {
+      appErrorVerifyError(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+  async function updateProfileUser() {
+    console.log("update profile")
+  }
   return (
     <ClientUserContext.Provider
       value={{
@@ -610,7 +678,11 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
         removeAccountBank,
         updateProfile,
         getProviders,
-        providers
+        providers,
+        setFavoriteProvider,
+        setAppointmentStageClient,
+        getAppointmentStageClient,
+        updateProfileUser
       }}
     >
       {children}

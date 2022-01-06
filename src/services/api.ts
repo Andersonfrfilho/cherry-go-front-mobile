@@ -44,6 +44,7 @@ function defineInterceptor() {
                         user_id: userDatabase.id,
                       })
                       .then(result => {
+                        api.defaults.headers.authorization = `Bearer ${response.data.token}`;
                         originalRequest.headers.Authorization = `Bearer ${response.data.token}`;
                         return api(originalRequest);
                       });

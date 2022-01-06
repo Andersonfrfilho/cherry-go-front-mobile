@@ -1,8 +1,6 @@
 import styled from 'styled-components/native';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { Feather } from '@expo/vector-icons';
-import { FlatList } from 'react-native';
-import FastImage from 'react-native-fast-image';
 
 interface AreaInfoProps {
   color?: string;

@@ -1,0 +1,1 @@
+export const MINIMAL_RADIUS_DISTANCE = 10;
