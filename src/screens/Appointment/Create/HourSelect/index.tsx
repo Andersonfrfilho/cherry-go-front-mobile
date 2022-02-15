@@ -1,42 +1,29 @@
 import React, { useEffect, useState } from 'react';
-import { StatusBar, Text } from 'react-native';
+import { StatusBar } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTheme } from 'styled-components';
-
 import { RFValue } from 'react-native-responsive-fontsize';
 import {
   Container,
   Body,
-  AreaHeader,
-  AreaNameDistanceIcon,
-  AreaName,
-  Name,
-  AreaDistanceIcon,
-  AreaDistance,
-  Distance,
-  AreaIconDistance,
-  Icon,
-  AreaRatingAge,
-  AreaRating,
-  AreaIconRating,
-  AreaAge,
-  Age,
-  IconMaterialCommunityIcons,
-  IconFontAwesome,
-  AreaPhotosSlideList,
-  SlidePhotosList,
-  AreaPhoto,
-  Photo,
-  SeparatorPhoto,
   AreaButtons,
   AreaButtonServices,
-  ButtonServices,
-  TitleButtonService,
   AreaButtonBackNext,
   AreaButtonBack,
   TitleButtonBack,
   AreaButtonNext,
   TitleButtonNext,
+  AreaHours,
+  ListHours,
+  AreaHour,
+  HourTitle,
+  AreaDaysSelect,
+  AreaAfterDay,
+  AreaTitleDay,
+  TitleDay,
+  AreaBeforeDay,
+  Icon,
+  AreaWithout,
 } from './styles';
 
 import { useAuth } from '../../../../hooks/auth';
@@ -46,7 +33,11 @@ import { useCommon } from '../../../../hooks/common';
 import { useError } from '../../../../hooks/error';
 import { ScreenNavigationProp } from '../../../../routes';
 import { HeaderProfile } from '../../../../components/HeaderProfile';
-import { useClientUser } from '../../../../hooks/clientUser';
+import {
+  FormattedHoursDays,
+  HourSelectInterface,
+  useClientUser,
+} from '../../../../hooks/clientUser';
 import { UserProvider } from '../../../../hooks/providerUser';
 import { useTag } from '../../../../hooks/tag';
 import { getOldest } from '../../../../utils/getOldest';
@@ -55,24 +46,54 @@ import {
   ModalServices,
   ServiceFormattedModalService,
 } from '../../../../components/ModalServices';
+import { DAYS_PT_BR } from '../../../../enums/daysProviders.enum';
+import { Load } from '../../../../components/Load';
+import { formattedDateToCompare } from '../../../../utils/formattedDateToCompare';
+import { addMillisecondsToDate } from '../../../../utils/addMil';
+import { compareIfBetweenEqual } from '../../../../utils/compareIfBetweenEqual';
 
+interface HandleSelectHourAppointmentDTO {
+  duration: number;
+  hours: HourSelectInterface[];
+}
 export interface Focusable {
   focus(): void;
 }
 
+export const DAYS_WEEK_DATE = {
+  '0': 'MONDAY',
+  '1': 'TUESDAY',
+  '2': 'WEDNESDAY',
+  '3': 'THURSDAY',
+  '4': 'FRIDAY',
+  '5': 'SATURDAY',
+  '6': 'SUNDAY',
+};
 interface Params {
   providerSelect: UserProvider;
   servicesSelect: ServiceFormattedModalService[];
+  necessaryMilliseconds: number;
 }
 
-export function HourSelect() {
+export function ClientAppointmentCreateHourSelect() {
   const route = useRoute();
   const theme = useTheme();
-  const [listServiceFormatted, setListServiceFormatted] = useState<
-    ServiceFormattedModalService[]
-  >([] as ServiceFormattedModalService[]);
-  const [modalService, setModalService] = useState<boolean>(false);
+  const [listDaysHoursFormatted, setListDaysHoursFormatted] = useState<
+    FormattedHoursDays[]
+  >([] as FormattedHoursDays[]);
+  const [listHoursFormatted, setListHoursFormatted] = useState<
+    HourSelectInterface[]
+  >([] as HourSelectInterface[]);
+  const [listHoursOriginalFormatted, setListHoursOriginalFormatted] = useState<
+    HourSelectInterface[]
+  >([] as HourSelectInterface[]);
   const [handleContinued, setHandleContinued] = useState<boolean>(false);
+  const [handleIndexPage, setHandleIndexPage] = useState<number>(0);
+  const [initialHour, setInitialHour] = useState<Date | undefined>(undefined);
+  const [endHour, setEndHour] = useState<Date | undefined>(undefined);
+  const [isLoadingHourSelect, setIsLoadingHourSelect] =
+    useState<boolean>(false);
+
   const { isLoading, setIsLoading } = useCommon();
   const { appError, setAppError } = useError();
   const {
@@ -81,13 +102,15 @@ export function HourSelect() {
     getProviders,
     setFavoriteProvider,
     setAppointmentStageClient,
+    getHoursProvidersSelect,
   } = useClientUser();
   const { getTags, tags } = useTag();
   const { signIn, signOut } = useAuth();
 
   const navigation = useNavigation<ScreenNavigationProp>();
-  const { providerSelect } = route.params as Params;
-  const { images, services } = providerSelect;
+  const { providerSelect, necessaryMilliseconds, servicesSelect } =
+    route.params as Params;
+  const { hours, days, id: providerId } = providerSelect;
   const { name, last_name: lastName, image_profile: imageProfile } = userClient;
 
   async function handleLogout() {
@@ -96,68 +119,117 @@ export function HourSelect() {
 
   useEffect(() => {
     let unmounted = false;
-    if (!unmounted) {
-      if (!!services?.length && services?.length > 0) {
-        setListServiceFormatted(
-          services?.map(service => ({
-            ...service,
-            select: false,
-            expand: false,
-          })),
-        );
+    async function getHoursProvider() {
+      if (!unmounted) {
+        setIsLoadingHourSelect(true);
+        const data = await getHoursProvidersSelect({
+          duration: necessaryMilliseconds,
+          providerId,
+        });
+        setListDaysHoursFormatted(data);
+        if (!!data.length && data.length > 1) {
+          setListHoursFormatted(data[0].hours);
+        }
+        setIsLoadingHourSelect(false);
       }
     }
+    getHoursProvider();
     return () => {
       unmounted = true;
-      setListServiceFormatted([] as ServiceFormattedModalService[]);
+      setListDaysHoursFormatted([] as FormattedHoursDays[]);
+      setListHoursFormatted([] as HourSelectInterface[]);
+      setHandleContinued(false);
+      setIsLoadingHourSelect(false);
     };
-  }, [services]);
-  function handleCloseServiceModal() {
-    setModalService(false);
-  }
-  function handleOpenServiceModal() {
-    setModalService(true);
-  }
-  function handleSaveListServices(
-    serviceSelect: Array<ServiceFormattedModalService>,
-  ) {
-    setModalService(false);
-    const servicesSelects = serviceSelect.filter(service => service.select);
-    setListServiceFormatted(serviceSelect);
-    if (servicesSelects.length > 0) {
-      setHandleContinued(true);
-      setAppointmentStageClient({
-        provider: providerSelect,
-        services: listServiceFormatted,
-        stage: {
-          route: 'ClientAppointmentStackRoutes',
-          children: 'ClientAppointmentStagesProviderSelectServiceStack',
-          params_name: 'providerSelect',
-        },
-      });
-    }
-  }
+  }, []);
 
   function handleBackClientSelect() {
     navigation.goBack();
   }
 
-  function handleSelectHours() {
-    navigation.navigate('ClientAppointmentStagesProviderSelectHourStack', {
-      providerSelect: provider,
-      servicesSelect: listServiceFormatted,
-    });
+  async function handleSelectHour() {
+    setHandleContinued(false);
+    if (!!initialHour && !!endHour) {
+      await setAppointmentStageClient({
+        provider: providerSelect,
+        services: servicesSelect,
+        stage: {
+          route: 'ClientAppointmentStackRoutes',
+          children: 'ClientAppointmentStagesProviderSelectServiceStack',
+          params_name: 'providerSelect',
+        },
+        necessaryMilliseconds,
+        hours: {
+          initial: initialHour,
+          end: endHour,
+        },
+      });
+
+      navigation.navigate('ClientAppointmentStagesProviderSelectLocalStack', {
+        providerSelect,
+        servicesSelect,
+        necessaryMilliseconds,
+        hours: {
+          initial: initialHour.toString(),
+          end: endHour.toString(),
+        },
+      });
+    }
   }
 
+  function handlePageNext() {
+    if (handleIndexPage <= listDaysHoursFormatted.length - 1) {
+      setHandleIndexPage(handleIndexPage + 1);
+    }
+  }
+
+  function handlePageBack() {
+    if (handleIndexPage >= 0) {
+      setHandleIndexPage(handleIndexPage - 1);
+    }
+  }
+
+  useEffect(() => {
+    if (listDaysHoursFormatted.length > 0) {
+      setListHoursFormatted(listDaysHoursFormatted[handleIndexPage].hours);
+    }
+  }, [handleIndexPage]);
+
+  function handleSelectHourAppointment(
+    hourSelectInterface: HourSelectInterface,
+  ) {
+    const [hour_initial, minutes_initial] = hourSelectInterface.hour.split(':');
+    const dateInitialCompare = formattedDateToCompare(
+      hour_initial,
+      minutes_initial,
+    );
+    const dateFinalCompare = addMillisecondsToDate(
+      dateInitialCompare,
+      necessaryMilliseconds,
+    );
+    setInitialHour(dateInitialCompare);
+    setEndHour(dateFinalCompare);
+    const newList = listHoursFormatted.map(element => {
+      const [hour_compare, minutes_compare] = element.hour.split(':');
+      const dateCurrentCompare = formattedDateToCompare(
+        hour_compare,
+        minutes_compare,
+      );
+
+      return {
+        ...element,
+        time_blocked: compareIfBetweenEqual(
+          dateCurrentCompare,
+          dateInitialCompare,
+          dateFinalCompare,
+        ),
+      };
+    });
+    setListHoursFormatted(newList);
+    setHandleContinued(true);
+  }
   return (
     <Container>
-      <ModalServices
-        modalVisible={modalService}
-        handleClosedModal={handleCloseServiceModal}
-        services={listServiceFormatted}
-        titleWithoutItens="Não ha serviços disponiveis"
-        handleSaveChanges={handleSaveListServices}
-      />
       <StatusBar
         barStyle="dark-content"
         translucent
@@ -169,23 +241,74 @@ export function HourSelect() {
         image={imageProfile && imageProfile.link}
       />
       <Body>
-        <AreaButtons>
-          <AreaButtonServices>
-            <ButtonServices onPress={handleOpenServiceModal}>
-              <TitleButtonService>Serviços</TitleButtonService>
-            </ButtonServices>
-          </AreaButtonServices>
-          <AreaButtonBackNext>
-            <AreaButtonBack onPress={handleBackClientSelect}>
-              <TitleButtonBack>Voltar</TitleButtonBack>
-            </AreaButtonBack>
-            {handleContinued && (
-              <AreaButtonNext onPress={handleSelectHours}>
-                <TitleButtonNext>Avançar</TitleButtonNext>
-              </AreaButtonNext>
-            )}
-          </AreaButtonBackNext>
-        </AreaButtons>
+        {isLoadingHourSelect || isLoading ? (
+          <Load />
+        ) : (
+          <>
+            <AreaDaysSelect>
+              {handleIndexPage > 0 ? (
+                <AreaAfterDay onPress={handlePageBack}>
+                  <Icon
+                    name="chevron-left"
+                    size={RFValue(48)}
+                    color={theme.colors.white_medium}
+                  />
+                </AreaAfterDay>
+              ) : (
+                <AreaWithout />
+              )}
+              <AreaTitleDay>
+                {listDaysHoursFormatted &&
+                  listDaysHoursFormatted.length > 0 && (
+                    <TitleDay>
+                      {DAYS_PT_BR[listDaysHoursFormatted[handleIndexPage].day]}
+                    </TitleDay>
+                  )}
+              </AreaTitleDay>
+              {handleIndexPage < listDaysHoursFormatted.length - 1 ? (
+                <AreaBeforeDay onPress={handlePageNext}>
+                  <Icon
+                    name="chevron-right"
+                    size={RFValue(48)}
+                    color={theme.colors.white_medium}
+                  />
+                </AreaBeforeDay>
+              ) : (
+                <AreaWithout />
+              )}
+            </AreaDaysSelect>
+
+            <AreaHours>
+              <ListHours
+                data={listHoursFormatted}
+                numColumns={4}
+                keyExtractor={(item, index) => index.toString()}
+                renderItem={({ item }) => {
+                  return (
+                    <AreaHour
+                      onPress={() => handleSelectHourAppointment(item)}
+                      available={item.available}
+                      availablePeriod={item.available_period}
+                      blockedTime={item.time_blocked}
+                    >
+                      <HourTitle>{item.hour}</HourTitle>
+                    </AreaHour>
+                  );
+                }}
+              />
+            </AreaHours>
+            <AreaButtons>
+              <AreaButtonBack onPress={handleBackClientSelect}>
+                <TitleButtonBack>Voltar</TitleButtonBack>
+              </AreaButtonBack>
+              {handleContinued && (
+                <AreaButtonNext onPress={handleSelectHour}>
+                  <TitleButtonNext>Avançar</TitleButtonNext>
+                </AreaButtonNext>
+              )}
+            </AreaButtons>
+          </>
+        )}
       </Body>
     </Container>
   );

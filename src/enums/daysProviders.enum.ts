@@ -8,12 +8,12 @@ export enum DAYS_WEEK_ENUM {
   SUNDAY = 'SUNDAY',
 }
 
-export const daysPtBr = {
+export const DAYS_PT_BR = {
   MONDAY: 'segunda-feira',
   TUESDAY: 'terça-feira',
   WEDNESDAY: 'quart-feira',
   THURSDAY: 'quinta-feira',
   FRIDAY: 'sexta-feira',
-  SATURDAY: 'sabado',
+  SATURDAY: 'sábado',
   SUNDAY: 'domingo',
 };

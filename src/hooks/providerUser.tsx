@@ -320,7 +320,7 @@ export type Local = {
   address_id: string;
   active: boolean;
   amount: string;
-  details: null;
+  details: any;
   address: Addresses;
 };
 type Tag = {

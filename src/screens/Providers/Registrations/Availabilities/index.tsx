@@ -27,7 +27,7 @@ import { Load } from '../../../../components/Load';
 import { useError } from '../../../../hooks/error';
 import { Button } from '../../../../components/Button';
 import { ButtonIcon } from '../../../../components/ButtonIcon';
-import { daysPtBr } from '../../../../enums/daysProviders.enum';
+import { DAYS_PT_BR } from '../../../../enums/daysProviders.enum';
 
 export interface Focusable {
   focus(): void;
@@ -66,13 +66,13 @@ export function RegistrationsAvailabilitiesProvider() {
           return {
             ...dayWeekend,
             selected: true,
-            label: daysPtBr[dayWeekend.day],
+            label: DAYS_PT_BR[dayWeekend.day],
           };
         }
         return {
           ...dayWeekend,
           selected: false,
-          label: daysPtBr[dayWeekend.day],
+          label: DAYS_PT_BR[dayWeekend.day],
         };
       },
     );

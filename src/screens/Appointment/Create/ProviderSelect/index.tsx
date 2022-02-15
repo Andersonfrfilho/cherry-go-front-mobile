@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StatusBar, Text } from 'react-native';
+import { StatusBar } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTheme } from 'styled-components';
 
@@ -15,7 +15,6 @@ import {
   AreaDistance,
   Distance,
   AreaIconDistance,
-  Icon,
   AreaRatingAge,
   AreaRating,
   AreaIconRating,
@@ -39,16 +38,10 @@ import {
   TitleButtonNext,
 } from './styles';
 
-import { useAuth } from '../../../../hooks/auth';
-
-import { useCommon } from '../../../../hooks/common';
-
-import { useError } from '../../../../hooks/error';
 import { ScreenNavigationProp } from '../../../../routes';
 import { HeaderProfile } from '../../../../components/HeaderProfile';
 import { useClientUser } from '../../../../hooks/clientUser';
 import { UserProvider } from '../../../../hooks/providerUser';
-import { useTag } from '../../../../hooks/tag';
 import { getOldest } from '../../../../utils/getOldest';
 import { firstLetterUppercase } from '../../../../utils/firstLetterUppercase';
 import {
@@ -64,7 +57,7 @@ interface Params {
   providerSelect: UserProvider;
 }
 
-export function ProviderSelect() {
+export function ClientAppointmentCreateProviderSelect() {
   const route = useRoute();
   const theme = useTheme();
   const [listServiceFormatted, setListServiceFormatted] = useState<
@@ -72,26 +65,14 @@ export function ProviderSelect() {
   >([] as ServiceFormattedModalService[]);
   const [modalService, setModalService] = useState<boolean>(false);
   const [handleContinued, setHandleContinued] = useState<boolean>(false);
-  const { isLoading, setIsLoading } = useCommon();
-  const { appError, setAppError } = useError();
-  const {
-    userClient,
-    providers,
-    getProviders,
-    setFavoriteProvider,
-    setAppointmentStageClient,
-  } = useClientUser();
-  const { getTags, tags } = useTag();
-  const { signIn, signOut } = useAuth();
+  const [necessaryMilliseconds, setNecessaryMilliseconds] = useState<number>(0);
+
+  const { userClient, setAppointmentStageClient } = useClientUser();
 
   const navigation = useNavigation<ScreenNavigationProp>();
   const { providerSelect } = route.params as Params;
   const { images, services } = providerSelect;
   const { name, last_name: lastName, image_profile: imageProfile } = userClient;
-
-  async function handleLogout() {
-    await signOut();
-  }
 
   useEffect(() => {
     let unmounted = false;
@@ -117,15 +98,23 @@ export function ProviderSelect() {
   function handleOpenServiceModal() {
     setModalService(true);
   }
-  function handleSaveListServices(
+  async function handleSaveListServices(
     serviceSelect: Array<ServiceFormattedModalService>,
   ) {
     setModalService(false);
     const servicesSelects = serviceSelect.filter(service => service.select);
+
     setListServiceFormatted(serviceSelect);
+
     if (servicesSelects.length > 0) {
+      setNecessaryMilliseconds(
+        servicesSelects.reduce(
+          (valueCurrent, service) => valueCurrent + Number(service.duration),
+          0,
+        ),
+      );
       setHandleContinued(true);
-      setAppointmentStageClient({
+      await setAppointmentStageClient({
         provider: providerSelect,
         services: listServiceFormatted,
         stage: {
@@ -133,6 +122,7 @@ export function ProviderSelect() {
           children: 'ClientAppointmentStagesProviderSelectServiceStack',
           params_name: 'providerSelect',
         },
+        necessaryMilliseconds,
       });
     }
   }
@@ -145,6 +135,7 @@ export function ProviderSelect() {
     navigation.navigate('ClientAppointmentStagesProviderSelectHourStack', {
       providerSelect,
       servicesSelect: listServiceFormatted,
+      necessaryMilliseconds,
     });
   }
 
@@ -154,7 +145,7 @@ export function ProviderSelect() {
         modalVisible={modalService}
         handleClosedModal={handleCloseServiceModal}
         services={listServiceFormatted}
-        titleWithoutItens="Não ha serviços disponiveis"
+        titleWithoutItens="Não ha serviços disponíveis"
         handleSaveChanges={handleSaveListServices}
       />
       <StatusBar
@@ -203,7 +194,11 @@ export function ProviderSelect() {
                         : 'star-o'
                     }
                     size={RFValue(25)}
-                    color={theme.colors.desative_shade}
+                    color={
+                      index <= Number(providerSelect.ratings) - 1
+                        ? theme.colors.main_light
+                        : theme.colors.bon_jour
+                    }
                   />
                 </AreaIconRating>
               ))}

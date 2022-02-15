@@ -29,6 +29,7 @@ import {
 } from './styles';
 import { Services } from '../../hooks/providerUser';
 import { getValueAmount } from '../../utils/formatValueAmount';
+import { formattedMillisecondsToMinutes } from '../../utils/convertMillisecondsToMinutes';
 
 export interface ServiceFormattedModalService extends Services {
   select: boolean;
@@ -158,7 +159,9 @@ export function ModalServices({
                     <AreaDurationPrice>
                       <AreaDuration>
                         <Duration select={service.select}>
-                          {`${service.duration} m`}
+                          {`${formattedMillisecondsToMinutes(
+                            service.duration,
+                          )}`}
                         </Duration>
                       </AreaDuration>
                       <AreaPrice>

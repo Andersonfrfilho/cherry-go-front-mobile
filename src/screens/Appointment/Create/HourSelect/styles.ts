@@ -1,19 +1,14 @@
-import styled from 'styled-components/native';
-import {
-  Feather,
-  FontAwesome,
-  MaterialCommunityIcons,
-} from '@expo/vector-icons';
-import FastImage from 'react-native-fast-image';
+import styled, { css } from 'styled-components/native';
+import { FlatList } from 'react-native';
 import { RFValue } from 'react-native-responsive-fontsize';
-import { Dimensions, FlatList } from 'react-native';
-import { Image_Provider } from '../../hooks/providerUser';
+import { Feather } from '@expo/vector-icons';
+import { HourSelectInterface } from '../../../../hooks/clientUser';
 
-export interface PropsTagsFilter {
-  tagsSelected?: boolean;
-}
-export interface PropsTagsFavIcon {
-  favProvider?: boolean;
+interface AreaHourSelectProps {
+  color?: string;
+  available?: boolean;
+  availablePeriod?: boolean;
+  blockedTime?: boolean;
 }
 
 export const Container = styled.View`
@@ -27,102 +22,9 @@ export const Body = styled.View`
   padding-right: 10px;
 `;
 
-export const AreaHeader = styled.View`
-  width: 100%;
-  height: 80px;
-`;
-
-export const AreaNameDistanceIcon = styled.View`
-  flex: 1;
-  flex-direction: row;
-  justify-content: space-between;
-`;
-export const AreaName = styled.View`
-  flex: 5;
-  justify-content: center;
-`;
-export const Name = styled.Text`
-  font-family: ${({ theme }) => theme.fonts.primary_400};
-  color: ${({ theme }) => theme.colors.main_light};
-  font-size: ${RFValue(24)}px;
-`;
-
-export const AreaDistanceIcon = styled.View`
-  flex: 2;
-  flex-direction: row;
-  justify-content: center;
-`;
-export const AreaDistance = styled.View`
-  flex: 1;
-  justify-content: center;
-`;
-export const Distance = styled.Text`
-  font-family: ${({ theme }) => theme.fonts.primary_400};
-  color: ${({ theme }) => theme.colors.main_light};
-  font-size: ${RFValue(20)}px;
-`;
-
-export const AreaIconDistance = styled.View`
-  flex: 1;
-  justify-content: center;
-  align-items: center;
-`;
-export const Icon = styled(Feather)``;
-export const IconFontAwesome = styled(FontAwesome)``;
-export const IconMaterialCommunityIcons = styled(MaterialCommunityIcons)``;
-
-export const AreaRatingAge = styled.View`
-  flex: 1;
-  flex-direction: row;
-  justify-content: space-between;
-`;
-export const AreaRating = styled.View`
-  flex: 5;
-  flex-direction: row;
-`;
-export const AreaIconRating = styled.View`
-  flex: 1;
-`;
-
-export const AreaAge = styled.View`
-  flex: 1;
-`;
-export const Age = styled.Text`
-  font-family: ${({ theme }) => theme.fonts.primary_400};
-  color: ${({ theme }) => theme.colors.main_light};
-  font-size: ${RFValue(20)}px;
-`;
-
-export const AreaPhotosSlideList = styled.View`
-  height: 380px;
-  width: 100%;
-`;
-
-export const SlidePhotosList = styled(
-  FlatList as new () => FlatList<Image_Provider>,
-)``;
-export const AreaPhoto = styled.View`
-  width: ${Dimensions.get('window').width * 0.95}px;
-  height: 100%;
-`;
-
-export const Photo = styled(FastImage)`
-  flex: 1;
-  width: 100%;
-  height: 100%;
-  border-style: solid;
-  border-width: 5px;
-  border-color: ${({ theme }) => theme.colors.main_light};
-  border-radius: 12px;
-`;
-
-export const SeparatorPhoto = styled.View`
-  margin-left: 12px;
-  margin-right: 12px;
-`;
-
 export const AreaButtons = styled.View`
   flex: 1;
+  flex-direction: row;
 `;
 
 export const AreaButtonServices = styled.View`
@@ -181,4 +83,99 @@ export const TitleButtonNext = styled.Text`
   font-family: ${({ theme }) => theme.fonts.primary_400};
   color: ${({ theme }) => theme.colors.main_light};
   font-size: ${RFValue(20)}px;
+`;
+export const AreaHours = styled.View`
+  flex: 4;
+`;
+
+export const AreaSelectHours = styled.View``;
+export const TitleHour = styled.Text``;
+
+export const ListHours = styled(
+  FlatList as new () => FlatList<HourSelectInterface>,
+)``;
+
+export const AreaHour = styled.TouchableOpacity<AreaHourSelectProps>`
+  flex: 1;
+  border-radius: 8px;
+  height: 40px;
+  margin: 3px;
+  background-color: ${({ theme }) => theme.colors.bon_jour_dark_shade}
+  justify-content: center;
+  align-items: center;
+
+  ${({ theme, available }) =>
+    available &&
+    css`
+      background-color: ${theme.colors.success_chateau};
+    `}
+
+  ${({ theme, available, availablePeriod }) =>
+    available &&
+    !availablePeriod &&
+    css`
+      background-color: ${theme.colors.yellow_orange};
+    `}
+
+  ${({ theme, available, blockedTime }) =>
+    available &&
+    blockedTime &&
+    css`
+      background-color: ${theme.colors.blue_catalina_dark_shade};
+    `}
+`;
+export const HourTitle = styled.Text`
+  font-size: ${RFValue(16)}px;
+  color: ${({ theme }) => theme.colors.shape};
+  text-align: center;
+`;
+export const AreaDaysSelect = styled.View`
+  flex-direction: row;
+
+  height: 80px;
+  width: 100%;
+
+  margin-top: 10px;
+  margin-bottom: 10px;
+
+  border-radius: 12px;
+`;
+export const AreaAfterDay = styled.TouchableOpacity`
+  flex: 1;
+
+  justify-content: center;
+  align-items: center;
+
+  background-color: ${({ theme }) => theme.colors.header};
+
+  border-radius: 12px;
+`;
+export const Icon = styled(Feather)``;
+
+export const AreaTitleDay = styled.View`
+  flex: 4;
+
+  justify-content: center;
+  align-items: center;
+`;
+
+export const TitleDay = styled.Text`
+  font-size: ${RFValue(32)}px;
+  color: ${({ theme }) => theme.colors.shape};
+  text-align: center;
+`;
+
+export const AreaBeforeDay = styled.TouchableOpacity`
+  flex: 1;
+
+  justify-content: center;
+  align-items: center;
+
+  background-color: ${({ theme }) => theme.colors.header};
+
+  border-radius: 12px;
+`;
+
+export const AreaWithout = styled.View`
+  flex: 1;
 `;

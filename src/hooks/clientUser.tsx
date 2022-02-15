@@ -14,8 +14,10 @@ import { useError } from './error';
 import { UserClient } from '../databases/model/dtos/getUser.dto';
 import { useCommon } from './common';
 import { AppError } from '../errors/AppError'
-import { Details, UserProvider } from './providerUser';
+import { Details, Local, UserProvider } from './providerUser';
 import { ServiceFormattedModalService } from '../components/ModalServices';
+import { DAYS_WEEK_ENUM } from '../enums/DaysProviders.enum';
+import { GetDistanceLocalSelectedParamsDTO, GetDistanceLocalSelectResponse } from './dtos/locas.dto';
 
 type ClientUserContextData = {
   userClient: UserClientDatabase;
@@ -47,17 +49,44 @@ type ClientUserContextData = {
   setFavoriteProvider({ distance, longitude, latitude, provider_id }: SetFavoriteProviderDTO): Promise<void>;
   setAppointmentStageClient(data: SetAppointmentStageClientDTO): Promise<void>;
   getAppointmentStageClient(): Promise<void>;
+  getHoursProvidersSelect(data:GetProviderHoursSelectedParamsDTO):Promise<FormattedHoursDays[]>
+  getDistanceLocalSelect(data:GetDistanceLocalSelectedParamsDTO):Promise<GetDistanceLocalSelectResponse>;
 };
 
+export interface HourSelectInterface{
+  hour: string;
+  selected: boolean;
+  day: DAYS_WEEK_ENUM;
+  available: boolean;
+  available_period: boolean;
+  time_blocked?: boolean;
+}
+
+export interface FormattedHoursDays {
+  day: string;
+  hours: HourSelectInterface[];
+}
 interface StageAppointment{
   route:string;
   children:string;
   params_name:string;
 }
+
+export interface HoursSelectedToAppointment{
+  initial:Date;
+  end:Date;
+}
 interface SetAppointmentStageClientDTO {
   provider: UserProvider;
   services: ServiceFormattedModalService[]
   stage:StageAppointment;
+  necessaryMilliseconds:number;
+  hours?: HoursSelectedToAppointment;
+  local?:Addresses | Local;
+}
+interface GetProviderHoursSelectedParamsDTO {
+  providerId: string;
+  duration: number;
 }
 interface SetFavoriteProviderDTO {
   distance?: string;
@@ -147,6 +176,7 @@ export type Addresses = {
   reference?: string;
   latitude?: string;
   longitude?: string;
+  details?: any;
 };
 export type UserClientDatabase = {
   id: string;
@@ -162,7 +192,7 @@ export type UserClientDatabase = {
   gender: GENDER_ENUM;
   details?: any;
   phones?: Phone[];
-  addresses?: Addresses[];
+  addresses?: Addresses;
   types?: User_Type[];
   term?: Term[];
   transactions?: [];
@@ -622,10 +652,9 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
     }
   }
 
-  async function setAppointmentStageClient({ services,provider,stage }: SetAppointmentStageClientDTO) {
+  async function setAppointmentStageClient(data: SetAppointmentStageClientDTO) {
     setIsLoading(true);
     try {
-      const data = { services,provider,stage };
       await api.post('/v1/users/clients/appointment/stage', data);
 
     } catch (error) {
@@ -642,7 +671,6 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
       const {
         data: appointment,
       } = await api.get('/v1/users/clients/appointment/stage');
-      console.log(appointment)
 
     } catch (error) {
       appErrorVerifyError(error);
@@ -650,9 +678,47 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
       setIsLoading(false);
     }
   }
+  async function getHoursProvidersSelect({providerId,duration}:GetProviderHoursSelectedParamsDTO){
+    setIsLoading(true);
+    try {
+
+      const queryParams = {
+        params: { provider_id:providerId,duration },
+      };
+      const {
+        data: hours,
+      } = await api.get('/v1/users/clients/provider/available/hours', queryParams)
+
+      return hours
+    } catch (error) {
+      appErrorVerifyError(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+  async function getDistanceLocalSelect({providerId,departureTime}:GetDistanceLocalSelectedParamsDTO){
+    setIsLoading(true);
+    try {
+
+      const {
+        data: localsDistances,
+      } = await api.post('/v1/users/clients/provider/locals/types/distances', {
+         provider_id: providerId,
+         departure_time: String(departureTime)
+      })
+
+      return localsDistances
+    } catch (error) {
+      appErrorVerifyError(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   async function updateProfileUser() {
     console.log("update profile")
   }
+
   return (
     <ClientUserContext.Provider
       value={{
@@ -682,7 +748,9 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
         setFavoriteProvider,
         setAppointmentStageClient,
         getAppointmentStageClient,
-        updateProfileUser
+        updateProfileUser,
+        getHoursProvidersSelect,
+        getDistanceLocalSelect
       }}
     >
       {children}

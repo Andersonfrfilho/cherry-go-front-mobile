@@ -35,5 +35,25 @@ export const BAD_REQUEST = {
       status_code,
       code: '0006',
     },
+    '0007': {
+      message: 'Excedeu numero de contas!',
+      status_code,
+      code: '0007',
+    },
+    '0008': {
+      message: 'para deletar adicione uma nova conta principal!',
+      status_code,
+      code: '0008',
+    },
+    '0009': {
+      message: 'a conta não pode votar no mesmo perfil de provedor!',
+      status_code,
+      code: '0009',
+    },
+    '0010': {
+      message: 'dia não disponível!',
+      status_code,
+      code: '0010',
+    },
   },
 };

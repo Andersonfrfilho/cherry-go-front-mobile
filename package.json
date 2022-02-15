@@ -10,6 +10,7 @@
     "@expo-google-fonts/archivo": "^0.2.0",
     "@expo-google-fonts/averia-sans-libre": "^0.2.0",
     "@expo-google-fonts/inter": "^0.2.0",
+    "@googlemaps/google-maps-services-js": "^3.3.9",
     "@hookform/resolvers": "^2.8.0",
     "@nozbe/watermelondb": "^0.23.0",
     "@react-native-community/checkbox": "^0.5.8",

@@ -195,7 +195,8 @@ export function RegistrationsAvailabilitiesHoursProvider() {
   async function handleRemoveHoursAvailable(idHours: string) {
     await removeHourProviderWorkAvailable(idHours);
   }
-
+  console.log('!appError');
+  console.log(!appError.code);
   useEffect(() => {
     const hoursNewForSelected = getHoursAvailable({ hoursAvailable, hours });
     setSelectedHoursProvider(hoursNewForSelected);
@@ -238,19 +239,19 @@ export function RegistrationsAvailabilitiesHoursProvider() {
         }
       />
       <Form>
-        {isLoading ? (
-          <Load color={theme.colors.white_medium} />
-        ) : (
+        {isLoading && <Load color={theme.colors.white_medium} />}
+        {!isLoading && (
           <AreaDaysAvailability>
             <AreaDaysAvailabilityTitle>
-              {appError && appError.message ? (
+              {appError && appError.message && (
                 <AreaTitle>
                   <WarningText title={appError.message} />
                 </AreaTitle>
-              ) : (
+              )}
+              {!appError.code && (
                 <>
                   <AreaTitle>
-                    <Title>Dias disponiveis</Title>
+                    <Title>Horários disponiveis</Title>
                   </AreaTitle>
                   <AreaIcon>
                     <Icon
