@@ -143,9 +143,28 @@ type AddressesAppointment = {
   deleted_at: string;
   address: Addresses;
 };
+export enum TRANSPORT_TYPES_ENUM {
+  UBER = 'uber',
+  CLIENT = 'client',
+  PROVIDER = 'provider',
+}
+
+export const TRANSPORT_TYPES_NAME_PT_BR_ENUM = {
+  uber: 'Uber',
+  client: 'Próprio',
+  provider: 'Provedor(a)',
+};
+
+export const PAYMENTS_TYPES_NAME_PT_BR_ENUM = {
+  pix: 'Pix',
+  money: 'Dinheiro',
+  debit: 'Cartão de Débito',
+  credit: 'Cartão de Crédito',
+};
+
 export type TransportType = {
   id: string;
-  name: string;
+  name: TRANSPORT_TYPES_ENUM;
   description?: any;
   active: boolean;
 };
@@ -271,7 +290,7 @@ type Payment = {
   deleted_at: null;
 };
 
-type PaymentType = {
+export type PaymentType = {
   id: string;
   provider_id: string;
   payment_type_id: string;

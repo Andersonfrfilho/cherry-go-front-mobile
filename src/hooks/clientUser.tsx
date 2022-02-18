@@ -18,6 +18,9 @@ import { Details, Local, UserProvider } from './providerUser';
 import { ServiceFormattedModalService } from '../components/ModalServices';
 import { DAYS_WEEK_ENUM } from '../enums/DaysProviders.enum';
 import { GetDistanceLocalSelectedParamsDTO, GetDistanceLocalSelectResponse } from './dtos/locas.dto';
+import { ProviderTransportTypesSelected } from '../screens/Appointment/Create/TransportSelect';
+import { STATUS_PROVIDERS_APPOINTMENT } from '../enums/statusProvidersAppointment.enum';
+import { ProviderPaymentsTypesSelected } from '../screens/Appointment/Create/PaymentTypeSelect';
 
 type ClientUserContextData = {
   userClient: UserClientDatabase;
@@ -83,6 +86,9 @@ interface SetAppointmentStageClientDTO {
   necessaryMilliseconds:number;
   hours?: HoursSelectedToAppointment;
   local?:Addresses | Local;
+  transportType?: ProviderTransportTypesSelected;
+  paymentType?: ProviderPaymentsTypesSelected;
+  status?: STATUS_PROVIDERS_APPOINTMENT;
 }
 interface GetProviderHoursSelectedParamsDTO {
   providerId: string;

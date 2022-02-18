@@ -155,7 +155,7 @@ export function ClientAppointmentCreateHourSelect() {
         services: servicesSelect,
         stage: {
           route: 'ClientAppointmentStackRoutes',
-          children: 'ClientAppointmentStagesProviderSelectServiceStack',
+          children: 'ClientAppointmentStagesProviderSelectLocalStack',
           params_name: 'providerSelect',
         },
         necessaryMilliseconds,

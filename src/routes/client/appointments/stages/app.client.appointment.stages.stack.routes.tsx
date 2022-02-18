@@ -6,6 +6,8 @@ import { ClientAppointmentCreateProviderSelect } from '../../../../screens/Appoi
 import { ClientAppointmentCreateHourSelect } from '../../../../screens/Appointment/Create/HourSelect';
 import { ClientAppointmentCreateLocalSelect } from '../../../../screens/Appointment/Create/LocalSelect';
 import { ClientAppointmentCreateTransportSelect } from '../../../../screens/Appointment/Create/TransportSelect';
+import { ClientAppointmentCreatePaymentTypeSelect } from '../../../../screens/Appointment/Create/PaymentTypeSelect';
+import { ClientAppointmentDetails } from '../../../../screens/Appointment/Details';
 
 const { Navigator, Screen } = createNativeStackNavigator();
 
@@ -34,6 +36,14 @@ export function AppClientAppointmentStagesStackRoutes() {
       <Screen
         name="ClientAppointmentStagesProviderSelectTransportStack"
         component={ClientAppointmentCreateTransportSelect}
+      />
+      <Screen
+        name="ClientAppointmentCreatePaymentTypeStack"
+        component={ClientAppointmentCreatePaymentTypeSelect}
+      />
+      <Screen
+        name="ClientAppointmentDetailsStack"
+        component={ClientAppointmentDetails}
       />
     </Navigator>
   );

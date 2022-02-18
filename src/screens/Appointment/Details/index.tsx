@@ -27,39 +27,36 @@ import {
   MapViewComponent,
 } from './styles';
 
-import { useAuth } from '../../../../hooks/auth';
+import { useAuth } from '../../../hooks/auth';
 
-import { useCommon } from '../../../../hooks/common';
+import { useCommon } from '../../../hooks/common';
 
-import { useError } from '../../../../hooks/error';
-import { ScreenNavigationProp } from '../../../../routes';
-import { HeaderProfile } from '../../../../components/HeaderProfile';
+import { useError } from '../../../hooks/error';
+import { ScreenNavigationProp } from '../../../routes';
+import { HeaderProfile } from '../../../components/HeaderProfile';
 import {
   Addresses,
   HourSelectInterface,
   HoursSelectedToAppointment,
   useClientUser,
-} from '../../../../hooks/clientUser';
+} from '../../../hooks/clientUser';
 import {
   Local,
   ProviderTransportTypes,
   TRANSPORT_TYPES_ENUM,
   TRANSPORT_TYPES_NAME_PT_BR_ENUM,
   UserProvider,
-} from '../../../../hooks/providerUser';
-import { useTag } from '../../../../hooks/tag';
-import { ServiceFormattedModalService } from '../../../../components/ModalServices';
-import { formattedDateToCompare } from '../../../../utils/formattedDateToCompare';
-import { addMillisecondsToDate } from '../../../../utils/addMil';
-import { compareIfBetweenEqual } from '../../../../utils/compareIfBetweenEqual';
-import { LOCALS_TYPES_ENUM } from '../../../../enums/localsTypes.enum';
-import { getValueAmount } from '../../../../utils/formatValueAmount';
-import { transportDistanceToMeters } from '../../../../utils/transportDistanceToMeters';
-import {
-  IconFeather,
-  IconFontAwesome,
-} from '../../../../components/Icons/style';
-import { calDeltaCoordinates } from '../../../../utils/calDeltaCoordinates';
+} from '../../../hooks/providerUser';
+import { useTag } from '../../../hooks/tag';
+import { ServiceFormattedModalService } from '../../../components/ModalServices';
+import { formattedDateToCompare } from '../../../utils/formattedDateToCompare';
+import { addMillisecondsToDate } from '../../../utils/addMil';
+import { compareIfBetweenEqual } from '../../../utils/compareIfBetweenEqual';
+import { LOCALS_TYPES_ENUM } from '../../../enums/localsTypes.enum';
+import { getValueAmount } from '../../../utils/formatValueAmount';
+import { transportDistanceToMeters } from '../../../utils/transportDistanceToMeters';
+import { IconFeather, IconFontAwesome } from '../../../components/Icons/style';
+import { calDeltaCoordinates } from '../../../utils/calDeltaCoordinates';
 
 const GOOGLE_MAPS_APIKEY = 'AIzaSyD0gMj0W2pDcNWGYmtRh5zU4mxMLdg6vLw';
 export interface Focusable {
@@ -96,7 +93,7 @@ const { width } = Dimensions.get('window');
 // const ASPECT_RATIO = width / 420;
 // const LATITUDE_DELTA = 0.0922;
 // const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
-export function ClientAppointmentCreateTransportSelect() {
+export function ClientAppointmentDetails() {
   const route = useRoute();
   const theme = useTheme();
 
@@ -156,180 +153,6 @@ export function ClientAppointmentCreateTransportSelect() {
 
   function handleBackClientSelect() {
     navigation.goBack();
-  }
-  function handleSelectTransport() {}
-
-  useEffect(() => {
-    let unmounted = false;
-    if (!unmounted && transportsTypes?.length) {
-      const transportTypeAvailableList = transportsTypes
-        .filter(
-          transportTypeParam =>
-            transportTypeParam.active &&
-            transportTypeParam.transport_type.active,
-        )
-        .map(transportTypeParam => {
-          if (
-            transportTypeParam.amount &&
-            !!local &&
-            !!local.details &&
-            !!local.details.distance_between &&
-            !!local.details.distance_between.routes[0] &&
-            !!local.details.distance_between.routes[0].legs[0] &&
-            !!local.details.distance_between.routes[0].legs[0].distance &&
-            !!local.details.distance_between.routes[0].legs[0].distance.value
-          ) {
-            return {
-              ...transportTypeParam,
-              price: transportDistanceToMeters({
-                amount: String(transportTypeParam.amount),
-                distanceInMeters:
-                  local.details.distance_between.routes[0].legs[0].distance
-                    .value,
-              }),
-              distance:
-                local.details.distance_between.routes[0].legs[0].distance.text,
-              time: local.details.distance_between.routes[0].legs[0].duration
-                .text,
-              select: false,
-              expand: false,
-            };
-          }
-          return {
-            ...transportTypeParam,
-            distance:
-              !!local &&
-              !!local.details &&
-              !!local.details.distance_between &&
-              !!local.details.distance_between.routes[0] &&
-              !!local.details.distance_between.routes[0].legs[0] &&
-              local.details.distance_between.routes[0].legs[0].distance.text,
-            time:
-              !!local &&
-              !!local.details &&
-              !!local.details.distance_between &&
-              !!local.details.distance_between.routes[0] &&
-              !!local.details.distance_between.routes[0].legs[0] &&
-              local.details.distance_between.routes[0].legs[0].duration.text,
-            select: false,
-            expand: false,
-            price: transportDistanceToMeters({
-              amount: '0',
-              distanceInMeters: '0',
-            }),
-          };
-        });
-      setTransportTypesAvailable(transportTypeAvailableList);
-      setTransportTypesAvailableOriginal(transportTypeAvailableList);
-      setCoordinates([
-        calDeltaCoordinates({
-          accuracy: 0,
-          latitude:
-            local.details.distance_between.routes[0].legs[0].start_location.lat,
-          longitude:
-            local.details.distance_between.routes[0].legs[0].start_location.lng,
-        }),
-        calDeltaCoordinates({
-          accuracy: 0,
-          latitude:
-            local.details.distance_between.routes[0].legs[0].end_location.lat,
-          longitude:
-            local.details.distance_between.routes[0].legs[0].end_location.lng,
-        }),
-      ]);
-    }
-
-    return () => {
-      unmounted = true;
-      setHandleContinued(false);
-      setTransportTypesAvailable([] as ProviderTransportTypesSelected[]);
-      setTransportTypesAvailableOriginal(
-        [] as ProviderTransportTypesSelected[],
-      );
-      setCoordinates([
-        {
-          latitude: 0,
-          longitude: 0,
-          latitudeDelta: 0,
-          longitudeDelta: 0,
-          accuracy: 0,
-        },
-        {
-          latitude: 0,
-          longitude: 0,
-          latitudeDelta: 0,
-          longitudeDelta: 0,
-          accuracy: 0,
-        },
-      ]);
-    };
-  }, []);
-
-  function handleTransportTypeSelect(transportTypeId: string) {
-    const newList = transportTypesAvailable.map(transportTypeParam => {
-      const transportSelected = transportTypeParam.id === transportTypeId;
-      return {
-        ...transportTypeParam,
-        expand: transportSelected && !transportTypeParam.select,
-        select: transportSelected ? !transportTypeParam.select : false,
-      };
-    });
-
-    setTransportTypesAvailable(newList);
-
-    setHandleContinued(
-      !newList.every(transportTypeParam =>
-        transportTypesAvailableOriginal.some(
-          transportTypeParamSome =>
-            transportTypeParam.id === transportTypeParamSome.id &&
-            transportTypeParam.select === transportTypeParamSome.select,
-        ),
-      ),
-    );
-  }
-
-  function handleTransportTypeExpand(transportTypeId: string) {
-    const newList = transportTypesAvailable.map(transportTypeParam => {
-      return {
-        ...transportTypeParam,
-        expand:
-          transportTypeParam.id === transportTypeId
-            ? !transportTypeParam.expand
-            : false,
-      };
-    });
-    setTransportTypesAvailable(newList);
-  }
-
-  function handleSendTransportType() {
-    setHandleContinued(false);
-    const transporType = transportTypesAvailable.find(
-      transportTypeParam => transportTypeParam.select,
-    );
-    if (transporType) {
-      setAppointmentStageClient({
-        provider: providerSelect,
-        services: servicesSelect,
-        stage: {
-          route: 'ClientAppointmentStackRoutes',
-          children: 'ClientAppointmentCreatePaymentTypeStack',
-          params_name: 'providerSelect',
-        },
-        necessaryMilliseconds,
-        hours,
-        local,
-        transporType,
-      });
-
-      navigation.navigate('ClientAppointmentCreatePaymentTypeStack', {
-        providerSelect,
-        servicesSelect,
-        necessaryMilliseconds,
-        hours,
-        local,
-        transporType,
-      });
-    }
   }
 
   return (

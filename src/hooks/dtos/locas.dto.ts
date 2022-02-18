@@ -9,8 +9,8 @@ interface DistanceBetween {
 }
 
 export interface GetDistanceLocalSelectResponse {
-  distance_client_local: DistanceBetween;
-  distance_provider_locals: DistanceBetween[];
+  distance_client_local?: DistanceBetween;
+  distance_provider_locals?: DistanceBetween[];
 }
 
 export interface GetDistanceLocalSelectedParamsDTO {

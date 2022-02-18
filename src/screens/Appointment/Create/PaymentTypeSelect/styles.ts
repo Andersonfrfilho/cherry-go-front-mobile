@@ -3,7 +3,7 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import { Feather } from '@expo/vector-icons';
 import MapView from 'react-native-maps';
 
-interface AreaTransportTypeSelectProps {
+interface AreaPaymentTypeSelectProps {
   select?: boolean;
   expand?: boolean;
 }
@@ -31,11 +31,14 @@ export const AreaIconSelect = styled.TouchableOpacity`
   align-items: center;
 `;
 
-export const AreaButtonTransportTypes = styled.ScrollView``;
+export const AreaButtonPaymentTypes = styled.ScrollView``;
 
-export const AreaTransportTypeExpand = styled.View<AreaTransportTypeSelectProps>`
+export const AreaPaymentType = styled.View<AreaPaymentTypeSelectProps>`
   height: 80px;
   width: 100%;
+
+  flex-direction: row;
+
   background-color: ${({ theme }) => theme.colors.main_light};
 
   border-radius: 12px;
@@ -43,34 +46,15 @@ export const AreaTransportTypeExpand = styled.View<AreaTransportTypeSelectProps>
   margin-top: 12px;
   margin-bottom: 12px;
 
+  padding-right: 10px;
   ${({ theme, select }) =>
     select &&
     css`
       background-color: ${theme.colors.success};
     `}
-  ${({ theme, expand }) =>
-    expand &&
-    css`
-      height: 500px;
-    `}
 `;
-export const AreaTransportType = styled.View<AreaTransportTypeSelectProps>`
-  height: 80px;
-  width: 100%;
 
-  flex-direction: row;
-`;
-export const AreaMapExpand = styled.View`
-  height: 420px;
-  width: 100%;
-`;
-export const MapViewComponent = styled(MapView)`
-  flex: 1;
-  width: 100%;
-  height: 420px;
-  background-color: ${({ theme }) => theme.colors.background_primary};
-`;
-export const AreaTitleAmountTransportType = styled.View`
+export const AreaTitleAmountPaymentType = styled.View`
   flex: 3;
 
   flex-direction: row;
@@ -78,12 +62,12 @@ export const AreaTitleAmountTransportType = styled.View`
   justify-content: center;
   align-items: center;
 `;
-export const AreaTransportTypeTitle = styled.View`
+export const AreaPaymentTypeTitle = styled.View`
   flex: 1;
 
   justify-content: center;
 `;
-export const AreaTitleTransportType = styled.View`
+export const AreaTitlePaymentType = styled.View`
   flex: 2;
 
   justify-content: space-between;
@@ -91,13 +75,13 @@ export const AreaTitleTransportType = styled.View`
 
   padding-left: 5px;
 `;
-export const AreaAmountTransportType = styled.View`
+export const AreaAmountPaymentType = styled.View`
   flex: 1;
 
   justify-content: center;
-  align-items: flex-start;
+  align-items: center;
 `;
-export const TransportTypeTitleName = styled.Text<AreaTransportTypeSelectProps>`
+export const PaymentTypeTitleName = styled.Text<AreaPaymentTypeSelectProps>`
   font-family: ${({ theme }) => theme.fonts.primary_400};
   color: ${({ theme }) => theme.colors.background_primary};
   font-size: ${RFValue(20)}px;
@@ -109,10 +93,10 @@ export const TransportTypeTitleName = styled.Text<AreaTransportTypeSelectProps>`
     `}
 `;
 
-export const TransportTypeTitle = styled.Text<AreaTransportTypeSelectProps>`
+export const PaymentTypeTitle = styled.Text<AreaPaymentTypeSelectProps>`
   font-family: ${({ theme }) => theme.fonts.primary_400};
   color: ${({ theme }) => theme.colors.background_primary};
-  font-size: ${RFValue(14)}px;
+  font-size: ${RFValue(18)}px;
 
   ${({ theme, select }) =>
     select &&

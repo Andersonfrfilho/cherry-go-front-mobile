@@ -128,7 +128,7 @@ export function ClientAppointmentCreateLocalSelect() {
         services: servicesSelect,
         stage: {
           route: 'ClientAppointmentStackRoutes',
-          children: 'ClientAppointmentStagesProviderSelectServiceStack',
+          children: 'ClientAppointmentStagesProviderSelectTransportStack',
           params_name: 'providerSelect',
         },
         necessaryMilliseconds,
@@ -158,8 +158,8 @@ export function ClientAppointmentCreateLocalSelect() {
     setLocalSelected({
       ...addresses,
       details:
-        distanceLocal &&
-        distanceLocal.distance_client_local &&
+        !!distanceLocal &&
+        !!distanceLocal.distance_client_local &&
         distanceLocal.distance_client_local,
     });
     setHandleContinued(true);
@@ -269,7 +269,11 @@ export function ClientAppointmentCreateLocalSelect() {
               <AreaLocalTitleClient>
                 <LocalTitleClient>{`${addresses.street}, ${addresses.number}`}</LocalTitleClient>
 
-                {distanceLocal.distance_client_local.distance_between.routes[0]
+                {!!distanceLocal.distance_client_local &&
+                !!distanceLocal.distance_client_local.distance_between &&
+                !!distanceLocal.distance_client_local.distance_between.routes
+                  .length &&
+                distanceLocal.distance_client_local.distance_between.routes[0]
                   .legs[0].distance.text ? (
                   <LocalTitleClient>{`${distanceLocal.distance_client_local.distance_between.routes[0].legs[0].distance.text} - ${distanceLocal.distance_client_local.distance_between.routes[0].legs[0].duration.text}`}</LocalTitleClient>
                 ) : (

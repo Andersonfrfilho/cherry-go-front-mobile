@@ -168,7 +168,9 @@ export function RegistrationsAvailabilitiesTransportTypesProvider() {
           )?.amount;
 
         setAmountTransport(
-          !!amount && Number(amount) > 0 ? String(Number(amount) / 100) : '0',
+          !!amount && Number(amount) > 0
+            ? String(Number(amount) / (10 * 10 * 10))
+            : '0',
         );
         return {
           ...transport,
@@ -179,7 +181,9 @@ export function RegistrationsAvailabilitiesTransportTypesProvider() {
                 transportTypeProvider.transport_type_id === transport.id,
             ),
           amount:
-            !!amount && Number(amount) > 0 ? String(Number(amount) / 100) : '0',
+            !!amount && Number(amount) > 0
+              ? String(Number(amount) / (10 * 10 * 10))
+              : '0',
         };
       }
 
