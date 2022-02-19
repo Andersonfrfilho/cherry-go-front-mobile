@@ -199,6 +199,8 @@ export function ClientAppointmentCreatePaymentTypeSelect() {
         local,
         transporType,
         paymentType: paymentTypeSelected,
+        amountTotal,
+        confirmed: false,
         status: STATUS_PROVIDERS_APPOINTMENT.OPEN,
       });
     }

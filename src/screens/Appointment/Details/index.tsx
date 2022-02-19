@@ -25,6 +25,57 @@ import {
   AreaTransportTypeExpand,
   AreaMapExpand,
   MapViewComponent,
+  AreaProvider,
+  AreaPhotoProvider,
+  PhotoProvider,
+  AreaNameOldProvider,
+  AreaNameProvider,
+  NameProvider,
+  AreaOldProvider,
+  OldProvider,
+  AreaHour,
+  AreaIconHour,
+  AreaHourText,
+  HourText,
+  AreaServices,
+  AreaService,
+  AreaServiceName,
+  ServiceName,
+  AreaServicePrice,
+  ServicePrice,
+  AreaServiceTotal,
+  ServiceTotal,
+  AreaLocal,
+  AreaAddressNumber,
+  AreaDistrictCityState,
+  AreaCep,
+  Cep,
+  AreaAmount,
+  AreaTitleAmount,
+  Amount,
+  AreaValueAmount,
+  AreaPaymentType,
+  AreaPaymentTypeTitle,
+  PaymentTitle,
+  PaymentTitleAmount,
+  PaymentTypeTitle,
+  PaymentTypeValue,
+  AreaPaymentTypeAmount,
+  PaymentValueAmount,
+  TitleAmount,
+  AreaDateHour,
+  AreaDate,
+  DateText,
+  AreaServiceNameHour,
+  AreaServiceDuration,
+  ServiceDuration,
+  AreaServicesTitle,
+  ServicesTitle,
+  AreaServiceTotalTitle,
+  ServiceTotalTitle,
+  AreaServiceTotalAmount,
+  AddressNumber,
+  DistrictCityState,
 } from './styles';
 
 import { useAuth } from '../../../hooks/auth';
@@ -57,6 +108,8 @@ import { getValueAmount } from '../../../utils/formatValueAmount';
 import { transportDistanceToMeters } from '../../../utils/transportDistanceToMeters';
 import { IconFeather, IconFontAwesome } from '../../../components/Icons/style';
 import { calDeltaCoordinates } from '../../../utils/calDeltaCoordinates';
+import { STATUS_PROVIDERS_APPOINTMENT } from '../../../enums/statusProvidersAppointment.enum';
+import { ProviderPaymentsTypesSelected } from '../Create/PaymentTypeSelect';
 
 const GOOGLE_MAPS_APIKEY = 'AIzaSyD0gMj0W2pDcNWGYmtRh5zU4mxMLdg6vLw';
 export interface Focusable {
@@ -79,6 +132,11 @@ interface Params {
   hours?: HoursSelectedToAppointment;
   local?: Addresses | Local;
   time?: string;
+  transporType?: ProviderTransportTypesSelected;
+  paymentType?: ProviderPaymentsTypesSelected;
+  amountTotal?: number;
+  confirmed: boolean;
+  status: STATUS_PROVIDERS_APPOINTMENT;
 }
 interface Coordinates {
   latitude: number;
@@ -90,9 +148,6 @@ interface Coordinates {
 
 const { width } = Dimensions.get('window');
 
-// const ASPECT_RATIO = width / 420;
-// const LATITUDE_DELTA = 0.0922;
-// const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 export function ClientAppointmentDetails() {
   const route = useRoute();
   const theme = useTheme();
@@ -138,10 +193,15 @@ export function ClientAppointmentDetails() {
   const navigation = useNavigation<ScreenNavigationProp>();
   const {
     providerSelect,
-    necessaryMilliseconds,
     servicesSelect,
+    necessaryMilliseconds,
     hours,
     local,
+    transporType,
+    paymentType,
+    confirmed,
+    amountTotal,
+    status,
   } = route.params as Params;
   const { id: providerId, transports_types: transportsTypes } = providerSelect;
   const {
@@ -154,7 +214,7 @@ export function ClientAppointmentDetails() {
   function handleBackClientSelect() {
     navigation.goBack();
   }
-
+  function handleCreateAppointment() {}
   return (
     <Container>
       <StatusBar
@@ -168,115 +228,157 @@ export function ClientAppointmentDetails() {
         image={imageProfile && imageProfile.link}
       />
       <Body>
-        <AreaButtonTransportTypes>
-          {transportTypesAvailable.length > 0 &&
-            transportTypesAvailable.map((transportType, index) => {
-              return (
-                <AreaTransportTypeExpand
-                  select={transportType.select}
-                  expand={transportType.expand}
-                  key={index.toString()}
-                >
-                  <AreaTransportType key={index.toString()}>
-                    <AreaIconSelect
-                      onPress={() =>
-                        handleTransportTypeSelect(transportType.id)
-                      }
-                    >
-                      <IconFontAwesome
-                        name={
-                          transportType.select ? 'dot-circle-o' : 'circle-o'
-                        }
-                        size={RFValue(25)}
-                        color={
-                          transportType.select
-                            ? theme.colors.main_light
-                            : theme.colors.background_primary
-                        }
-                      />
-                    </AreaIconSelect>
-                    <AreaTitleAmountTransportType>
-                      <AreaTitleTransportType>
-                        <AreaTransportTypeTitle>
-                          <TransportTypeTitleName select={transportType.select}>
-                            {
-                              TRANSPORT_TYPES_NAME_PT_BR_ENUM[
-                                transportType.transport_type.name
-                              ]
-                            }
-                          </TransportTypeTitleName>
-                        </AreaTransportTypeTitle>
-                        <AreaTransportTypeTitle>
-                          <TransportTypeTitle
-                            numberOfLines={1}
-                            select={transportType.select}
-                          >
-                            {transportType.distance}, {transportType.time}
-                          </TransportTypeTitle>
-                        </AreaTransportTypeTitle>
-                      </AreaTitleTransportType>
-                      <AreaAmountTransportType>
-                        <AreaTransportTypeTitle>
-                          <TransportTypeTitle select={transportType.select}>
-                            {transportType.price.text
-                              ? transportType.price.text
-                              : ''}
-                          </TransportTypeTitle>
-                        </AreaTransportTypeTitle>
-                        <AreaTransportTypeTitle />
-                      </AreaAmountTransportType>
-                    </AreaTitleAmountTransportType>
-                    <AreaIconSelect
-                      onPress={() =>
-                        handleTransportTypeExpand(transportType.id)
-                      }
-                    >
-                      <IconFeather
-                        name={
-                          transportType.expand ? 'chevron-up' : 'chevron-down'
-                        }
-                        size={RFValue(25)}
-                        color={
-                          transportType.select
-                            ? theme.colors.main_light
-                            : theme.colors.background_primary
-                        }
-                      />
-                    </AreaIconSelect>
-                  </AreaTransportType>
-                  {transportType.expand && (
-                    <AreaMapExpand>
-                      <MapViewComponent
-                        initialRegion={{
-                          latitude: coordinates[0].latitude,
-                          longitude: coordinates[0].longitude,
-                          latitudeDelta: 0.0622,
-                          longitudeDelta: 0.0121,
-                        }}
-                      >
-                        <MapViewDirections
-                          origin={coordinates[0]}
-                          destination={coordinates[1]}
-                          apikey={GOOGLE_MAPS_APIKEY} // insert your API Key here
-                          strokeWidth={4}
-                          strokeColor="#111111"
-                        />
-                        <Marker coordinate={coordinates[0]} />
-                        <Marker coordinate={coordinates[1]} />
-                      </MapViewComponent>
-                    </AreaMapExpand>
-                  )}
-                </AreaTransportTypeExpand>
-              );
-            })}
-        </AreaButtonTransportTypes>
+        <AreaProvider>
+          <AreaPhotoProvider>
+            <PhotoProvider
+              source={{
+                // uri: item.image.link,
+                uri: 'https://www.playboy.com.mx/wp-content/uploads/2019/01/Lena-S%C3%B6derberg-imagen-completa.jpg',
+              }}
+              resizeMode="stretch"
+            />
+          </AreaPhotoProvider>
+          <AreaNameOldProvider>
+            <AreaNameProvider>
+              <NameProvider>Agatha Cristie, 18</NameProvider>
+            </AreaNameProvider>
+            {/* <AreaOldProvider>
+              <OldProvider></OldProvider>
+            </AreaOldProvider> */}
+          </AreaNameOldProvider>
+        </AreaProvider>
+        <AreaHour>
+          <AreaIconHour>
+            <IconFeather
+              name="clock"
+              size={RFValue(30)}
+              color={theme.colors.background_primary}
+            />
+          </AreaIconHour>
+          <AreaDateHour>
+            <AreaDate>
+              <DateText>Dia 12 - segunda-feira</DateText>
+            </AreaDate>
+            <AreaHourText>
+              <HourText>12:00 até as 13:00</HourText>
+            </AreaHourText>
+          </AreaDateHour>
+        </AreaHour>
+        <AreaServicesTitle>
+          <ServicesTitle>Serviços</ServicesTitle>
+        </AreaServicesTitle>
+        <AreaServices>
+          {[1, 2].map((service, indexParam) => (
+            <AreaService key={indexParam.toString()}>
+              <AreaServiceNameHour>
+                <AreaServiceName>
+                  <ServiceName>Nome do servico</ServiceName>
+                </AreaServiceName>
+                <AreaServiceDuration>
+                  <ServiceDuration>40 minutos</ServiceDuration>
+                </AreaServiceDuration>
+              </AreaServiceNameHour>
+              <AreaServicePrice>
+                <ServicePrice>R$ 120,00</ServicePrice>
+              </AreaServicePrice>
+            </AreaService>
+          ))}
+        </AreaServices>
+        <AreaServiceTotal>
+          <AreaServiceTotalTitle>
+            <ServiceTotalTitle>Total</ServiceTotalTitle>
+          </AreaServiceTotalTitle>
+          <AreaServiceTotalAmount>
+            <ServiceTotal>R$ 250,00</ServiceTotal>
+          </AreaServiceTotalAmount>
+        </AreaServiceTotal>
+        <AreaLocal>
+          <AreaAddressNumber>
+            <AddressNumber>Rua Ambrosina veloso ribeiro, 4631</AddressNumber>
+          </AreaAddressNumber>
+          <AreaDistrictCityState>
+            <DistrictCityState>Jardim noemia - Franca/SP</DistrictCityState>
+          </AreaDistrictCityState>
+          <AreaCep>
+            <Cep>14403772</Cep>
+          </AreaCep>
+          <AreaAmount>
+            <AreaTitleAmount>
+              <TitleAmount>Valor total</TitleAmount>
+            </AreaTitleAmount>
+            <AreaValueAmount>
+              <Amount>R$ 12,30</Amount>
+            </AreaValueAmount>
+          </AreaAmount>
+          <AreaMapExpand>
+            <MapViewComponent
+              initialRegion={{
+                latitude: coordinates[0].latitude,
+                longitude: coordinates[0].longitude,
+                latitudeDelta: 0.0622,
+                longitudeDelta: 0.0121,
+              }}
+              scrollEnabled={false}
+              zoomEnabled={false}
+              rotateEnabled={false}
+            >
+              <Marker coordinate={coordinates[0]} />
+            </MapViewComponent>
+          </AreaMapExpand>
+        </AreaLocal>
+        <AreaTransportType>
+          <AreaTitleTransportType>
+            <TransportTypeTitleName>Provedora</TransportTypeTitleName>
+          </AreaTitleTransportType>
+          <AreaTransportTypeTitle>
+            <TransportTypeTitle numberOfLines={1}>
+              3,7km - 7 minutos - R$ 12,00
+            </TransportTypeTitle>
+          </AreaTransportTypeTitle>
+          <AreaMapExpand>
+            <MapViewComponent
+              initialRegion={{
+                latitude: coordinates[0].latitude,
+                longitude: coordinates[0].longitude,
+                latitudeDelta: 0.0622,
+                longitudeDelta: 0.0121,
+              }}
+              scrollEnabled={false}
+              zoomEnabled={false}
+              rotateEnabled={false}
+            >
+              <MapViewDirections
+                origin={coordinates[0]}
+                destination={coordinates[1]}
+                apikey={GOOGLE_MAPS_APIKEY} // insert your API Key here
+                strokeWidth={4}
+                strokeColor="#111111"
+              />
+              <Marker coordinate={coordinates[0]} />
+              <Marker coordinate={coordinates[1]} />
+            </MapViewComponent>
+          </AreaMapExpand>
+        </AreaTransportType>
+        <AreaPaymentType>
+          <AreaPaymentTypeTitle>
+            <PaymentTypeTitle>Pagamento - Cartão de crédito</PaymentTypeTitle>
+          </AreaPaymentTypeTitle>
+          <AreaPaymentTypeAmount>
+            <PaymentTitleAmount>
+              <PaymentTypeTitle>Total</PaymentTypeTitle>
+            </PaymentTitleAmount>
+            <PaymentValueAmount>
+              <PaymentTypeValue>R$ 1325,05</PaymentTypeValue>
+            </PaymentValueAmount>
+          </AreaPaymentTypeAmount>
+        </AreaPaymentType>
         <AreaButtons>
           <AreaButtonBack onPress={handleBackClientSelect}>
             <TitleButtonBack>Voltar</TitleButtonBack>
           </AreaButtonBack>
           {handleContinued && (
-            <AreaButtonNext onPress={handleSendTransportType}>
-              <TitleButtonNext>Avançar</TitleButtonNext>
+            <AreaButtonNext onPress={handleCreateAppointment}>
+              <TitleButtonNext>Confirmar</TitleButtonNext>
             </AreaButtonNext>
           )}
         </AreaButtons>

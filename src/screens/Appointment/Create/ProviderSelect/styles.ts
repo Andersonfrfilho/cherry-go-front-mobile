@@ -101,6 +101,7 @@ export const AreaPhotosSlideList = styled.View`
 export const SlidePhotosList = styled(
   FlatList as new () => FlatList<Image_Provider>,
 )``;
+
 export const AreaPhoto = styled.View`
   width: ${Dimensions.get('window').width * 0.95}px;
   height: 100%;
