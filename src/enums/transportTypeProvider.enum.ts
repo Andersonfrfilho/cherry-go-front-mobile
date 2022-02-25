@@ -1,6 +1,6 @@
-export enum TransportTypeProviderTranslateEnum {
+export enum TRANSPORT_TYPE_PROVIDER_TRANSLATE_ENUM {
   client = 'Cliente',
-  provider = 'Próprio',
+  provider = 'Provedor',
   uber = 'Uber',
 }
 

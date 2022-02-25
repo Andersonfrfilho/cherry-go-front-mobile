@@ -22,7 +22,7 @@ import { DAYS_WEEK_ENUM } from '../enums/DaysProviders.enum';
 import { PAYMENT_TYPES_ENUM } from '../enums/PaymentTypes.enum';
 import { STRIPE_PAYMENT_REQUIRES_ENUM } from '../enums/stripe.enums';
 import { LOCALS_TYPES_ENUM } from '../enums/localsTypes.enum';
-import { TransportTypeProviderEnum } from '../enums/transportTypeProvider';
+import { TRANSPORT_TYPE_PROVIDER_TRANSLATE_ENUM } from '../enums/transportTypeProvider.enum';
 
 interface RegisterServiceProviderDTO {
   amount: string;
@@ -173,7 +173,7 @@ export type ProviderTransportTypes = {
   provider_id: string;
   transport_type_id: string;
   details?: any;
-  name: TransportTypeProviderEnum;
+  name: TRANSPORT_TYPE_PROVIDER_TRANSLATE_ENUM;
   description?: string;
   amount?: number;
   active: boolean;
@@ -280,7 +280,7 @@ export type Image_Provider = {
   deleted_at: null;
   image: Image;
 };
-type Payment = {
+type PaymentType = {
   id: string;
   name: PAYMENT_TYPES_ENUM;
   description: string | null;
@@ -290,12 +290,12 @@ type Payment = {
   deleted_at: null;
 };
 
-export type PaymentType = {
+export type PaymentTypeProvider = {
   id: string;
   provider_id: string;
   payment_type_id: string;
   active: boolean;
-  payment: Payment;
+  payment_type: PaymentType;
 };
 interface DataBank {
   name: string;
@@ -387,7 +387,7 @@ export type UserProvider = {
   images?: Image_Provider[];
   days?: ProviderDaysAvailability[];
   hours?: ProviderHoursAvailability[];
-  payments_types?: PaymentType[];
+  payments_types?: PaymentTypeProvider[];
   services?: Services[];
   ratings?: number;
   favorite?: boolean;

@@ -64,8 +64,8 @@ import { getValueAmount } from '../../../../utils/formatValueAmount';
 import { useTransport } from '../../../../hooks/transport';
 import {
   TransportTypeProviderEnum,
-  TransportTypeProviderTranslateEnum,
-} from '../../../../enums/transportTypeProvider';
+  TRANSPORT_TYPE_PROVIDER_TRANSLATE_ENUM,
+} from '../../../../enums/transportTypeProvider.enum';
 import { onlyNumber } from '../../../../utils/onlyNumber';
 
 export interface Focusable {
@@ -75,7 +75,7 @@ export interface Focusable {
 interface TransportsAvailableType {
   selected: boolean;
   id: string;
-  name: TransportTypeProviderTranslateEnum;
+  name: TRANSPORT_TYPE_PROVIDER_TRANSLATE_ENUM;
   description: null;
   active: boolean;
   amount?: string;
@@ -111,8 +111,8 @@ export function RegistrationsAvailabilitiesTransportTypesProvider() {
     getAllTransportTypes();
     const transportsAvailable = transportTypes.map(transport => {
       if (
-        TransportTypeProviderTranslateEnum[transport.name] ===
-        TransportTypeProviderTranslateEnum.provider
+        TRANSPORT_TYPE_PROVIDER_TRANSLATE_ENUM[transport.name] ===
+        TRANSPORT_TYPE_PROVIDER_TRANSLATE_ENUM.provider
       ) {
         const amount =
           transportsTypesProvider &&
@@ -157,8 +157,8 @@ export function RegistrationsAvailabilitiesTransportTypesProvider() {
   useEffect(() => {
     const transportsAvailable = transportTypes.map(transport => {
       if (
-        TransportTypeProviderTranslateEnum[transport.name] ===
-        TransportTypeProviderTranslateEnum.provider
+        TRANSPORT_TYPE_PROVIDER_TRANSLATE_ENUM[transport.name] ===
+        TRANSPORT_TYPE_PROVIDER_TRANSLATE_ENUM.provider
       ) {
         const amount =
           transportsTypesProvider &&
@@ -321,7 +321,7 @@ export function RegistrationsAvailabilitiesTransportTypesProvider() {
                         selected={!!transportTypeProvider.selected}
                       >
                         {
-                          TransportTypeProviderTranslateEnum[
+                          TRANSPORT_TYPE_PROVIDER_TRANSLATE_ENUM[
                             transportTypeProvider.name
                           ]
                         }

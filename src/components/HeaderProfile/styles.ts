@@ -34,6 +34,9 @@ export const Name = styled.Text`
 export const AreaButtonPhoto = styled(TouchableOpacity)`
   width: 80px;
 
+  justify-content: center;
+  align-items: center;
+
   background-color: ${({ theme }) => theme.colors.bon_jour};
 
   border-radius: 50px;
@@ -43,4 +46,10 @@ export const AreaButtonPhoto = styled(TouchableOpacity)`
 export const Photo = styled(FastImage)`
   width: 100%;
   height: 100%;
+`;
+export const TextName = styled.Text`
+  font-family: ${({ theme }) => theme.fonts.primary_700};
+  color: ${({ theme }) => theme.colors.text_detail};
+  font-size: ${RFValue(32)}px;
+  text-transform: uppercase;
 `;

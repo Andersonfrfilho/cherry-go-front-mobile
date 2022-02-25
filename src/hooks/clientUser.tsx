@@ -14,7 +14,7 @@ import { useError } from './error';
 import { UserClient } from '../databases/model/dtos/getUser.dto';
 import { useCommon } from './common';
 import { AppError } from '../errors/AppError'
-import { Details, Local, UserProvider } from './providerUser';
+import { Details, Local, LocalType, UserProvider } from './providerUser';
 import { ServiceFormattedModalService } from '../components/ModalServices';
 import { DAYS_WEEK_ENUM } from '../enums/DaysProviders.enum';
 import { GetDistanceLocalSelectedParamsDTO, GetDistanceLocalSelectResponse } from './dtos/locas.dto';
@@ -54,6 +54,8 @@ type ClientUserContextData = {
   getAppointmentStageClient(): Promise<void>;
   getHoursProvidersSelect(data:GetProviderHoursSelectedParamsDTO):Promise<FormattedHoursDays[]>
   getDistanceLocalSelect(data:GetDistanceLocalSelectedParamsDTO):Promise<GetDistanceLocalSelectResponse>;
+  invalidateAppointmentStageClient():Promise<void>;
+  createAppointment():Promise<void>;
 };
 
 export interface HourSelectInterface{
@@ -63,10 +65,19 @@ export interface HourSelectInterface{
   available: boolean;
   available_period: boolean;
   time_blocked?: boolean;
+  date:number;
 }
-
-export interface FormattedHoursDays {
+export interface DaysAvailable {
+  date: number;
+  id?: string;
   day: string;
+  provider_id: string;
+  created_at?: Date;
+  updated_at?: Date;
+  deleted_at?: Date;
+}
+export interface FormattedHoursDays {
+  day: DaysAvailable;
   hours: HourSelectInterface[];
 }
 interface StageAppointment{
@@ -76,8 +87,8 @@ interface StageAppointment{
 }
 
 export interface HoursSelectedToAppointment{
-  initial:Date;
-  end:Date;
+  start: HourSelectInterface;
+  end: HourSelectInterface;
 }
 interface SetAppointmentStageClientDTO {
   provider: UserProvider;
@@ -89,6 +100,7 @@ interface SetAppointmentStageClientDTO {
   transportType?: ProviderTransportTypesSelected;
   paymentType?: ProviderPaymentsTypesSelected;
   status?: STATUS_PROVIDERS_APPOINTMENT;
+  localType?: LocalType;
 }
 interface GetProviderHoursSelectedParamsDTO {
   providerId: string;
@@ -669,7 +681,17 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
       setIsLoading(false);
     }
   }
+  async function invalidateAppointmentStageClient(){
+    setIsLoading(true);
+    try {
+      await api.delete('/v1/users/clients/appointment/stage');
 
+    } catch (error) {
+      appErrorVerifyError(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
   async function getAppointmentStageClient() {
     setIsLoading(true);
     try {
@@ -725,6 +747,17 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
     console.log("update profile")
   }
 
+  async function createAppointment(){
+    setIsLoading(true);
+    try {
+      await api.post('/v1/users/clients/appointment');
+      await api.delete('/v1/users/clients/appointment/stage');
+    } catch (error) {
+      appErrorVerifyError(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
   return (
     <ClientUserContext.Provider
       value={{
@@ -753,10 +786,12 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
         providers,
         setFavoriteProvider,
         setAppointmentStageClient,
+        invalidateAppointmentStageClient,
         getAppointmentStageClient,
         updateProfileUser,
         getHoursProvidersSelect,
-        getDistanceLocalSelect
+        getDistanceLocalSelect,
+        createAppointment
       }}
     >
       {children}

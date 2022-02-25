@@ -25,6 +25,8 @@ import {
   AreaTransportTypeExpand,
   AreaMapExpand,
   MapViewComponent,
+  HEIGHT_MAP_VIEW_APPOINTMENT_TRANSPORT_SELECT,
+  HEIGHT_MAP_VIEW_COMPONENT,
 } from './styles';
 
 import { useAuth } from '../../../../hooks/auth';
@@ -42,6 +44,7 @@ import {
 } from '../../../../hooks/clientUser';
 import {
   Local,
+  LocalType,
   ProviderTransportTypes,
   TRANSPORT_TYPES_ENUM,
   TRANSPORT_TYPES_NAME_PT_BR_ENUM,
@@ -82,20 +85,16 @@ interface Params {
   hours?: HoursSelectedToAppointment;
   local?: Addresses | Local;
   time?: string;
+  localType?: LocalType;
 }
 interface Coordinates {
   latitude: number;
   longitude: number;
   latitudeDelta: number;
   longitudeDelta: number;
-  accuracy: number;
+  accuracy?: number;
 }
 
-const { width } = Dimensions.get('window');
-
-// const ASPECT_RATIO = width / 420;
-// const LATITUDE_DELTA = 0.0922;
-// const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 export function ClientAppointmentCreateTransportSelect() {
   const route = useRoute();
   const theme = useTheme();
@@ -111,18 +110,16 @@ export function ClientAppointmentCreateTransportSelect() {
 
   const [coordinates, setCoordinates] = useState<Coordinates[]>([
     {
-      latitude: 0,
-      longitude: 0,
-      latitudeDelta: 0,
-      longitudeDelta: 0,
-      accuracy: 0,
+      latitude: -20.558,
+      longitude: -47.3707,
+      latitudeDelta: 0.00013474667624865252,
+      longitudeDelta: 0.003513711165479383,
     },
     {
-      latitude: 0,
-      longitude: 0,
-      latitudeDelta: 0,
-      longitudeDelta: 0,
-      accuracy: 0,
+      latitude: -20.55953,
+      longitude: -47.4346,
+      latitudeDelta: 0.00016474667624865252,
+      longitudeDelta: 0.003713711165479383,
     },
   ]);
   const { isLoading, setIsLoading } = useCommon();
@@ -145,6 +142,7 @@ export function ClientAppointmentCreateTransportSelect() {
     servicesSelect,
     hours,
     local,
+    localType,
   } = route.params as Params;
   const { id: providerId, transports_types: transportsTypes } = providerSelect;
   const {
@@ -221,16 +219,28 @@ export function ClientAppointmentCreateTransportSelect() {
         });
       setTransportTypesAvailable(transportTypeAvailableList);
       setTransportTypesAvailableOriginal(transportTypeAvailableList);
+      console.log(
+        HEIGHT_MAP_VIEW_COMPONENT /
+          local.details.distance_between.routes[0].legs[0].distance.value,
+      );
       setCoordinates([
         calDeltaCoordinates({
-          accuracy: 0,
+          distance:
+            local.details.distance_between.routes[0].legs[0].distance.value,
           latitude:
             local.details.distance_between.routes[0].legs[0].start_location.lat,
           longitude:
             local.details.distance_between.routes[0].legs[0].start_location.lng,
+          percent:
+            HEIGHT_MAP_VIEW_COMPONENT /
+            local.details.distance_between.routes[0].legs[0].distance.value,
         }),
         calDeltaCoordinates({
-          accuracy: 0,
+          percent:
+            HEIGHT_MAP_VIEW_COMPONENT /
+            local.details.distance_between.routes[0].legs[0].distance.value,
+          distance:
+            local.details.distance_between.routes[0].legs[0].distance.value,
           latitude:
             local.details.distance_between.routes[0].legs[0].end_location.lat,
           longitude:
@@ -319,6 +329,7 @@ export function ClientAppointmentCreateTransportSelect() {
         hours,
         local,
         transporType,
+        localType,
       });
 
       navigation.navigate('ClientAppointmentCreatePaymentTypeStack', {
@@ -328,6 +339,7 @@ export function ClientAppointmentCreateTransportSelect() {
         hours,
         local,
         transporType,
+        localType,
       });
     }
   }
@@ -427,8 +439,8 @@ export function ClientAppointmentCreateTransportSelect() {
                         initialRegion={{
                           latitude: coordinates[0].latitude,
                           longitude: coordinates[0].longitude,
-                          latitudeDelta: 0.0622,
-                          longitudeDelta: 0.0121,
+                          latitudeDelta: coordinates[0].latitudeDelta,
+                          longitudeDelta: coordinates[0].longitudeDelta,
                         }}
                       >
                         <MapViewDirections
@@ -437,6 +449,7 @@ export function ClientAppointmentCreateTransportSelect() {
                           apikey={GOOGLE_MAPS_APIKEY} // insert your API Key here
                           strokeWidth={4}
                           strokeColor="#111111"
+                          language="pt-br"
                         />
                         <Marker coordinate={coordinates[0]} />
                         <Marker coordinate={coordinates[1]} />

@@ -1,25 +1,33 @@
 interface ParamsCalDelta {
   latitude: number;
   longitude: number;
-  accuracy: number;
+  distance: number;
+  percent?: number;
 }
 
 export function calDeltaCoordinates({
   latitude,
   longitude,
-  accuracy,
+  distance,
+  percent = 10,
 }: ParamsCalDelta) {
+  distance *= percent;
+  const circumference = 40075;
   const oneDegreeOfLatitudeInMeters = 111.32 * 1000;
-  const latDelta = accuracy / oneDegreeOfLatitudeInMeters;
-  const longDelta =
-    accuracy /
-    (oneDegreeOfLatitudeInMeters * Math.cos(latitude * (Math.PI / 180)));
+  const angularDistance = distance / circumference;
+
+  const latitudeDelta = distance / oneDegreeOfLatitudeInMeters;
+  const longitudeDelta = Math.abs(
+    Math.atan2(
+      Math.sin(angularDistance) * Math.cos(latitude),
+      Math.cos(angularDistance) - Math.sin(latitude) * Math.sin(latitude),
+    ),
+  );
 
   return {
     latitude,
     longitude,
-    latitudeDelta: latDelta,
-    longitudeDelta: longDelta,
-    accuracy,
+    latitudeDelta,
+    longitudeDelta,
   };
 }

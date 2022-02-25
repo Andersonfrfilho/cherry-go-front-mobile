@@ -91,7 +91,7 @@ export function ClientAppointmentCreateProviderSelect() {
       unmounted = true;
       setListServiceFormatted([] as ServiceFormattedModalService[]);
     };
-  }, [services]);
+  }, []);
   function handleCloseServiceModal() {
     setModalService(false);
   }
@@ -103,9 +103,7 @@ export function ClientAppointmentCreateProviderSelect() {
   ) {
     setModalService(false);
     const servicesSelects = serviceSelect.filter(service => service.select);
-
     setListServiceFormatted(serviceSelect);
-
     if (servicesSelects.length > 0) {
       setNecessaryMilliseconds(
         servicesSelects.reduce(
@@ -116,7 +114,7 @@ export function ClientAppointmentCreateProviderSelect() {
       setHandleContinued(true);
       await setAppointmentStageClient({
         provider: providerSelect,
-        services: listServiceFormatted,
+        services: servicesSelects,
         stage: {
           route: 'ClientAppointmentStackRoutes',
           children: 'ClientAppointmentStagesProviderSelectServiceStack',
@@ -132,9 +130,13 @@ export function ClientAppointmentCreateProviderSelect() {
   }
 
   function handleSelectHours() {
+    const servicesSelects = listServiceFormatted.filter(
+      service => service.select,
+    );
+
     navigation.navigate('ClientAppointmentStagesProviderSelectHourStack', {
       providerSelect,
-      servicesSelect: listServiceFormatted,
+      servicesSelect: servicesSelects,
       necessaryMilliseconds,
     });
   }

@@ -43,7 +43,7 @@ import {
   HoursSelectedToAppointment,
   useClientUser,
 } from '../../../../hooks/clientUser';
-import { Local, UserProvider } from '../../../../hooks/providerUser';
+import { Local, LocalType, UserProvider } from '../../../../hooks/providerUser';
 import { useTag } from '../../../../hooks/tag';
 import { ServiceFormattedModalService } from '../../../../components/ModalServices';
 import { formattedDateToCompare } from '../../../../utils/formattedDateToCompare';
@@ -91,6 +91,9 @@ export function ClientAppointmentCreateLocalSelect() {
     useState<GetDistanceLocalSelectResponse>(
       {} as GetDistanceLocalSelectResponse,
     );
+  const [localTypeSelect, setLocalTypeSelect] = useState<LocalType>(
+    {} as LocalType,
+  );
   const { isLoading, setIsLoading } = useCommon();
   const { appError, setAppError } = useError();
   const {
@@ -134,6 +137,7 @@ export function ClientAppointmentCreateLocalSelect() {
         necessaryMilliseconds,
         hours,
         local: localSelected,
+        localType: localTypeSelect,
       });
 
       navigation.navigate(
@@ -144,6 +148,7 @@ export function ClientAppointmentCreateLocalSelect() {
           necessaryMilliseconds,
           hours,
           local: localSelected,
+          localType: localTypeSelect,
         },
       );
     }
@@ -162,6 +167,13 @@ export function ClientAppointmentCreateLocalSelect() {
         !!distanceLocal.distance_client_local &&
         distanceLocal.distance_client_local,
     });
+    const localTypeSelectFound = locals_types.find(
+      local_type => local_type.local_type === LOCALS_TYPES_ENUM.CLIENT,
+    );
+
+    if (localTypeSelectFound) {
+      setLocalTypeSelect(localTypeSelectFound);
+    }
     setHandleContinued(true);
   }
 
@@ -186,6 +198,13 @@ export function ClientAppointmentCreateLocalSelect() {
       ...localParam,
       details: localDistanceFormatted,
     });
+    const localTypeSelectFound = locals_types.find(
+      local_type => local_type.local_type === LOCALS_TYPES_ENUM.OWN,
+    );
+
+    if (localTypeSelectFound) {
+      setLocalTypeSelect(localTypeSelectFound);
+    }
 
     setHandleContinued(true);
   }
@@ -269,7 +288,8 @@ export function ClientAppointmentCreateLocalSelect() {
               <AreaLocalTitleClient>
                 <LocalTitleClient>{`${addresses.street}, ${addresses.number}`}</LocalTitleClient>
 
-                {!!distanceLocal.distance_client_local &&
+                {!!distanceLocal &&
+                !!distanceLocal.distance_client_local &&
                 !!distanceLocal.distance_client_local.distance_between &&
                 !!distanceLocal.distance_client_local.distance_between.routes
                   .length &&

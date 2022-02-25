@@ -89,8 +89,12 @@ export function ClientAppointmentCreateHourSelect() {
   >([] as HourSelectInterface[]);
   const [handleContinued, setHandleContinued] = useState<boolean>(false);
   const [handleIndexPage, setHandleIndexPage] = useState<number>(0);
-  const [initialHour, setInitialHour] = useState<Date | undefined>(undefined);
-  const [endHour, setEndHour] = useState<Date | undefined>(undefined);
+  const [initialHour, setInitialHour] = useState<
+    HourSelectInterface | undefined
+  >(undefined);
+  const [endHour, setEndHour] = useState<HourSelectInterface | undefined>(
+    undefined,
+  );
   const [isLoadingHourSelect, setIsLoadingHourSelect] =
     useState<boolean>(false);
 
@@ -149,7 +153,13 @@ export function ClientAppointmentCreateHourSelect() {
 
   async function handleSelectHour() {
     setHandleContinued(false);
+
     if (!!initialHour && !!endHour) {
+      const hoursSelect = {
+        start: initialHour,
+        end: endHour,
+      };
+
       await setAppointmentStageClient({
         provider: providerSelect,
         services: servicesSelect,
@@ -159,20 +169,14 @@ export function ClientAppointmentCreateHourSelect() {
           params_name: 'providerSelect',
         },
         necessaryMilliseconds,
-        hours: {
-          initial: initialHour,
-          end: endHour,
-        },
+        hours: hoursSelect,
       });
 
       navigation.navigate('ClientAppointmentStagesProviderSelectLocalStack', {
         providerSelect,
         servicesSelect,
         necessaryMilliseconds,
-        hours: {
-          initial: initialHour.toString(),
-          end: endHour.toString(),
-        },
+        hours: hoursSelect,
       });
     }
   }
@@ -207,8 +211,16 @@ export function ClientAppointmentCreateHourSelect() {
       dateInitialCompare,
       necessaryMilliseconds,
     );
-    setInitialHour(dateInitialCompare);
-    setEndHour(dateFinalCompare);
+
+    setInitialHour(hourSelectInterface);
+
+    const dateFinalHour = { ...hourSelectInterface };
+
+    dateFinalHour.date = addMillisecondsToDate(
+      new Date(hourSelectInterface.date),
+      necessaryMilliseconds,
+    ).getTime();
+
     const newList = listHoursFormatted.map(element => {
       const [hour_compare, minutes_compare] = element.hour.split(':');
       const dateCurrentCompare = formattedDateToCompare(
@@ -225,6 +237,12 @@ export function ClientAppointmentCreateHourSelect() {
         ),
       };
     });
+    const finalMinutes = newList.filter(element => element.time_blocked);
+
+    dateFinalHour.hour =
+      finalMinutes.length > 0 ? finalMinutes.pop()?.hour : '00:00';
+
+    setEndHour(dateFinalHour);
     setListHoursFormatted(newList);
     setHandleContinued(true);
   }
@@ -261,7 +279,11 @@ export function ClientAppointmentCreateHourSelect() {
                 {listDaysHoursFormatted &&
                   listDaysHoursFormatted.length > 0 && (
                     <TitleDay>
-                      {DAYS_PT_BR[listDaysHoursFormatted[handleIndexPage].day]}
+                      {
+                        DAYS_PT_BR[
+                          listDaysHoursFormatted[handleIndexPage].day.day
+                        ]
+                      }
                     </TitleDay>
                   )}
               </AreaTitleDay>

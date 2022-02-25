@@ -415,7 +415,7 @@ export function AppointmentsDetailsProvider() {
                             numberOfLines={1}
                             style={{ fontSize: RFValue(16) }}
                           >
-                            {getMinutes(item.elements.duration).minutes} m
+                            {getMinutes(item.elements.duration)}
                           </Title>
                         </AreaTransactionText>
                         <AreaTransactionText>

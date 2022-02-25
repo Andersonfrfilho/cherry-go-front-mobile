@@ -3,6 +3,7 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import { Feather } from '@expo/vector-icons';
 import MapView from 'react-native-maps';
 
+export const HEIGHT_MAP_VIEW_COMPONENT = 420;
 interface AreaTransportTypeSelectProps {
   select?: boolean;
   expand?: boolean;
@@ -67,7 +68,7 @@ export const AreaMapExpand = styled.View`
 export const MapViewComponent = styled(MapView)`
   flex: 1;
   width: 100%;
-  height: 420px;
+  height: ${HEIGHT_MAP_VIEW_COMPONENT}px;
   background-color: ${({ theme }) => theme.colors.background_primary};
 `;
 export const AreaTitleAmountTransportType = styled.View`

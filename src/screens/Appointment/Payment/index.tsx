@@ -4,6 +4,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTheme } from 'styled-components';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { Marker } from 'react-native-maps';
+
 import MapViewDirections from 'react-native-maps-directions';
 import { getOldest } from '../../../utils/getOldest';
 import {
@@ -79,7 +80,6 @@ import {
   DistrictCityState,
   AreaCircleName,
   InitialLetterName,
-  HEIGHT_MAP_VIEW_COMPONENT,
 } from './styles';
 
 import { useAuth } from '../../../hooks/auth';
@@ -158,7 +158,7 @@ interface Coordinates {
   accuracy?: number;
 }
 
-export function ClientAppointmentDetails() {
+export function ClientAppointmentPaymentCard() {
   const route = useRoute();
   const theme = useTheme();
 
@@ -244,9 +244,6 @@ export function ClientAppointmentDetails() {
           local.details.distance_between.routes[0].legs[0].distance.value,
         latitude: local.address.latitude,
         longitude: local.address.longitude,
-        percent:
-          HEIGHT_MAP_VIEW_COMPONENT /
-          local.details.distance_between.routes[0].legs[0].distance.value,
       });
       console.log(coordinatesResult);
       setCoordinateLocal(coordinatesResult);
@@ -274,9 +271,6 @@ export function ClientAppointmentDetails() {
             local.details.distance_between.routes[0].legs[0].start_location.lat,
           longitude:
             local.details.distance_between.routes[0].legs[0].start_location.lng,
-          percent:
-            HEIGHT_MAP_VIEW_COMPONENT /
-            local.details.distance_between.routes[0].legs[0].distance.value,
         }),
         calDeltaCoordinates({
           distance:
@@ -285,9 +279,6 @@ export function ClientAppointmentDetails() {
             local.details.distance_between.routes[0].legs[0].end_location.lat,
           longitude:
             local.details.distance_between.routes[0].legs[0].end_location.lng,
-          percent:
-            HEIGHT_MAP_VIEW_COMPONENT /
-            local.details.distance_between.routes[0].legs[0].distance.value,
         }),
       ]);
     }
@@ -303,18 +294,7 @@ export function ClientAppointmentDetails() {
       paymentType?.payment_type.name === PAYMENT_TYPES_ENUM.CARD_CREDIT ||
       paymentType?.payment_type.name === PAYMENT_TYPES_ENUM.CARD_DEBIT
     ) {
-      navigation.navigate('ClientAppointmentPaymentCardStack', {
-        providerSelect,
-        servicesSelect,
-        necessaryMilliseconds,
-        hours,
-        local,
-        transporType,
-        paymentType,
-        amountTotal,
-        notConfirmed,
-        status,
-      });
+      setModalPayment(true);
     } else {
       const status = await createAppointment();
       route.params.status = status;

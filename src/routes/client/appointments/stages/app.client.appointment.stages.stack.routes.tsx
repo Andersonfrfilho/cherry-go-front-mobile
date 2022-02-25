@@ -8,6 +8,7 @@ import { ClientAppointmentCreateLocalSelect } from '../../../../screens/Appointm
 import { ClientAppointmentCreateTransportSelect } from '../../../../screens/Appointment/Create/TransportSelect';
 import { ClientAppointmentCreatePaymentTypeSelect } from '../../../../screens/Appointment/Create/PaymentTypeSelect';
 import { ClientAppointmentDetails } from '../../../../screens/Appointment/Details';
+import { ClientAppointmentPaymentCard } from '../../../../screens/Appointment/Payment';
 
 const { Navigator, Screen } = createNativeStackNavigator();
 
@@ -44,6 +45,10 @@ export function AppClientAppointmentStagesStackRoutes() {
       <Screen
         name="ClientAppointmentDetailsStack"
         component={ClientAppointmentDetails}
+      />
+      <Screen
+        name="ClientAppointmentPaymentCardStack"
+        component={ClientAppointmentPaymentCard}
       />
     </Navigator>
   );

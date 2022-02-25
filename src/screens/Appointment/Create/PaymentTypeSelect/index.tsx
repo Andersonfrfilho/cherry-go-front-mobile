@@ -41,7 +41,7 @@ import {
 import {
   Local,
   PAYMENTS_TYPES_NAME_PT_BR_ENUM,
-  PaymentType,
+  PaymentTypeProvider,
   UserProvider,
 } from '../../../../hooks/providerUser';
 import { useTag } from '../../../../hooks/tag';
@@ -57,7 +57,7 @@ import { STATUS_PROVIDERS_APPOINTMENT } from '../../../../enums/statusProvidersA
 export interface Focusable {
   focus(): void;
 }
-export interface ProviderPaymentsTypesSelected extends PaymentType {
+export interface ProviderPaymentsTypesSelected extends PaymentTypeProvider {
   select: boolean;
 }
 
@@ -105,6 +105,7 @@ export function ClientAppointmentCreatePaymentTypeSelect() {
     hours,
     local,
     transporType,
+    localType,
   } = route.params as Params;
   const { id: providerId, payments_types: paymentTypes } = providerSelect;
   const {
@@ -120,6 +121,7 @@ export function ClientAppointmentCreatePaymentTypeSelect() {
 
   useEffect(() => {
     let unmounted = false;
+
     const servicesAmount = servicesSelect.reduce(
       (previousService, currentService) =>
         previousService + Number(currentService.amount),
@@ -188,6 +190,7 @@ export function ClientAppointmentCreatePaymentTypeSelect() {
         hours,
         local,
         transporType,
+        localType,
         paymentType: paymentTypeSelected,
         status: STATUS_PROVIDERS_APPOINTMENT.OPEN,
       });
@@ -200,12 +203,13 @@ export function ClientAppointmentCreatePaymentTypeSelect() {
         transporType,
         paymentType: paymentTypeSelected,
         amountTotal,
-        confirmed: false,
+        notConfirmed: true,
+        localType,
         status: STATUS_PROVIDERS_APPOINTMENT.OPEN,
       });
     }
   }
-  console.log(paymentTypesAvailable);
+
   return (
     <Container>
       <StatusBar
@@ -247,12 +251,12 @@ export function ClientAppointmentCreatePaymentTypeSelect() {
                   <AreaTitleAmountPaymentType>
                     <AreaPaymentTypeTitle>
                       <PaymentTypeTitleName
-                        numberOfLines={1}
+                        numberOfLines={2}
                         select={paymentTypeParam.select}
                       >
                         {
                           PAYMENTS_TYPES_NAME_PT_BR_ENUM[
-                            paymentTypeParam.payment.name
+                            paymentTypeParam.payment_type.name
                           ]
                         }
                       </PaymentTypeTitleName>
