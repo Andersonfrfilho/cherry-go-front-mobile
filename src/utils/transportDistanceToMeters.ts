@@ -12,7 +12,7 @@ export function transportDistanceToMeters({
 }: ParamsDTO): ResponseDTO {
   const data =
     amount && distanceInMeters
-      ? Number(Number(amount) * Number(distanceInMeters)).toFixed(2)
+      ? Number((Number(amount) / 100) * Number(distanceInMeters)).toFixed(2)
       : 0;
 
   return {

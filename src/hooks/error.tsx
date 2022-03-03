@@ -9,6 +9,7 @@ import React, {
 import { userRepository } from '../databases/repository/user.repository';
 import { HTTP_ERROR_CODES_ENUM } from '../errors/AppError';
 import { ConstantError } from '../errors/constants';
+import { FORBIDDEN } from '../errors/constants/Forbidden.const';
 import { ErrorData } from '../errors/Error.type';
 import * as RootNavigation from '../routes/RootNavigation';
 
@@ -34,6 +35,18 @@ function ErrorProvider({ children }: ErrorProviderProps) {
   function unauthorizedError(err: Error): void {
     setAppError(ConstantError[err.response.status][err.response.data.code]);
     RootNavigation.navigate('UnauthorizedErrorScreen', {});
+  }
+  function forbiddenError(err: Error): void {
+    setAppError(ConstantError[err.response.status][err.response.data.code]);
+
+    if (err.response.data.code === FORBIDDEN[403][3002].code) {
+      RootNavigation.navigate('ResendEmailActiveStack', {
+        email: !!err.config.data && JSON.parse(err.config.data).email,
+      });
+      return;
+    }
+    RootNavigation.navigate('UnauthorizedErrorScreen', {});
+    return;
   }
   function badRequestError(err: Error): void {
     setAppError(ConstantError[err.response.status][err.response.data.code]);
@@ -72,6 +85,10 @@ function ErrorProvider({ children }: ErrorProviderProps) {
     }
     if (err.message === 'Network Error') {
       internalServerError();
+      return;
+    }
+    if (err.response.status === HTTP_ERROR_CODES_ENUM.FORBIDDEN) {
+      forbiddenError(err);
       return;
     }
     if (err.response.status === HTTP_ERROR_CODES_ENUM.UNAUTHORIZED) {

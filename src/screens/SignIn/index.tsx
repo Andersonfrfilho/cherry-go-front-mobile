@@ -6,10 +6,12 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from 'styled-components';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { RFValue } from 'react-native-responsive-fontsize';
 import { Button } from '../../components/Button';
 import LogoTitleSvg from '../../assets/logo_title.svg';
 import {
@@ -21,6 +23,10 @@ import {
   Form,
   Footer,
   ButtonIcons,
+  AreaForgotten,
+  AreaIconForgotten,
+  AreaTextForgotten,
+  TextForgotten,
 } from './styles';
 import { useAuth } from '../../hooks/auth';
 import { FormInput } from '../../components/FormInput';
@@ -31,6 +37,7 @@ import { TextInputTypeEnum } from '../../enums/TextInputType.enum';
 import { WarningText } from '../../components/WarningText';
 import { useError } from '../../hooks/error';
 import { ScreenNavigationProp } from '../../routes';
+import { IconFeather } from '../../components/Icons/style';
 
 interface FormData {
   email: string;
@@ -46,10 +53,12 @@ export interface Focusable {
   focus(): void;
 }
 export function SignIn() {
+  const [remember, setRemember] = useState<boolean>(false);
   const {
     control,
     handleSubmit,
-    setFocus,
+    setValue,
+    getValues,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
@@ -66,6 +75,9 @@ export function SignIn() {
   async function handleSignIn({ password, email }: FormData) {
     setIsLoading(true);
     try {
+      if (remember) {
+        await AsyncStorage.setItem('@email', email);
+      }
       await signIn({ email, password });
     } finally {
       setIsLoading(false);
@@ -79,6 +91,31 @@ export function SignIn() {
   function handleNewAccount() {
     navigation.navigate('SignUpFirstStep');
   }
+
+  async function handleRememberEmail() {
+    setRemember(!remember);
+    if (!remember) {
+      await AsyncStorage.removeItem('@email');
+    }
+  }
+
+  useEffect(() => {
+    let unmounted = false;
+    async function getEmailRemember() {
+      if (!unmounted) {
+        const email = await AsyncStorage.getItem('@email');
+        if (!!email && email.length > 0) {
+          setValue('email', email);
+          setRemember(true);
+        }
+      }
+    }
+    getEmailRemember();
+
+    return () => {
+      unmounted = true;
+    };
+  }, []);
 
   return (
     <KeyboardAvoidingView behavior="position" enabled style={{ flex: 1 }}>
@@ -112,7 +149,7 @@ export function SignIn() {
               autoCorrect={false}
               editable={!isLoading}
               inputRef={refMail}
-              onEndEditing={() => refPassword.current?.focus()}
+              onSubmitEditing={() => refPassword.current?.focus()}
             />
             <FormInput
               name="password"
@@ -133,6 +170,18 @@ export function SignIn() {
               enabled={!isLoading}
               loading={isLoading}
             />
+            <AreaForgotten>
+              <AreaIconForgotten onPress={handleRememberEmail}>
+                <IconFeather
+                  name={remember ? 'check-square' : 'square'}
+                  size={RFValue(24)}
+                  color={theme.colors.main_light}
+                />
+              </AreaIconForgotten>
+              <AreaTextForgotten>
+                <TextForgotten>Lembrar-me</TextForgotten>
+              </AreaTextForgotten>
+            </AreaForgotten>
             <ButtonIcons>
               <ButtonIcon
                 iconName="user-plus"
@@ -141,8 +190,8 @@ export function SignIn() {
                 loading={isLoading}
                 light
                 buttonColor={theme.colors.success_chateau}
-                textColor={theme.colors.shape}
-                iconColor={theme.colors.shape}
+                textColor={theme.colors.main_light}
+                iconColor={theme.colors.main_light}
                 onPress={handleNewAccount}
               />
               <ButtonIcon

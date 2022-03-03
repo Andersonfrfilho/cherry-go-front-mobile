@@ -49,6 +49,9 @@ class User extends Model {
   @field('active')
   active!: boolean;
 
+  @json('documents', json => json)
+  documents?: any;
+
   @children('tokens')
   tokens?: Token[];
 
@@ -101,6 +104,7 @@ class User extends Model {
       email: this.email,
       active: this.active,
       details: this.details,
+      documents: this.documents,
       types,
       phones: phone && phone._raw,
       addresses: address && address._raw,

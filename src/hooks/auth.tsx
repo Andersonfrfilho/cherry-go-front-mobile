@@ -80,7 +80,6 @@ function AuthProvider({ children }: AuthProviderProps) {
 
   async function signIn({ email, password }: SignInCredentials): Promise<void> {
     try {
-      // await api.get('http://10.0.2.2/healthcheck');
       await userRepository.removeAll();
       const { data } = await api.post('/v1/users/sessions', {
         email,
@@ -90,21 +89,12 @@ function AuthProvider({ children }: AuthProviderProps) {
       api.defaults.headers.authorization = `Bearer ${token}`;
 
       const userDatabase = await userRepository.createOrUpdate(user);
+
       await tokenRepository.createOrUpdate({
         token,
         refresh_token,
         user_id: userDatabase.id,
       });
-
-      if (user.phones && user.phones.length > 0) {
-        const phoneDatabase = await phoneRepository.createOrUpdate(
-          user.phones[0],
-        );
-        await userRepository.createUserPhone({
-          user: userDatabase,
-          phone: phoneDatabase,
-        });
-      }
 
       if (user.addresses && user.addresses.length > 0) {
         const addressDatabase = await addressRepository.createOrUpdate(
@@ -113,6 +103,16 @@ function AuthProvider({ children }: AuthProviderProps) {
         await userRepository.createUserAddress({
           user: userDatabase,
           address: addressDatabase,
+        });
+      }
+
+      if (user.phones && user.phones.length > 0) {
+        const phoneDatabase = await phoneRepository.createOrUpdate(
+          user.phones[0],
+        );
+        await userRepository.createUserPhone({
+          user: userDatabase,
+          phone: phoneDatabase,
         });
       }
 
@@ -139,6 +139,7 @@ function AuthProvider({ children }: AuthProviderProps) {
 
         await userRepository.createUserTypeUser(userTypeUsers);
       }
+
       if (user.terms && user.terms.length > 0) {
         const termUserDatabase = await termRepository.createOrUpdate(
           user.terms,
@@ -149,6 +150,7 @@ function AuthProvider({ children }: AuthProviderProps) {
         }));
         await userRepository.createUserTerm(userTerms);
       }
+
       const userGetUser = await userRepository.getUser();
 
       if (!userGetUser) {

@@ -144,7 +144,7 @@ interface Params {
   necessaryMilliseconds: number;
   hours?: HoursSelectedToAppointment;
   local?: Addresses | Local;
-  transporType?: ProviderTransportTypesSelected;
+  transportType?: ProviderTransportTypesSelected;
   paymentType?: ProviderPaymentsTypesSelected;
   amountTotal?: number;
   notConfirmed?: boolean;
@@ -204,7 +204,7 @@ export function ClientAppointmentPaymentCard() {
     necessaryMilliseconds,
     hours,
     local,
-    transporType,
+    transportType,
     paymentType,
     notConfirmed,
     amountTotal,
@@ -465,20 +465,20 @@ export function ClientAppointmentPaymentCard() {
             <TransportTypeTitleName>
               {
                 TRANSPORT_TYPE_PROVIDER_TRANSLATE_ENUM[
-                  transporType?.transport_type.name
+                  transportType?.transport_type.name
                 ]
               }
             </TransportTypeTitleName>
           </AreaTitleTransportType>
           <AreaTransportTypeTitle>
-            {transporType &&
-              transporType.amount &&
-              !!transporType &&
-              !!transporType.distance &&
-              !!transporType.price &&
-              !!transporType.price?.text && (
+            {transportType &&
+              transportType.amount &&
+              !!transportType &&
+              !!transportType.distance &&
+              !!transportType.price &&
+              !!transportType.price?.text && (
                 <TransportTypeTitle numberOfLines={1}>
-                  {`${transporType.distance} - ${transporType.price?.text}`}
+                  {`${transportType.distance} - ${transportType.price?.text}`}
                 </TransportTypeTitle>
               )}
           </AreaTransportTypeTitle>

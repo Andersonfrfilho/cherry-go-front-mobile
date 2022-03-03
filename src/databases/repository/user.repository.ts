@@ -38,6 +38,7 @@ async function createOrUpdate(user: UserClient): Promise<ModelUser> {
         userExistDb.gender = user.gender;
         userExistDb.active = user.active;
         userExistDb.details = user.details;
+        userExistDb.documents = user.documents;
       });
       return userUpdated;
     }
@@ -52,6 +53,7 @@ async function createOrUpdate(user: UserClient): Promise<ModelUser> {
       newUser.gender = user.gender;
       newUser.active = user.active;
       newUser.details = user.details;
+      newUser.documents = user.documents;
     });
 
     return userCreate;

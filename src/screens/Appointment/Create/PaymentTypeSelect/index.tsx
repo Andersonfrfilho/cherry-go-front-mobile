@@ -68,7 +68,7 @@ interface Params {
   hours?: HoursSelectedToAppointment;
   local?: Addresses | Local;
   time?: string;
-  transporType?: ProviderTransportTypesSelected;
+  transportType?: ProviderTransportTypesSelected;
 }
 
 export function ClientAppointmentCreatePaymentTypeSelect() {
@@ -104,7 +104,7 @@ export function ClientAppointmentCreatePaymentTypeSelect() {
     servicesSelect,
     hours,
     local,
-    transporType,
+    transportType,
     localType,
   } = route.params as Params;
   const { id: providerId, payments_types: paymentTypes } = providerSelect;
@@ -128,8 +128,8 @@ export function ClientAppointmentCreatePaymentTypeSelect() {
       0,
     );
     const localAmount = local?.amount ? local?.amount : 0;
-    const transportTypeAmount = transporType?.price.value
-      ? transporType?.price.value
+    const transportTypeAmount = transportType?.price.value
+      ? transportType?.price.value
       : 0;
 
     setAmountTotal(
@@ -177,7 +177,7 @@ export function ClientAppointmentCreatePaymentTypeSelect() {
     const paymentTypeSelected = paymentTypesAvailable.find(
       transportTypeParam => transportTypeParam.select,
     );
-    if (transporType) {
+    if (transportType) {
       setAppointmentStageClient({
         provider: providerSelect,
         services: servicesSelect,
@@ -189,9 +189,10 @@ export function ClientAppointmentCreatePaymentTypeSelect() {
         necessaryMilliseconds,
         hours,
         local,
-        transporType,
+        transportType,
         localType,
         paymentType: paymentTypeSelected,
+        amountTotal,
         status: STATUS_PROVIDERS_APPOINTMENT.OPEN,
       });
       navigation.navigate('ClientAppointmentDetailsStack', {
@@ -200,7 +201,7 @@ export function ClientAppointmentCreatePaymentTypeSelect() {
         necessaryMilliseconds,
         hours,
         local,
-        transporType,
+        transportType,
         paymentType: paymentTypeSelected,
         amountTotal,
         notConfirmed: true,

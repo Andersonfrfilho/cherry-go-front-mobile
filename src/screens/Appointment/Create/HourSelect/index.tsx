@@ -308,6 +308,7 @@ export function ClientAppointmentCreateHourSelect() {
                 renderItem={({ item }) => {
                   return (
                     <AreaHour
+                      disabled={!item.available || item.time_blocked}
                       onPress={() => handleSelectHourAppointment(item)}
                       available={item.available}
                       availablePeriod={item.available_period}

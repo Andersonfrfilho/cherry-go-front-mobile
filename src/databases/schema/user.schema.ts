@@ -40,6 +40,11 @@ const userSchema = tableSchema({
       name: 'active',
       type: 'boolean',
     },
+    {
+      name: 'documents',
+      type: 'string',
+      isOptional: true,
+    },
   ],
 });
 

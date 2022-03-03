@@ -313,10 +313,10 @@ export function ClientAppointmentCreateTransportSelect() {
 
   function handleSendTransportType() {
     setHandleContinued(false);
-    const transporType = transportTypesAvailable.find(
+    const transportType = transportTypesAvailable.find(
       transportTypeParam => transportTypeParam.select,
     );
-    if (transporType) {
+    if (transportType) {
       setAppointmentStageClient({
         provider: providerSelect,
         services: servicesSelect,
@@ -328,7 +328,7 @@ export function ClientAppointmentCreateTransportSelect() {
         necessaryMilliseconds,
         hours,
         local,
-        transporType,
+        transportType,
         localType,
       });
 
@@ -338,7 +338,7 @@ export function ClientAppointmentCreateTransportSelect() {
         necessaryMilliseconds,
         hours,
         local,
-        transporType,
+        transportType,
         localType,
       });
     }

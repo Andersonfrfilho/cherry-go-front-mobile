@@ -21,6 +21,7 @@ import { GetDistanceLocalSelectedParamsDTO, GetDistanceLocalSelectResponse } fro
 import { ProviderTransportTypesSelected } from '../screens/Appointment/Create/TransportSelect';
 import { STATUS_PROVIDERS_APPOINTMENT } from '../enums/statusProvidersAppointment.enum';
 import { ProviderPaymentsTypesSelected } from '../screens/Appointment/Create/PaymentTypeSelect';
+import * as RootNavigation from '../routes/RootNavigation';
 
 type ClientUserContextData = {
   userClient: UserClientDatabase;
@@ -31,6 +32,7 @@ type ClientUserContextData = {
     addressData: UserClientAddressRegisterDTO,
   ) => Promise<void>;
   registerPhoneClient: (phoneData: UserClientPhoneDTO) => Promise<void>;
+  resendMailActiveClient: (email: string) => Promise<void>;
   resendCodePhoneClient: (id: string) => Promise<void>;
   confirmCodePhoneClient: (phoneConfirm: UserClientPhoneCodeConfirmDTO) => Promise<void>;
   uploadUserClientImageDocument: (uploadDocumentData: UploadUserClientImageDocumentDTO) => Promise<void>;
@@ -56,6 +58,7 @@ type ClientUserContextData = {
   getDistanceLocalSelect(data:GetDistanceLocalSelectedParamsDTO):Promise<GetDistanceLocalSelectResponse>;
   invalidateAppointmentStageClient():Promise<void>;
   createAppointment():Promise<void>;
+  initialRegisterClient():Promise<void>;
 };
 
 export interface HourSelectInterface{
@@ -101,6 +104,7 @@ interface SetAppointmentStageClientDTO {
   paymentType?: ProviderPaymentsTypesSelected;
   status?: STATUS_PROVIDERS_APPOINTMENT;
   localType?: LocalType;
+  amountTotal?: Number;
 }
 interface GetProviderHoursSelectedParamsDTO {
   providerId: string;
@@ -196,6 +200,13 @@ export type Addresses = {
   longitude?: string;
   details?: any;
 };
+interface DocumentsAuthResponse {
+  front: boolean;
+  back: boolean;
+}
+interface DocumentResponseAuth {
+  documents: DocumentsAuthResponse
+}
 export type UserClientDatabase = {
   id: string;
   name: string;
@@ -215,7 +226,7 @@ export type UserClientDatabase = {
   term?: Term[];
   transactions?: [];
   image_profile?: Image;
-
+  documents?: DocumentResponseAuth;
 };
 export type ClientAppointment = {
   id: string;
@@ -373,6 +384,26 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
       setToken({ token })
 
       await tokenRepository.createOrUpdate({ token })
+    } catch (err: unknown | AxiosError) {
+      if (NOT_FOUND[404][4001].code === err.response.data.code && NOT_FOUND[404][4001].status_code === err.response.status && NOT_FOUND[404][4001].message === err.response.data.message) {
+        await userRepository.removeAllDatabase();
+      }
+
+      appErrorVerifyError({
+        message: err.response.data.message,
+        status_code: err.response.status,
+        code: err.response.data.code,
+      });
+    }
+  }
+
+  async function resendMailActiveClient(email:string){
+    try {
+      await api.post(
+        '/v1/users/confirm/mail/resend/mail',
+        { email },
+      );
+
     } catch (err: unknown | AxiosError) {
       if (NOT_FOUND[404][4001].code === err.response.data.code && NOT_FOUND[404][4001].status_code === err.response.status && NOT_FOUND[404][4001].message === err.response.data.message) {
         await userRepository.removeAllDatabase();
@@ -758,10 +789,33 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
       setIsLoading(false);
     }
   }
+  async function initialRegisterClient(){
+    const user = await userRepository.getUser();
+        if (user) {
+          if (!user.addresses) {
+            RootNavigation.navigate('SignUpSecondStep');
+            return;
+          }
+          if (!user.phones) {
+            RootNavigation.navigate('SignUpThirdStep');
+            return;
+          }
+          if (!user?.documents && JSON.stringify(user.documents).front) {
+            RootNavigation.navigate('SignUpFourthStep');
+            return;
+          }
+          if (!user?.documents && JSON.stringify(user.documents).back) {
+            RootNavigation.navigate('SignUpFifthStep');
+            return;
+          }
+        }
+        RootNavigation.navigate('AuthRoutes');
+  }
   return (
     <ClientUserContext.Provider
       value={{
         registerClient,
+        initialRegisterClient,
         userIdResetPassword,
         resetPassword,
         phone,
@@ -771,6 +825,7 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
         uploadUserClientImageDocument,
         registerPhoneClient,
         resendCodePhoneClient,
+        resendMailActiveClient,
         confirmCodePhoneClient,
         forgotPasswordMail,
         token,

@@ -63,4 +63,5 @@ export interface UserClient {
   terms: Term[];
   token: string;
   refresh_token: string;
+  documents: boolean;
 }

@@ -10,7 +10,7 @@ export const FORBIDDEN = {
       code: '3001',
     },
     '3002': {
-      message: 'Usuário não é valido',
+      message: 'Usuário não esta ativado',
       status_code,
       code: '3002',
     },

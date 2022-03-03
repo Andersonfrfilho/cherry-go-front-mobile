@@ -12,6 +12,8 @@ import { AppClientTabRoutes } from './client/app.client.tab.routes';
 import { AppProvider } from '../hooks';
 import { navigationRef } from './RootNavigation';
 import { AppProviderTabRoutes } from './provider/app.provider.tab.routes';
+import { RegisterRoutes } from './register.routes';
+import { MainRoutes } from './main.routes';
 
 export type RootStackClientParamList = {
   HomeClientStack: undefined;
@@ -55,15 +57,6 @@ export function Routes() {
 
   return (
     <NavigationContainer linking={linking} independent ref={navigationRef}>
-      {userClient.id ? (
-        userClient && userClient.types && userClient.types.length > 1 ? (
-          <AppStackInitialRoutes />
-        ) : (
-          <AppClientTabRoutes />
-        )
-      ) : (
-        <AuthRoutes />
-      )}
       {/* {userClient.id ? (
         userClient && userClient.types && userClient.types.length > 1 ? (
           <AppStackInitialRoutes />
@@ -73,31 +66,23 @@ export function Routes() {
       ) : (
         <AuthRoutes />
       )} */}
-      {/* {() => {
-        if (
-          userClient &&
-          userClient.types &&
-          userClient.types.some(type => type.user_type.name === 'client') &&
-          userClient.types.some(type => type.user_type.name === 'provider')
-        ) {
-          return <AppStackInitialRoutes />;
+      {(() => {
+        if (userClient.id) {
+          if (userClient && userClient.types && userClient.types.length > 1) {
+            return <AppStackInitialRoutes />;
+          }
+
+          if (
+            !(userClient && !userClient.addresses) &&
+            !(userClient && !userClient.phones) &&
+            !(userClient && !userClient.documents)
+          ) {
+            return <AppClientTabRoutes />;
+          }
         }
-        if (
-          userClient &&
-          userClient.types &&
-          userClient.types.some(type => type.user_type.name === 'provider')
-        ) {
-          return <AppProviderTabRoutes />;
-        }
-        if (
-          userClient &&
-          userClient.types &&
-          userClient.types.some(type => type.user_type.name === 'client')
-        ) {
-          return <AppClientTabRoutes />;
-        }
-        return <AuthRoutes />;
-      }} */}
+
+        return <MainRoutes userClient={userClient} />;
+      })()}
     </NavigationContainer>
   );
 }

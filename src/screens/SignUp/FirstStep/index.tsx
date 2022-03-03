@@ -300,7 +300,7 @@ export function SignUpFirstStep() {
             editable={!isLoading}
             maxLength={50}
             inputRef={refName}
-            onEndEditing={() => refLastName.current?.focus()}
+            onSubmitEditing={() => refLastName.current?.focus()}
           />
           <FormInput
             name="last_name"
@@ -313,7 +313,7 @@ export function SignUpFirstStep() {
             editable={!isLoading}
             maxLength={50}
             inputRef={refLastName}
-            onEndEditing={() => refEmail.current?.focus()}
+            onSubmitEditing={() => refEmail.current?.focus()}
           />
           <FormInput
             name="email"
@@ -325,7 +325,7 @@ export function SignUpFirstStep() {
             autoCorrect={false}
             editable={!isLoading}
             inputRef={refEmail}
-            onEndEditing={() => refCpf.current?.focus()}
+            onSubmitEditing={() => refCpf.current?.focus()}
           />
           <FormInput
             type={TextInputTypeEnum.mask}
@@ -340,7 +340,7 @@ export function SignUpFirstStep() {
             mask="[000].[000].[000]-[00]"
             keyboardType="numeric"
             inputRef={refCpf}
-            onEndEditing={() => refRg.current?.focus()}
+            onSubmitEditing={() => refRg.current?.focus()}
           />
           <FormInput
             type={TextInputTypeEnum.mask}
@@ -355,7 +355,7 @@ export function SignUpFirstStep() {
             mask="[00].[000].[000]-[0]"
             keyboardType="numeric"
             inputRef={refRg}
-            onEndEditing={() => refGenre.current?.focus()}
+            onSubmitEditing={() => refGenre.current?.focus()}
           />
           <SelectedPicker
             title="Sexo registrado no seu documento"
@@ -382,7 +382,7 @@ export function SignUpFirstStep() {
             functionOnPress={handleShowDatePicker}
             keyboardType="numeric"
             inputRef={refBirthDate}
-            onEndEditing={() => refPassword.current?.focus()}
+            onSubmitEditing={() => refPassword.current?.focus()}
           />
           {showDatePicker && (
             <DatePicker
@@ -408,7 +408,7 @@ export function SignUpFirstStep() {
             password
             editable={!isLoading}
             inputRef={refPassword}
-            onEndEditing={() => refConfirmPassword.current?.focus()}
+            onSubmitEditing={() => refConfirmPassword.current?.focus()}
           />
           <FormInput
             type={TextInputTypeEnum.password}

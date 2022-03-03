@@ -13,6 +13,7 @@
     "@googlemaps/google-maps-services-js": "^3.3.9",
     "@hookform/resolvers": "^2.8.0",
     "@nozbe/watermelondb": "^0.23.0",
+    "@react-native-async-storage/async-storage": "^1.16.1",
     "@react-native-community/checkbox": "^0.5.8",
     "@react-native-community/datetimepicker": "^3.5.2",
     "@react-native-community/netinfo": "6.0.0",

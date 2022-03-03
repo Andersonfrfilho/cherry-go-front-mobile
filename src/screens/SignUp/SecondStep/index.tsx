@@ -207,7 +207,7 @@ export function SignUpSecondStep() {
     }
   }
 
-  function handleNumberOnEndEditing() {
+  function handleNumberonSubmitEditing() {
     if (
       getValues('street') &&
       getValues('district') &&
@@ -312,7 +312,7 @@ export function SignUpSecondStep() {
             mask="[00].[000]-[000]"
             inputRef={refZipCode}
             keyboardType="numeric"
-            onEndEditing={handleFindCep}
+            onSubmitEditing={handleFindCep}
           />
 
           <FormInput
@@ -325,7 +325,7 @@ export function SignUpSecondStep() {
             autoCorrect={false}
             editable={!isLoading}
             inputRef={refStreet}
-            onEndEditing={() => refNumber.current?.focus()}
+            onSubmitEditing={() => refNumber.current?.focus()}
             maxLength={100}
           />
           <FormInput
@@ -339,7 +339,7 @@ export function SignUpSecondStep() {
             editable={!isLoading}
             inputRef={refNumber}
             keyboardType="numeric"
-            onEndEditing={() => handleNumberOnEndEditing()}
+            onSubmitEditing={() => handleNumberonSubmitEditing()}
             maxLength={6}
           />
           <FormInput
@@ -352,7 +352,7 @@ export function SignUpSecondStep() {
             autoCorrect={false}
             editable={!isLoading}
             inputRef={refDistrict}
-            onEndEditing={() => refState.current?.focus()}
+            onSubmitEditing={() => refState.current?.focus()}
             maxLength={100}
           />
           <SelectedPicker
@@ -382,7 +382,7 @@ export function SignUpSecondStep() {
             iconColor={theme.colors.success_chateau}
             editable={!isLoading}
             inputRef={refComplement}
-            onEndEditing={() => refReference.current?.focus()}
+            onSubmitEditing={() => refReference.current?.focus()}
             maxLength={30}
           />
           <FormInput

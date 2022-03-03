@@ -14,7 +14,7 @@ import { userTermSchema } from './userTerms.schema';
 import { userTypeUserSchema } from './userTypesUsers.schema';
 
 const schemas = appSchema({
-  version: 1,
+  version: 3,
   tables: [
     userSchema,
     addressSchema,
