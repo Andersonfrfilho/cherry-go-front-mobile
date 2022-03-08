@@ -89,13 +89,17 @@ export function SignUpThirdStep() {
   const navigation = useNavigation<ScreenNavigationProp>();
 
   async function handleRegisterPhones(form: FormData) {
+    console.log('#######', userClient);
     setIsLoading(true);
     setAppError({});
     const { phone } = form;
     const [country_code, ddd, digit, number] = phone.split(' ');
     try {
       await registerPhoneClient({
-        user_id: userClient.id,
+        user_id:
+          !!userClient && userClient.external_id
+            ? userClient.external_id
+            : userClient.id,
         country_code,
         ddd: removeCharacterSpecial(ddd),
         number: `${digit}${removeCharacterSpecial(number)}`,
@@ -131,8 +135,12 @@ export function SignUpThirdStep() {
         setAppError(appErrorVerifyError({ status_code: 600, code: '0002' }));
         return;
       }
+
       await confirmCodePhoneClient({
-        id: userClient.id,
+        user_id:
+          !!userClient && userClient.external_id
+            ? userClient.external_id
+            : userClient.id,
         token: token.token,
         code: form.code,
       });

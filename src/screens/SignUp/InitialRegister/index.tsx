@@ -25,15 +25,18 @@ export function InitialRegister() {
             navigation.replace('SignUpThirdStep');
             return;
           }
-          if (!user?.documents && JSON.stringify(user.documents).front) {
-            navigation.replace('SignUpFourthStep');
+
+          if (!user.documents || (!!user.documents && !user.documents.front)) {
+            navigation.navigate('SignUpFourthStep');
             return;
           }
-          if (!user?.documents && JSON.stringify(user.documents).back) {
-            navigation.replace('SignUpFifthStep');
+
+          if (!user.documents || (!!user.documents && !user.documents.back)) {
+            navigation.navigate('SignUpFifthStep');
             return;
           }
         }
+
         navigation.replace('AuthRoutes', {
           screen: 'SignIn',
         });

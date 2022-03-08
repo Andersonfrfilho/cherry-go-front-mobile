@@ -5,6 +5,9 @@ import { RFValue } from 'react-native-responsive-fontsize';
 interface Props {
   error: boolean;
 }
+interface PropsButtonMap {
+  disabled: boolean;
+}
 
 export const Container = styled.ScrollView`
   background-color: ${({ theme }) => theme.colors.background_primary};
@@ -88,4 +91,31 @@ export const TermsUseArea = styled.View`
 export const AreaLoad = styled.View`
   justify-content: center;
   align-items: center;
+`;
+export const AreaButtonMap = styled.TouchableOpacity<PropsButtonMap>`
+  flex-direction: row;
+
+  height: 80px;
+  width: 100%;
+
+  justify-content: space-evenly;
+  align-items: center;
+
+  border-radius: 12px;
+  background-color: ${({ theme }) => theme.colors.success_chateau};
+  border-width: 3px;
+  border-color: ${({ theme }) => theme.colors.shape};
+  margin-bottom: 5px;
+
+  ${({ theme, disabled }) =>
+    disabled &&
+    css`
+      background-color: ${theme.colors.desative_shade};
+      border-color: ${theme.colors.main_light};
+    `}
+`;
+export const ButtonMapTitle = styled.Text<PropsButtonMap>`
+  color: ${({ theme }) => theme.colors.main_light};
+  font-family: ${({ theme }) => theme.fonts.primary_700};
+  font-size: ${RFValue(18)}px;
 `;

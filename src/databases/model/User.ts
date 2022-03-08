@@ -95,7 +95,7 @@ class User extends Model {
     const types = typesDatabase.map(type => type._raw);
     return {
       id: this.id,
-      user_id: this.external_id,
+      external_id: this.external_id,
       name: this.name,
       last_name: this.last_name,
       cpf: this.cpf,

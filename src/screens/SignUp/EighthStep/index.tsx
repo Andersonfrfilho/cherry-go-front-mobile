@@ -74,7 +74,10 @@ export function SignUpEighthStep() {
     try {
       await linkUserTags({
         tagsParams: tags,
-        userId: userClient.id,
+        userId:
+          !!userClient && userClient.external_id
+            ? userClient.external_id
+            : userClient.id,
       });
       navigation.navigate('SignIn');
     } finally {

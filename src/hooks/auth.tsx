@@ -85,7 +85,9 @@ function AuthProvider({ children }: AuthProviderProps) {
         email,
         password,
       });
+
       const { token, refresh_token, user } = data;
+
       api.defaults.headers.authorization = `Bearer ${token}`;
 
       const userDatabase = await userRepository.createOrUpdate(user);
@@ -104,6 +106,8 @@ function AuthProvider({ children }: AuthProviderProps) {
           user: userDatabase,
           address: addressDatabase,
         });
+      } else {
+        RootNavigation.navigate('RegisterRoutes');
       }
 
       if (user.phones && user.phones.length > 0) {
@@ -114,6 +118,15 @@ function AuthProvider({ children }: AuthProviderProps) {
           user: userDatabase,
           phone: phoneDatabase,
         });
+      } else {
+        RootNavigation.navigate('RegisterRoutes');
+      }
+
+      if (
+        !user.documents ||
+        (!!user.documents && !user.documents.front && !user.documents.back)
+      ) {
+        RootNavigation.navigate('RegisterRoutes');
       }
 
       if (user.image_profile && user.image_profile.length > 0) {

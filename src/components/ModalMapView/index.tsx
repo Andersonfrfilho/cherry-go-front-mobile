@@ -24,20 +24,45 @@ import {
   Title,
   AreaTitleAddress,
   TitleLocal,
+  AreaTitleAddressMoved,
+  AddressTitleMoved,
 } from './styles';
 import { Load } from '../Load';
 import { useCommon } from '../../hooks/common';
 import { useAddress } from '../../hooks/address';
+import { calDeltaCoordinates } from '../../utils/calDeltaCoordinates';
 
 interface ParamsCalDelta {
   latitude: number;
   longitude: number;
   accuracy: number;
 }
-
+export interface ModalLocationLocationDTO {
+  location?: {
+    region: {
+      latitude: number;
+      longitude: number;
+      latitudeDelta: number;
+      longitudeDelta: number;
+      accuracy: number;
+    };
+  };
+  address?: {
+    city: string;
+    country: string;
+    district: string;
+    formatted_address: string;
+    latitude: number;
+    longitude: number;
+    number: string;
+    state: string;
+    street: string;
+    zipcode: string;
+  };
+}
 interface Props extends TouchableOpacityProps {
   modalVisible: boolean;
-  handleClosedModal: () => void;
+  handleClosedModal: (data: ModalLocationLocationDTO) => void;
 }
 
 export function ModalMapView({
@@ -72,18 +97,18 @@ export function ModalMapView({
   } = useAddress();
 
   function calDelta({ latitude, longitude, accuracy }: ParamsCalDelta) {
-    const oneDegreeOfLatitudeInMeters = 111.32 * 1000;
-    const latDelta = accuracy / oneDegreeOfLatitudeInMeters;
-    const longDelta =
-      accuracy /
-      (oneDegreeOfLatitudeInMeters * Math.cos(latitude * (Math.PI / 180)));
+    const { latitudeDelta, longitudeDelta } = calDeltaCoordinates({
+      distance: 25,
+      latitude,
+      longitude,
+    });
 
     setLocation({
       region: {
         latitude,
         longitude,
-        latitudeDelta: latDelta,
-        longitudeDelta: longDelta,
+        latitudeDelta,
+        longitudeDelta,
         accuracy,
       },
     });
@@ -191,6 +216,9 @@ export function ModalMapView({
       });
     };
   }, []);
+  function handleConfirmLocation() {
+    handleClosedModal({ location, address });
+  }
 
   return (
     <Modal animationType="slide" transparent={false} visible={modalVisible}>
@@ -268,7 +296,14 @@ export function ModalMapView({
                   color={theme.colors.background_primary}
                 />
               </AreaPositionMarker>
-              <AreaButtonSaved onPress={handleClosedModal}>
+              {!!address && !!address.formatted_address && (
+                <AreaTitleAddressMoved>
+                  <AddressTitleMoved>
+                    {address.formatted_address}
+                  </AddressTitleMoved>
+                </AreaTitleAddressMoved>
+              )}
+              <AreaButtonSaved onPress={handleConfirmLocation}>
                 <Title color={theme.colors.main_light}>
                   Confirmar endereço
                 </Title>

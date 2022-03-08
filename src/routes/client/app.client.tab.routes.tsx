@@ -10,6 +10,11 @@ import CarSvg from '../../assets/car.svg';
 import PeopleSvg from '../../assets/people.svg';
 import HomeSvg from '../../assets/home.svg';
 import { HomeClient } from '../../screens/Home';
+import { InternalServerErrorScreen } from '../../screens/Errors/InternalErrors';
+import { UnauthorizedErrorScreen } from '../../screens/Errors/Unauthorized';
+import { UnknownErrorScreen } from '../../screens/Errors/UnknownErrors';
+import { BadRequestErrorScreen } from '../../screens/Errors/BadRequestErrors';
+import { NotFoundErrorScreen } from '../../screens/Errors/NotFoundErrors';
 
 const { Navigator, Screen } = createBottomTabNavigator();
 export function AppClientTabRoutes() {
@@ -71,6 +76,17 @@ export function AppClientTabRoutes() {
           ),
         }}
       />
+      <Screen
+        name="InternalServerErrorScreen"
+        component={InternalServerErrorScreen}
+      />
+      <Screen
+        name="UnauthorizedErrorScreen"
+        component={UnauthorizedErrorScreen}
+      />
+      <Screen name="UnknownErrorScreen" component={UnknownErrorScreen} />
+      <Screen name="BadRequestErrorScreen" component={BadRequestErrorScreen} />
+      <Screen name="NotFoundErrorScreen" component={NotFoundErrorScreen} />
     </Navigator>
   );
 }

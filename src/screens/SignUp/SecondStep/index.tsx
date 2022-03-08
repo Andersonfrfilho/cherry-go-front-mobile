@@ -6,6 +6,7 @@ import { useTheme } from 'styled-components';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import axios from 'axios';
+import { RFValue } from 'react-native-responsive-fontsize';
 import {
   Container,
   Header,
@@ -16,6 +17,8 @@ import {
   ButtonIcons,
   AreaLoad,
   SubTitle,
+  AreaButtonMap,
+  ButtonMapTitle,
 } from './styles';
 import { FormInput } from '../../../components/FormInput';
 import { ButtonIcon } from '../../../components/ButtonIcon';
@@ -24,13 +27,9 @@ import { SelectedPicker } from '../../../components/SelectedPicker';
 import { TextInputTypeEnum } from '../../../enums/TextInputType.enum';
 import { useClientUser } from '../../../hooks/clientUser';
 import { removeCharacterSpecial } from '../../../utils/validations';
-import { GENDER_ENUM } from '../../../enums/genderType.enum';
 import { Load } from '../../../components/Load';
 import { WarningText } from '../../../components/WarningText';
-import {
-  UserClientAddressRegisterDTO,
-  UserClientRegisterDTO,
-} from '../../../hooks/dtos';
+
 import { Focusable } from '../FirstStep';
 import { ibgeApi } from '../../../services/ibge';
 import { SearchAbleDropDown } from '../../../components/SearchAbleDropDown';
@@ -39,6 +38,12 @@ import { BAD_REQUEST } from '../../../errors/constants/BadRequest.const';
 import { HTTP_ERROR_CODES_ENUM } from '../../../errors/AppError';
 import { useError } from '../../../hooks/error';
 import { ScreenNavigationProp } from '../../../routes';
+import {
+  ModalLocationLocationDTO,
+  ModalMapView,
+} from '../../../components/ModalMapView';
+import { AreaIcon } from '../EighthStep/styles';
+import { IconFeather } from '../../../components/Icons/style';
 
 interface StateInterface {
   value: string;
@@ -58,7 +63,8 @@ interface FormData {
 
 const schema = Yup.object().shape({
   zipcode: Yup.string()
-    .length(10, 'Cep inválido')
+    .min(8, 'Cep invalido')
+    .max(10, 'Cep invalido')
     .required('Cep é obrigatório'),
   street: Yup.string()
     .max(100, 'Descrição de endereço muito longa')
@@ -70,6 +76,8 @@ const schema = Yup.object().shape({
     .max(100, 'Descrição de bairro muito longa')
     .required('Bairro é obrigatório'),
   state: Yup.string().required('Selecione um estado'),
+  longitude: Yup.string().optional(),
+  latitude: Yup.string().optional(),
   complement: Yup.string().max(30, 'Descrição de complemento muito longa'),
   reference: Yup.string().max(30, 'Descrição de referencia muito longa'),
 });
@@ -98,6 +106,7 @@ export function SignUpSecondStep() {
   const [cityFind, setCityFind] = useState('');
   const [subTitle, setSubTitle] = useState('');
   const [foundCep, setFoundCep] = useState(undefined);
+  const [modalMap, setModalMap] = useState(false);
 
   const refZipCode = createRef<Focusable>();
   const refStreet = createRef<Focusable>();
@@ -122,17 +131,20 @@ export function SignUpSecondStep() {
       await registerAddressClient({
         ...form,
         zipcode: removeCharacterSpecial(form.zipcode),
-        user_id: userClient && userClient.id,
+        user_id:
+          !!userClient && userClient.external_id
+            ? userClient.external_id
+            : userClient.id,
         country: 'brazil',
       });
-      navigation.navigate('SignUpThirdStep');
+      navigation.replace('SignUpThirdStep');
     } finally {
       setIsLoading(false);
     }
   }
 
   function handleBack() {
-    navigation.navigate('SignIn');
+    navigation.replace('AuthRoutes');
   }
 
   function handleChangeValuesCityName(value: string) {
@@ -207,7 +219,7 @@ export function SignUpSecondStep() {
     }
   }
 
-  function handleNumberonSubmitEditing() {
+  function handleNumberOnSubmitEditing() {
     if (
       getValues('street') &&
       getValues('district') &&
@@ -221,6 +233,10 @@ export function SignUpSecondStep() {
   }
 
   useEffect(() => {
+    if (!!userClient && !!userClient.addresses) {
+      navigation.replace('AuthRoutes');
+      return;
+    }
     async function getInformationLocation() {
       setIsLoading(true);
       try {
@@ -281,9 +297,64 @@ export function SignUpSecondStep() {
     }
   }, [foundCep]);
 
+  function handleMarkPositionByMap({
+    address = undefined,
+    location = undefined,
+  }: ModalLocationLocationDTO) {
+    if (address) {
+      if (address.zipcode) {
+        setValue('zipcode', address.zipcode);
+      }
+      if (address.street) {
+        setValue('street', address.street);
+      }
+      if (address.number) {
+        setValue('number', address.number);
+      }
+      if (address.district) {
+        setValue('district', address.district);
+      }
+      if (address.state) {
+        const state = states.find(
+          state_param =>
+            state_param.value &&
+            state_param.value.toLowerCase() === address.state.toLowerCase(),
+        );
+        if (state) {
+          setStateSelected(state.value);
+          setValue('state', state.value);
+        }
+      }
+      if (address.city) {
+        setCityFind(address.city);
+        setValue('city', address.city);
+      }
+    }
+    if (location) {
+      if (location.region.latitude) {
+        setValue('latitude', String(location.region.latitude));
+      }
+      if (location.region.longitude) {
+        setValue('longitude', String(location.region.longitude));
+      }
+    }
+
+    setModalMap(false);
+  }
+
+  function handleOpenModalMapView() {
+    setModalMap(true);
+  }
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <Container contentContainerStyle={{ flexGrow: 1 }} scrollEnabled>
+        <ModalMapView
+          modalVisible={modalMap}
+          handleClosedModal={data => {
+            handleMarkPositionByMap(data);
+          }}
+        />
         <StatusBar
           barStyle="light-content"
           translucent
@@ -300,6 +371,14 @@ export function SignUpSecondStep() {
           </AreaTitle>
         </Header>
         <Form>
+          <AreaButtonMap onPress={handleOpenModalMapView} disabled={isLoading}>
+            <ButtonMapTitle>Abrir Mapa</ButtonMapTitle>
+            <IconFeather
+              name="map"
+              size={RFValue(25)}
+              color={isLoading ? theme.colors.shape : theme.colors.main_light}
+            />
+          </AreaButtonMap>
           <FormInput
             type={TextInputTypeEnum.mask}
             name="zipcode"
@@ -339,7 +418,7 @@ export function SignUpSecondStep() {
             editable={!isLoading}
             inputRef={refNumber}
             keyboardType="numeric"
-            onSubmitEditing={() => handleNumberonSubmitEditing()}
+            onSubmitEditing={() => handleNumberOnSubmitEditing()}
             maxLength={6}
           />
           <FormInput

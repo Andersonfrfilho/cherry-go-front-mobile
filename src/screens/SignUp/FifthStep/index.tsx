@@ -127,7 +127,10 @@ export function SignUpFifthStep() {
     try {
       await uploadUserClientImageDocument({
         image_uri: imageUri,
-        user_id: userClient.id,
+        user_id:
+          !!userClient && userClient.external_id
+            ? userClient.external_id
+            : userClient.id,
         description: USER_DOCUMENT_VALUE_ENUM.BACK,
       });
       navigation.replace('SignUpSixthStep');

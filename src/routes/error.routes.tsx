@@ -2,18 +2,16 @@ import React from 'react';
 
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { TransitionPresets } from '@react-navigation/stack';
-
-import { AppClientAppointmentStagesStackRoutes } from './appointments/stages/app.client.appointment.stages.stack.routes';
-import { AppClientTabRoutes } from './app.client.tab.routes';
-import { InternalServerErrorScreen } from '../../screens/Errors/InternalErrors';
-import { UnauthorizedErrorScreen } from '../../screens/Errors/Unauthorized';
-import { UnknownErrorScreen } from '../../screens/Errors/UnknownErrors';
-import { BadRequestErrorScreen } from '../../screens/Errors/BadRequestErrors';
-import { NotFoundErrorScreen } from '../../screens/Errors/NotFoundErrors';
+import { InternalServerErrorScreen } from '../screens/Errors/InternalErrors';
+import { UnauthorizedErrorScreen } from '../screens/Errors/Unauthorized';
+import { UnknownErrorScreen } from '../screens/Errors/UnknownErrors';
+import { BadRequestErrorScreen } from '../screens/Errors/BadRequestErrors';
+import { NotFoundErrorScreen } from '../screens/Errors/NotFoundErrors';
+import { AppClientStackRoutes } from './client/app.client.stack.routes';
 
 const { Navigator, Screen } = createNativeStackNavigator();
 
-export function AppClientStackRoutes() {
+export function AppErrorStackRoutes() {
   return (
     <Navigator
       screenOptions={{
@@ -21,13 +19,8 @@ export function AppClientStackRoutes() {
         gestureEnabled: true,
         ...TransitionPresets.ModalPresentationIOS,
       }}
-      initialRouteName="AppClientTabRoutes"
+      initialRouteName="InternalServerErrorScreen"
     >
-      <Screen name="AppClientTabRoutes" component={AppClientTabRoutes} />
-      <Screen
-        name="ClientAppointmentStackRoutes"
-        component={AppClientAppointmentStagesStackRoutes}
-      />
       <Screen
         name="InternalServerErrorScreen"
         component={InternalServerErrorScreen}

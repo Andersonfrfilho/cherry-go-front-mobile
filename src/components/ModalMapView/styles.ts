@@ -156,6 +156,20 @@ export const AreaPositionMarker = styled.TouchableOpacity`
   border-width: 3px;
   border-color: ${({ theme }) => theme.colors.background_primary};
 `;
+export const AreaTitleAddressMoved = styled.View`
+  height: 40px;
+  width: 100%;
+`;
+export const AddressTitleMoved = styled.Text`
+  font-family: ${({ theme }) => theme.fonts.primary_400};
+  color: ${({ theme }) => theme.colors.title};
+  font-size: ${RFValue(12)}px;
+  text-align: center;
+
+  background-color: ${({ theme }) => theme.colors.shape};
+
+  border-radius: 12px;
+`;
 
 export const AreaButtonSaved = styled.TouchableOpacity`
   left: 25%;

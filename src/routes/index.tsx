@@ -73,9 +73,14 @@ export function Routes() {
           }
 
           if (
-            !(userClient && !userClient.addresses) &&
-            !(userClient && !userClient.phones) &&
-            !(userClient && !userClient.documents)
+            userClient &&
+            !!userClient.addresses &&
+            userClient &&
+            !!userClient.phones &&
+            userClient &&
+            !!userClient.documents &&
+            userClient.documents.front &&
+            userClient.documents.back
           ) {
             return <AppClientTabRoutes />;
           }

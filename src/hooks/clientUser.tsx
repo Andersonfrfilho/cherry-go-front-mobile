@@ -209,6 +209,8 @@ interface DocumentResponseAuth {
 }
 export type UserClientDatabase = {
   id: string;
+  user_id: string;
+  external_id: string;
   name: string;
   last_name: string;
   cpf: string;
@@ -266,6 +268,7 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
 
       setUserClient(user);
     } catch (err) {
+
       appErrorVerifyError({
         message: err.response.data.message,
         status_code: err.response.status,
@@ -277,21 +280,13 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
   async function registerAddressClient(
     addressData: UserClientAddressRegisterDTO,
   ) {
-    try {
-      if (!addressData.user_id) {
-        const [user] = await userRepository.findAll()
-
-        if (!user) {
-          appErrorVerifyError({
-            message: '',
-            status_code: 600,
-            code: '0003',
-          });
-        }
-
+    if (!addressData.user_id) {
+      const [user] = await userRepository.findAll()
+      if(user){
         addressData.user_id = user.external_id;
       }
-
+    }
+    try {
       const { data: user } = await api.post(
         '/v1/users/clients/addresses',
         addressData,
@@ -299,13 +294,22 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
 
       const [address] = user.addresses;
 
-      await addressRepository.createOrUpdate(address)
+      const addressCreate = await addressRepository.createOrUpdate(address)
+
+      const [userFound] = await userRepository.findAll();
+
+      await userRepository.createUserAddress({user:userFound,address:addressCreate})
+
+      if(userFound){
+        const userGetAll = await userFound.getUser();
+        setUserClient({...userGetAll});
+      }
 
     } catch (err) {
       if (NOT_FOUND[404][4001].code === err.response.data.code && NOT_FOUND[404][4001].status_code === err.response.status && NOT_FOUND[404][4001].message === err.response.data.message) {
         await userRepository.removeAllDatabase();
       }
-
+      console.log(err)
       appErrorVerifyError({
         message: err.response.data.message,
         status_code: err.response.status,
@@ -318,20 +322,14 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
     phoneData: UserClientPhoneDTO,
   ) {
     try {
+
       if (!phoneData.user_id) {
         const [user] = await userRepository.findAll()
-
-
-        if (!user) {
-          appErrorVerifyError({
-            message: '',
-            status_code: 600,
-            code: '0003',
-          });
+        if(user){
+          phoneData.user_id = user.external_id;
         }
-
-        phoneData.user_id = user.external_id;
       }
+
       const { data: { user, token } } = await api.post(
         '/v1/users/clients/phones',
         phoneData,
