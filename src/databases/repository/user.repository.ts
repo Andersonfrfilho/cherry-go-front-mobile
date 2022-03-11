@@ -123,7 +123,7 @@ async function removeAll(): Promise<void> {
 
 async function removeAllDatabase(): Promise<void> {
   await database.write(async () => {
-    await database.unsafeClearDatabase();
+    await database.unsafeResetDatabase();
   });
 }
 

@@ -219,10 +219,7 @@ export function ClientAppointmentCreateTransportSelect() {
         });
       setTransportTypesAvailable(transportTypeAvailableList);
       setTransportTypesAvailableOriginal(transportTypeAvailableList);
-      console.log(
-        HEIGHT_MAP_VIEW_COMPONENT /
-          local.details.distance_between.routes[0].legs[0].distance.value,
-      );
+
       setCoordinates([
         calDeltaCoordinates({
           distance:

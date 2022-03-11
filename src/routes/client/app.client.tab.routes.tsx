@@ -9,12 +9,7 @@ import { MyCars } from '../../screens/MyCars';
 import CarSvg from '../../assets/car.svg';
 import PeopleSvg from '../../assets/people.svg';
 import HomeSvg from '../../assets/home.svg';
-import { HomeClient } from '../../screens/Home';
-import { InternalServerErrorScreen } from '../../screens/Errors/InternalErrors';
-import { UnauthorizedErrorScreen } from '../../screens/Errors/Unauthorized';
-import { UnknownErrorScreen } from '../../screens/Errors/UnknownErrors';
-import { BadRequestErrorScreen } from '../../screens/Errors/BadRequestErrors';
-import { NotFoundErrorScreen } from '../../screens/Errors/NotFoundErrors';
+import { AppClientDrawerRoutes } from './app.client.home.drawer.routes';
 
 const { Navigator, Screen } = createBottomTabNavigator();
 export function AppClientTabRoutes() {
@@ -26,11 +21,11 @@ export function AppClientTabRoutes() {
         ...TransitionPresets.ModalPresentationIOS,
         tabBarStyle: { backgroundColor: theme.colors.header },
       }}
-      initialRouteName="HomeClientTab"
+      initialRouteName="HomeClientDrawerTab"
     >
       <Screen
-        name="HomeClientTab"
-        component={HomeClient}
+        name="HomeClientDrawerTab"
+        component={AppClientDrawerRoutes}
         options={{
           tabBarLabel: 'Home',
           tabBarActiveTintColor: theme.colors.text,
@@ -76,17 +71,6 @@ export function AppClientTabRoutes() {
           ),
         }}
       />
-      <Screen
-        name="InternalServerErrorScreen"
-        component={InternalServerErrorScreen}
-      />
-      <Screen
-        name="UnauthorizedErrorScreen"
-        component={UnauthorizedErrorScreen}
-      />
-      <Screen name="UnknownErrorScreen" component={UnknownErrorScreen} />
-      <Screen name="BadRequestErrorScreen" component={BadRequestErrorScreen} />
-      <Screen name="NotFoundErrorScreen" component={NotFoundErrorScreen} />
     </Navigator>
   );
 }

@@ -16,6 +16,8 @@ import { BadRequestErrorScreen } from '../screens/Errors/BadRequestErrors';
 import { NotFoundErrorScreen } from '../screens/Errors/NotFoundErrors';
 import { InitialRegister } from '../screens/SignUp/InitialRegister';
 import { AuthRoutes } from './auth.routes';
+import { PhoneConfirmation } from '../screens/SignUp/PhoneConfirmation';
+import { AppErrorsScreenStackRoutes } from './error.routes';
 
 const { Navigator, Screen } = createNativeStackNavigator();
 
@@ -38,17 +40,11 @@ export function RegisterRoutes() {
       <Screen name="SignUpSixthStep" component={SignUpSixthStep} />
       <Screen name="SignUpSevenStep" component={SignUpSevenStep} />
       <Screen name="SignUpEighthStep" component={SignUpEighthStep} />
+      <Screen name="PhoneConfirmation" component={PhoneConfirmation} />
       <Screen
-        name="InternalServerErrorScreen"
-        component={InternalServerErrorScreen}
+        name="ErrorsStacksScreens"
+        component={AppErrorsScreenStackRoutes}
       />
-      <Screen
-        name="UnauthorizedErrorScreen"
-        component={UnauthorizedErrorScreen}
-      />
-      <Screen name="UnknownErrorScreen" component={UnknownErrorScreen} />
-      <Screen name="BadRequestErrorScreen" component={BadRequestErrorScreen} />
-      <Screen name="NotFoundErrorScreen" component={NotFoundErrorScreen} />
     </Navigator>
   );
 }

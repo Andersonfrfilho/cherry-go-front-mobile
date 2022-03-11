@@ -14,6 +14,7 @@ import { navigationRef } from './RootNavigation';
 import { AppProviderTabRoutes } from './provider/app.provider.tab.routes';
 import { RegisterRoutes } from './register.routes';
 import { MainRoutes } from './main.routes';
+import { AppClientStackRoutes } from './client/app.client.stack.routes';
 
 export type RootStackClientParamList = {
   HomeClientStack: undefined;
@@ -57,32 +58,31 @@ export function Routes() {
 
   return (
     <NavigationContainer linking={linking} independent ref={navigationRef}>
-      {/* {userClient.id ? (
-        userClient && userClient.types && userClient.types.length > 1 ? (
-          <AppStackInitialRoutes />
-        ) : (
-          <AppClientTabRoutes />
-        )
-      ) : (
-        <AuthRoutes />
-      )} */}
       {(() => {
         if (userClient.id) {
-          if (userClient && userClient.types && userClient.types.length > 1) {
-            return <AppStackInitialRoutes />;
+          if (
+            userClient &&
+            !!userClient.addresses &&
+            !!userClient.phones &&
+            !!userClient.phones.active &&
+            !!userClient.documents &&
+            userClient.documents.front &&
+            userClient.documents.back
+          ) {
+            return <AppClientStackRoutes />;
           }
 
           if (
             userClient &&
             !!userClient.addresses &&
-            userClient &&
             !!userClient.phones &&
-            userClient &&
             !!userClient.documents &&
             userClient.documents.front &&
-            userClient.documents.back
+            userClient.documents.back &&
+            userClient.types &&
+            userClient.types.length > 1
           ) {
-            return <AppClientTabRoutes />;
+            return <AppStackInitialRoutes />;
           }
         }
 

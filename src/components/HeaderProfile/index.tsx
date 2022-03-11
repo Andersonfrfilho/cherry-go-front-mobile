@@ -1,4 +1,8 @@
 import React, { useState } from 'react';
+import { RFValue } from 'react-native-responsive-fontsize';
+import { useTheme } from 'styled-components';
+import { useAuth } from '../../hooks/auth';
+import { IconFeather } from '../Icons/style';
 import {
   Container,
   AreaName,
@@ -6,43 +10,67 @@ import {
   Photo,
   AreaButtonPhoto,
   TextName,
+  AreaLogoff,
+  AreaImageName,
+  AreaOff,
+  AreaIconLogOff,
 } from './styles';
 
 interface HeaderProps {
   name: string;
   lastName: string;
   image?: string;
+  handleToggleMenu?: () => void;
 }
 
 export function HeaderProfile({
   image = '',
   lastName = '',
   name = '',
+  handleToggleMenu,
 }: HeaderProps) {
-  const [imageSuccess, setImageSuccess] = useState<boolean>(true);
+  const theme = useTheme();
+  const { signOut } = useAuth();
+  const [openMenu, setOpenMenu] = useState<boolean>(false);
+
+  function handleSingOut() {
+    signOut();
+  }
+
   return (
-    <Container>
-      <AreaName>
-        <Name>
-          {name} {lastName}
-        </Name>
-      </AreaName>
-      <AreaButtonPhoto>
-        {imageSuccess ? (
-          <Photo
-            source={{
-              uri: image,
-            }}
-            resizeMode="contain"
-            onError={() => setImageSuccess(false)}
+    <Container menu={openMenu}>
+      <AreaImageName>
+        <AreaName>
+          <Name>
+            {name} {lastName}
+          </Name>
+        </AreaName>
+        <AreaButtonPhoto onPress={handleToggleMenu}>
+          {image ? (
+            <Photo
+              source={{
+                uri: image,
+              }}
+              resizeMode="contain"
+            />
+          ) : (
+            <TextName>
+              {name.substring(0, 1)}
+              {lastName.substring(0, 1)}
+            </TextName>
+          )}
+        </AreaButtonPhoto>
+      </AreaImageName>
+      <AreaLogoff>
+        <AreaOff />
+        <AreaIconLogOff onPress={handleSingOut}>
+          <IconFeather
+            name="power"
+            size={RFValue(25)}
+            color={theme.colors.main_light}
           />
-        ) : (
-          <TextName>
-            {name.substring(0, 1)}
-            {lastName.substring(0, 1)}
-          </TextName>
-        )}
-      </AreaButtonPhoto>
+        </AreaIconLogOff>
+      </AreaLogoff>
     </Container>
   );
 }

@@ -245,7 +245,7 @@ export function ClientAppointmentPaymentCard() {
         latitude: local.address.latitude,
         longitude: local.address.longitude,
       });
-      console.log(coordinatesResult);
+
       setCoordinateLocal(coordinatesResult);
     }
     if (

@@ -21,6 +21,9 @@ class Phone extends Model {
   @field('number')
   number!: string;
 
+  @field('active')
+  active!: boolean;
+
   @lazy
   users = this.collections
     .get('users')

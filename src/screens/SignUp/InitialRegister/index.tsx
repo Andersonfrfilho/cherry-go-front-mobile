@@ -21,8 +21,14 @@ export function InitialRegister() {
             navigation.replace('SignUpSecondStep');
             return;
           }
+
           if (!user.phones) {
             navigation.replace('SignUpThirdStep');
+            return;
+          }
+
+          if (!user.phones.active) {
+            navigation.replace('PhoneConfirmation');
             return;
           }
 

@@ -34,17 +34,6 @@ export function AuthRoutes() {
       <Screen name="Confirmation" component={Confirmation} />
       {/* <Screen name="SignUpFirstStepStack" component={RegisterRoutes} /> */}
       <Screen name="ResendEmailActiveStack" component={ResendEmailActive} />
-      <Screen
-        name="InternalServerErrorScreen"
-        component={InternalServerErrorScreen}
-      />
-      <Screen
-        name="UnauthorizedErrorScreen"
-        component={UnauthorizedErrorScreen}
-      />
-      <Screen name="UnknownErrorScreen" component={UnknownErrorScreen} />
-      <Screen name="BadRequestErrorScreen" component={BadRequestErrorScreen} />
-      <Screen name="NotFoundErrorScreen" component={NotFoundErrorScreen} />
     </Navigator>
   );
 }

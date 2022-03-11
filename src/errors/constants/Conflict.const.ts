@@ -14,5 +14,10 @@ export const CONFLICT = {
       status_code,
       code: '9003',
     },
+    '9004': {
+      message: 'Usuário ja possui um número registrado!',
+      status_code,
+      code: '9004',
+    },
   },
 };

@@ -1,44 +1,30 @@
 import React from 'react';
 
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { TransitionPresets } from '@react-navigation/stack';
+import { createStackNavigator } from '@react-navigation/stack';
 
 import { AppClientAppointmentStagesStackRoutes } from './appointments/stages/app.client.appointment.stages.stack.routes';
 import { AppClientTabRoutes } from './app.client.tab.routes';
-import { InternalServerErrorScreen } from '../../screens/Errors/InternalErrors';
-import { UnauthorizedErrorScreen } from '../../screens/Errors/Unauthorized';
-import { UnknownErrorScreen } from '../../screens/Errors/UnknownErrors';
-import { BadRequestErrorScreen } from '../../screens/Errors/BadRequestErrors';
-import { NotFoundErrorScreen } from '../../screens/Errors/NotFoundErrors';
+import { AppErrorsScreenStackRoutes } from '../error.routes';
 
-const { Navigator, Screen } = createNativeStackNavigator();
+const { Navigator, Screen } = createStackNavigator();
 
 export function AppClientStackRoutes() {
   return (
     <Navigator
+      initialRouteName="AppClientTab"
       screenOptions={{
         headerShown: false,
-        gestureEnabled: true,
-        ...TransitionPresets.ModalPresentationIOS,
       }}
-      initialRouteName="AppClientTabRoutes"
     >
-      <Screen name="AppClientTabRoutes" component={AppClientTabRoutes} />
+      <Screen name="AppClientTab" component={AppClientTabRoutes} />
       <Screen
         name="ClientAppointmentStackRoutes"
         component={AppClientAppointmentStagesStackRoutes}
       />
       <Screen
-        name="InternalServerErrorScreen"
-        component={InternalServerErrorScreen}
+        name="ErrorsStacksScreens"
+        component={AppErrorsScreenStackRoutes}
       />
-      <Screen
-        name="UnauthorizedErrorScreen"
-        component={UnauthorizedErrorScreen}
-      />
-      <Screen name="UnknownErrorScreen" component={UnknownErrorScreen} />
-      <Screen name="BadRequestErrorScreen" component={BadRequestErrorScreen} />
-      <Screen name="NotFoundErrorScreen" component={NotFoundErrorScreen} />
     </Navigator>
   );
 }

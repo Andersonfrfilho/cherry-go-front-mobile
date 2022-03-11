@@ -7,11 +7,10 @@ import { UnauthorizedErrorScreen } from '../screens/Errors/Unauthorized';
 import { UnknownErrorScreen } from '../screens/Errors/UnknownErrors';
 import { BadRequestErrorScreen } from '../screens/Errors/BadRequestErrors';
 import { NotFoundErrorScreen } from '../screens/Errors/NotFoundErrors';
-import { AppClientStackRoutes } from './client/app.client.stack.routes';
 
 const { Navigator, Screen } = createNativeStackNavigator();
 
-export function AppErrorStackRoutes() {
+export function AppErrorsScreenStackRoutes() {
   return (
     <Navigator
       screenOptions={{

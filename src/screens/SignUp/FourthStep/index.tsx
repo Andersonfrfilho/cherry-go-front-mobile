@@ -66,7 +66,7 @@ export function SignUpFourthStep() {
   const navigation = useNavigation<ScreenNavigationProp>();
 
   function handleBack() {
-    navigation.replace('SignIn');
+    navigation.replace('AuthRoutes');
   }
 
   function handleBackCam() {

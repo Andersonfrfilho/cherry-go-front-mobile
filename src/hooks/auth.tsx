@@ -85,22 +85,17 @@ function AuthProvider({ children }: AuthProviderProps) {
         email,
         password,
       });
-
       const { token, refresh_token, user } = data;
-
       api.defaults.headers.authorization = `Bearer ${token}`;
-
       const userDatabase = await userRepository.createOrUpdate(user);
-
       await tokenRepository.createOrUpdate({
         token,
         refresh_token,
         user_id: userDatabase.id,
       });
-
       if (user.addresses && user.addresses.length > 0) {
         const addressDatabase = await addressRepository.createOrUpdate(
-          user.addresses[0],
+          user.addresses[0].address,
         );
         await userRepository.createUserAddress({
           user: userDatabase,
@@ -110,14 +105,19 @@ function AuthProvider({ children }: AuthProviderProps) {
         RootNavigation.navigate('RegisterRoutes');
       }
 
-      if (user.phones && user.phones.length > 0) {
-        const phoneDatabase = await phoneRepository.createOrUpdate(
-          user.phones[0],
-        );
+      if (user.phones && user.phones.length > 0 && user.phones[0]) {
+        const phoneDatabase = await phoneRepository.createOrUpdate({
+          ...user.phones[0].phone,
+          active: user.phones[0].active,
+        });
         await userRepository.createUserPhone({
           user: userDatabase,
           phone: phoneDatabase,
         });
+
+        if (!user.phones[0].active) {
+          RootNavigation.navigate('RegisterRoutes');
+        }
       } else {
         RootNavigation.navigate('RegisterRoutes');
       }
@@ -163,7 +163,6 @@ function AuthProvider({ children }: AuthProviderProps) {
         }));
         await userRepository.createUserTerm(userTerms);
       }
-
       const userGetUser = await userRepository.getUser();
 
       if (!userGetUser) {

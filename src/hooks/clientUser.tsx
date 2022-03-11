@@ -22,6 +22,7 @@ import { ProviderTransportTypesSelected } from '../screens/Appointment/Create/Tr
 import { STATUS_PROVIDERS_APPOINTMENT } from '../enums/statusProvidersAppointment.enum';
 import { ProviderPaymentsTypesSelected } from '../screens/Appointment/Create/PaymentTypeSelect';
 import * as RootNavigation from '../routes/RootNavigation';
+import { useAuth } from './auth';
 
 type ClientUserContextData = {
   userClient: UserClientDatabase;
@@ -35,6 +36,7 @@ type ClientUserContextData = {
   resendMailActiveClient: (email: string) => Promise<void>;
   resendCodePhoneClient: (id: string) => Promise<void>;
   confirmCodePhoneClient: (phoneConfirm: UserClientPhoneCodeConfirmDTO) => Promise<void>;
+  removePhoneClient:(phoneData: UserClientPhoneDTO) => Promise<void>;
   uploadUserClientImageDocument: (uploadDocumentData: UploadUserClientImageDocumentDTO) => Promise<void>;
   uploadUserClientImageProfile: (uploadImageProfileData: UploadUserClientImageProfileDTO) => Promise<void>;
   token: Token;
@@ -180,10 +182,11 @@ type Image = {
 }
 
 export type Phone = {
-  country_code: string,
-  ddd: string,
-  number: string,
-  id: string
+  country_code: string;
+  ddd: string;
+  number: string;
+  id: string;
+  active: boolean;
 };
 export type Addresses = {
   street: string;
@@ -286,6 +289,7 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
         addressData.user_id = user.external_id;
       }
     }
+
     try {
       const { data: user } = await api.post(
         '/v1/users/clients/addresses',
@@ -294,7 +298,7 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
 
       const [address] = user.addresses;
 
-      const addressCreate = await addressRepository.createOrUpdate(address)
+      const addressCreate = await addressRepository.createOrUpdate(address.address)
 
       const [userFound] = await userRepository.findAll();
 
@@ -307,7 +311,7 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
 
     } catch (err) {
       if (NOT_FOUND[404][4001].code === err.response.data.code && NOT_FOUND[404][4001].status_code === err.response.status && NOT_FOUND[404][4001].message === err.response.data.message) {
-        await userRepository.removeAllDatabase();
+        await userRepository.removeAll();
       }
       console.log(err)
       appErrorVerifyError({
@@ -330,21 +334,46 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
         }
       }
 
-      const { data: { user, token } } = await api.post(
+      const { data: { user,token } } = await api.post(
         '/v1/users/clients/phones',
         phoneData,
       );
+
       setToken({ token })
 
       const [phone] = user.phones;
 
-      await phoneRepository.createOrUpdate(phone)
+      await phoneRepository.createOrUpdate({...phone.phone,active:phone.active})
+
       await tokenRepository.createOrUpdate({ token })
 
     } catch (err) {
+      await userRepository.removeAll();
+    }
+  }
 
+  async function removePhoneClient(
+    phoneData: UserClientPhoneDTO,
+  ) {
+    try {
+
+      if (!phoneData.user_id) {
+        const [user] = await userRepository.findAll()
+        if(user){
+          phoneData.user_id = user.external_id;
+        }
+      }
+
+      await api.delete(
+        '/v1/users/clients/phones',
+        {data:phoneData},
+      );
+
+      await phoneRepository.removeAll();
+
+    } catch (err) {
       if (NOT_FOUND[404][4001].code === err.response.data.code && NOT_FOUND[404][4001].status_code === err.response.status) {
-        await userRepository.removeAllDatabase();
+        await userRepository.removeAll();
       }
 
       appErrorVerifyError({
@@ -384,7 +413,7 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
       await tokenRepository.createOrUpdate({ token })
     } catch (err: unknown | AxiosError) {
       if (NOT_FOUND[404][4001].code === err.response.data.code && NOT_FOUND[404][4001].status_code === err.response.status && NOT_FOUND[404][4001].message === err.response.data.message) {
-        await userRepository.removeAllDatabase();
+        await userRepository.removeAll();
       }
 
       appErrorVerifyError({
@@ -404,7 +433,7 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
 
     } catch (err: unknown | AxiosError) {
       if (NOT_FOUND[404][4001].code === err.response.data.code && NOT_FOUND[404][4001].status_code === err.response.status && NOT_FOUND[404][4001].message === err.response.data.message) {
-        await userRepository.removeAllDatabase();
+        await userRepository.removeAll();
       }
 
       appErrorVerifyError({
@@ -444,7 +473,7 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
       setUserIdResetPassword(user_id)
     } catch (err) {
       if (NOT_FOUND[404][4001].code === err.response.data.code && NOT_FOUND[404][4001].status_code === err.response.status && NOT_FOUND[404][4001].message === err.response.data.message) {
-        await userRepository.removeAllDatabase();
+        await userRepository.removeAll();
       }
 
       appErrorVerifyError({
@@ -505,7 +534,7 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
       await api.post('/v1/users/documents/image', formData, config);
     } catch (err) {
       if (NOT_FOUND[404][4001].code === err.response.data.code && NOT_FOUND[404][4001].status_code === err.response.status && NOT_FOUND[404][4001].message === err.response.data.message) {
-        await userRepository.removeAllDatabase();
+        await userRepository.removeAll();
       }
 
       appErrorVerifyError({
@@ -565,7 +594,7 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
       await api.post('/v1/users/profiles/images', formData, config);
     } catch (err) {
       if (NOT_FOUND[404][4001].code === err.response.data.code && NOT_FOUND[404][4001].status_code === err.response.status && NOT_FOUND[404][4001].message === err.response.data.message) {
-        await userRepository.removeAllDatabase();
+        await userRepository.removeAll();
       }
 
       appErrorVerifyError({
@@ -822,6 +851,7 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
         uploadUserClientImageProfile,
         uploadUserClientImageDocument,
         registerPhoneClient,
+        removePhoneClient,
         resendCodePhoneClient,
         resendMailActiveClient,
         confirmCodePhoneClient,

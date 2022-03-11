@@ -20,6 +20,10 @@ const phoneSchema = tableSchema({
       name: 'number',
       type: 'string',
     },
+    {
+      name: 'active',
+      type: 'boolean',
+    },
   ],
 });
 

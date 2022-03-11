@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Geolocation from 'react-native-geolocation-service';
-import { StatusBar, Text } from 'react-native';
+import { StatusBar } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from 'styled-components';
 
@@ -54,7 +54,6 @@ import {
   InputDistance,
   AreaButtons,
   ButtonTitle,
-  AreaButton,
   AreaModalDistance,
   AreaContentModalDistance,
   AreaTitleInputDistance,
@@ -91,7 +90,7 @@ import { navigate } from '../../routes/RootNavigation';
 export interface Focusable {
   focus(): void;
 }
-export function HomeClient() {
+export function HomeClient({ navigation: { openDrawer, closeDrawer } }) {
   const [distanceRadius, setDistanceRadius] = useState<number>(3000);
   const [forceLocation, setForceLocation] = useState<boolean>(true);
   const [highAccuracy, setHighAccuracy] = useState<boolean>(true);
@@ -306,6 +305,11 @@ export function HomeClient() {
       params: { providerSelect: provider },
     });
   }
+
+  function handleOpenDrawer() {
+    openDrawer();
+  }
+
   return (
     <Container>
       <ModalTagSelect
@@ -355,6 +359,7 @@ export function HomeClient() {
         name={name}
         lastName={lastName}
         image={imageProfile && imageProfile.link}
+        handleToggleMenu={handleOpenDrawer}
       />
       <Body>
         <AreaSearch>

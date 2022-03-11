@@ -17,6 +17,7 @@ import { NotFoundErrorScreen } from '../screens/Errors/NotFoundErrors';
 import { InitialRegister } from '../screens/SignUp/InitialRegister';
 import { AuthRoutes } from './auth.routes';
 import { RegisterRoutes } from './register.routes';
+import { AppErrorsScreenStackRoutes } from './error.routes';
 
 const { Navigator, Screen } = createNativeStackNavigator();
 
@@ -38,6 +39,10 @@ export function MainRoutes({ userClient }) {
     >
       <Screen name="AuthRoutes" component={AuthRoutes} />
       <Screen name="RegisterRoutes" component={RegisterRoutes} />
+      <Screen
+        name="ErrorsStacksScreens"
+        component={AppErrorsScreenStackRoutes}
+      />
     </Navigator>
   );
 }

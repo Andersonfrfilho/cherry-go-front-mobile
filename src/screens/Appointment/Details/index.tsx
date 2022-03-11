@@ -248,7 +248,7 @@ export function ClientAppointmentDetails() {
           HEIGHT_MAP_VIEW_COMPONENT /
           local.details.distance_between.routes[0].legs[0].distance.value,
       });
-      console.log(coordinatesResult);
+
       setCoordinateLocal(coordinatesResult);
     }
     if (

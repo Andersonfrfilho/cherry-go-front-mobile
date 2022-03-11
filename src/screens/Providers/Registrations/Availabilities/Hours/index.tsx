@@ -195,8 +195,7 @@ export function RegistrationsAvailabilitiesHoursProvider() {
   async function handleRemoveHoursAvailable(idHours: string) {
     await removeHourProviderWorkAvailable(idHours);
   }
-  console.log('!appError');
-  console.log(!appError.code);
+
   useEffect(() => {
     const hoursNewForSelected = getHoursAvailable({ hoursAvailable, hours });
     setSelectedHoursProvider(hoursNewForSelected);

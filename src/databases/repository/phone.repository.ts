@@ -17,6 +17,7 @@ async function createOrUpdate(phone: Phone): Promise<ModelPhone> {
         phoneExistDb.country_code = phone.country_code;
         phoneExistDb.ddd = phone.ddd;
         phoneExistDb.number = phone.number;
+        phoneExistDb.active = phone.active;
       });
       return phoneUpdated;
     }
@@ -26,6 +27,7 @@ async function createOrUpdate(phone: Phone): Promise<ModelPhone> {
       newPhone.country_code = phone.country_code;
       newPhone.ddd = phone.ddd;
       newPhone.number = phone.number;
+      newPhone.active = phone.active;
     });
 
     return phoneCreate;
