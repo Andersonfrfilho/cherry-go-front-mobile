@@ -34,7 +34,9 @@ function ErrorProvider({ children }: ErrorProviderProps) {
 
   function unauthorizedError(err: Error): void {
     setAppError(ConstantError[err.response.status][err.response.data.code]);
-    RootNavigation.navigate('UnauthorizedErrorScreen', {});
+    RootNavigation.navigate('ErrorsStacksScreens', {
+      screen: 'UnauthorizedErrorScreen',
+    });
   }
   function forbiddenError(err: Error): void {
     setAppError(ConstantError[err.response.status][err.response.data.code]);
@@ -45,7 +47,9 @@ function ErrorProvider({ children }: ErrorProviderProps) {
       });
       return;
     }
-    RootNavigation.navigate('UnauthorizedErrorScreen', {});
+    RootNavigation.navigate('ErrorsStacksScreens', {
+      screen: 'UnauthorizedErrorScreen',
+    });
     return;
   }
   function badRequestError(err: Error): void {
@@ -54,17 +58,23 @@ function ErrorProvider({ children }: ErrorProviderProps) {
 
   function notFoundError(err: Error): void {
     setAppError(ConstantError[err.response.status][err.response.data.code]);
-    RootNavigation.navigate('NotFoundErrorScreen', {});
+    RootNavigation.navigate('ErrorsStacksScreens', {
+      screen: 'NotFoundErrorScreen',
+    });
   }
 
   function internalServerError(): void {
     setAppError(ConstantError[600]['0005']);
-    RootNavigation.navigate('InternalServerErrorScreen', {});
+    RootNavigation.navigate('ErrorsStacksScreens', {
+      screen: 'InternalServerErrorScreen',
+    });
   }
 
   function unknownServerError(): void {
     setAppError(ConstantError[500]['50001']);
-    RootNavigation.navigate('UnknownErrorScreen', {});
+    RootNavigation.navigate('ErrorsStacksScreens', {
+      screen: 'UnknownErrorScreen',
+    });
   }
 
   async function appErrorVerifyError(err) {

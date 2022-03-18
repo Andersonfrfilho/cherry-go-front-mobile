@@ -6,6 +6,17 @@ import { STATE_SIGLA_ENUM } from './enums/address.enum';
 import { useError } from './error';
 import { Addresses } from './clientUser';
 
+interface AddressGeolocationResult {
+  street: string;
+  district: string;
+  city: string;
+  state: string;
+  country: string;
+  zipcode: string;
+  formatted_address: string;
+  latitude: number;
+  longitude: number;
+}
 type AddressContextData = {
   address: Addresses;
   states: State[];
@@ -16,8 +27,10 @@ type AddressContextData = {
   setCities: Dispatch<SetStateAction<string[]>>;
   getAllStates(): Promise<void>;
   getCitiesByState(state: string): Promise<string[]>;
-  getGeolocationReverse(state: GetGeolocationReverseDTO): Promise<void>;
-  getGeolocationByAddress(address: string): Promise<void>;
+  getGeolocationReverse(
+    state: GetGeolocationReverseDTO,
+  ): Promise<AddressGeolocationResult>;
+  getGeolocationByAddress(address: string): Promise<AddressGeolocationResult>;
 };
 
 interface GetGeolocationReverseDTO {
@@ -113,6 +126,7 @@ function AddressProvider({ children }: AddressProviderProps) {
         },
       );
       setAddress(addressResult);
+      return addressResult;
     } catch (error) {
       appErrorVerifyError(error);
     } finally {

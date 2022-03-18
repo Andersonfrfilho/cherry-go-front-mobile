@@ -89,7 +89,9 @@ export function SignIn() {
   }
 
   function handleNewAccount() {
-    navigation.navigate('SignUpFirstStep');
+    navigation.navigate('RegisterRoutes', {
+      screen: 'SignUpFirstStep',
+    });
   }
 
   async function handleRememberEmail() {

@@ -77,7 +77,10 @@ export function HomeProvider() {
         name={name}
         lastName={lastName}
         image={
-          imageProfile && imageProfile[0].image && imageProfile[0].image.link
+          imageProfile &&
+          imageProfile.length > 0 &&
+          imageProfile[0].image &&
+          imageProfile[0].image.link
         }
       />
       <Form>

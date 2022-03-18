@@ -261,8 +261,11 @@ export function RegistrationsAvailabilitiesTransportTypesProvider() {
       <HeaderProfile
         name={name}
         lastName={lastName}
-        image={
-          imageProfile && imageProfile[0].image && imageProfile[0].image.link
+                image={
+          imageProfile &&
+          imageProfile.length > 0 &&
+          imageProfile[0].image &&
+          imageProfile[0].image.link
         }
       />
       <Form>

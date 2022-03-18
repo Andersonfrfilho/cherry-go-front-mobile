@@ -104,7 +104,6 @@ function AuthProvider({ children }: AuthProviderProps) {
       } else {
         RootNavigation.navigate('RegisterRoutes');
       }
-
       if (user.phones && user.phones.length > 0 && user.phones[0]) {
         const phoneDatabase = await phoneRepository.createOrUpdate({
           ...user.phones[0].phone,
@@ -142,7 +141,13 @@ function AuthProvider({ children }: AuthProviderProps) {
 
       if (user.types && user.types.length > 0) {
         const typeUserDatabase = await typeUserRepository.createOrUpdate(
-          user.types,
+          user.types
+            .filter(user_type => user_type.active)
+            .map(user_type => ({
+              ...user_type,
+              active: user_type.active,
+              name: user_type.user_type.name,
+            })),
         );
 
         const userTypeUsers = typeUserDatabase.map(userType => ({

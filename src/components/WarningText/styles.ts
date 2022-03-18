@@ -8,7 +8,7 @@ interface TitleProps {
 
 export const Container = styled.View`
   width: 100%;
-  height: 100%;
+  height: 80px;
   flex-direction: row;
   justify-content: space-evenly;
   align-items: center;

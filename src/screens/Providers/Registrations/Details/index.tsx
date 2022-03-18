@@ -57,8 +57,8 @@ const schema = Yup.object().shape({
   color_hair: Yup.string().max(30, 'Insira um coloração válida'),
   nuance_hair: Yup.string().max(30, 'Insira uma nuance válida'),
   style_hair: Yup.string().max(30, 'Insira uma estilo válido'),
-  height: Yup.string().min(2).max(7),
-  weight: Yup.string().min(2).max(3),
+  height: Yup.string().min(2).max(8),
+  weight: Yup.string().min(2).max(6),
   description: Yup.string().max(100, 'Insira uma descrição valida'),
   ethnicity: Yup.string().max(50, 'Insira uma etnia valida'),
   color_eye: Yup.string().max(50, 'Insira uma cor dos olhos valida'),
@@ -199,7 +199,10 @@ export function RegistrationsDetailsProvider() {
         name={name}
         lastName={lastName}
         image={
-          imageProfile && imageProfile[0].image && imageProfile[0].image.link
+          imageProfile &&
+          imageProfile.length > 0 &&
+          imageProfile[0].image &&
+          imageProfile[0].image.link
         }
       />
       <Form>
@@ -240,7 +243,7 @@ export function RegistrationsDetailsProvider() {
                   editable={!isLoading}
                   maxLength={50}
                   inputRef={refFantasyName}
-                  onEndEditing={() => refColorHair.current?.focus()}
+                  onSubmitEditing={() => refColorHair.current?.focus()}
                 />
                 <SelectedPicker
                   title="Selecione a cor do cabelo"
@@ -283,23 +286,21 @@ export function RegistrationsDetailsProvider() {
                   editable={!isLoading}
                   maxLength={50}
                   inputRef={refHeight}
-                  onEndEditing={() => refWeight.current?.focus()}
+                  onSubmitEditing={() => refWeight.current?.focus()}
                 />
                 <FormInput
                   name="weight"
-                  type={TextInputTypeEnum.mask}
                   control={control}
                   placeholder="Peso"
                   error={errors.weight && errors.weight.message}
                   iconName="arrow-right"
                   autoCorrect={false}
-                  mask="[000]"
                   autoCapitalize="sentences"
                   keyboardType="numeric"
                   editable={!isLoading}
                   maxLength={50}
                   inputRef={refWeight}
-                  onEndEditing={() => refDescription.current?.focus()}
+                  onSubmitEditing={() => refDescription.current?.focus()}
                 />
                 <FormInput
                   name="description"
@@ -312,7 +313,7 @@ export function RegistrationsDetailsProvider() {
                   editable={!isLoading}
                   maxLength={50}
                   inputRef={refDescription}
-                  onEndEditing={() => refEthnicity.current?.focus()}
+                  onSubmitEditing={() => refEthnicity.current?.focus()}
                 />
                 <SelectedPicker
                   title="Selecione uma etnia"

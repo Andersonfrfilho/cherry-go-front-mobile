@@ -15,6 +15,7 @@ import { AppProviderTabRoutes } from './provider/app.provider.tab.routes';
 import { RegisterRoutes } from './register.routes';
 import { MainRoutes } from './main.routes';
 import { AppClientStackRoutes } from './client/app.client.stack.routes';
+import { USER_TYPES_ENUM } from '../enums/usersType.enum';
 
 export type RootStackClientParamList = {
   HomeClientStack: undefined;
@@ -64,25 +65,27 @@ export function Routes() {
             userClient &&
             !!userClient.addresses &&
             !!userClient.phones &&
-            !!userClient.phones.active &&
             !!userClient.documents &&
             userClient.documents.front &&
-            userClient.documents.back
+            userClient.documents.back &&
+            userClient.types &&
+            userClient.types.some(
+              type => type.name === USER_TYPES_ENUM.PROVIDER,
+            )
           ) {
-            return <AppClientStackRoutes />;
+            return <AppStackInitialRoutes />;
           }
 
           if (
             userClient &&
             !!userClient.addresses &&
             !!userClient.phones &&
+            !!userClient.phones.active &&
             !!userClient.documents &&
             userClient.documents.front &&
-            userClient.documents.back &&
-            userClient.types &&
-            userClient.types.length > 1
+            userClient.documents.back
           ) {
-            return <AppStackInitialRoutes />;
+            return <AppClientStackRoutes />;
           }
         }
 

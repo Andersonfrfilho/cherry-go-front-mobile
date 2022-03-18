@@ -78,11 +78,11 @@ export function ModalMapView({
   const [loadingMoveMap, setLoadingMoveMap] = useState(false);
   const [location, setLocation] = useState({
     region: {
-      latitude: 0,
-      longitude: 0,
+      latitude: -20.558020016068888,
+      longitude: -47.37069373950362,
       latitudeDelta: 0,
       longitudeDelta: 0,
-      accuracy: 0,
+      accuracy: 10,
     },
   });
 
@@ -168,13 +168,20 @@ export function ModalMapView({
 
       calDelta({ accuracy, latitude, longitude });
 
-      await getGeolocationReverse({
+      const data = await getGeolocationReverse({
         longitude: String(longitude),
         latitude: String(latitude),
       });
+      if (data && data.latitude && data.longitude) {
+        const { longitude: longitudeResult, latitude: latitudeResult } = data;
+        calDelta({
+          longitude: longitudeResult,
+          latitude: latitudeResult,
+          accuracy: 10,
+        });
+      }
       setGetCurrentLocation(true);
     } catch (err) {
-      console.log(err);
       setGetCurrentLocation(false);
     } finally {
       setIsLoading(false);
@@ -186,7 +193,11 @@ export function ModalMapView({
     setLoadingMoveMap(true);
     setLoadingAddress(true);
     try {
-      await getGeolocationByAddress(addressParam);
+      const data = await getGeolocationByAddress(addressParam);
+      if (data && data.latitude && data.longitude) {
+        const { longitude, latitude } = data;
+        calDelta({ longitude, latitude, accuracy: 10 });
+      }
     } catch (err) {
       setGetCurrentLocation(false);
     } finally {
@@ -205,15 +216,6 @@ export function ModalMapView({
       setUseLocationManager(false);
       setGetCurrentLocation(false);
       setLoadingMoveMap(false);
-      setLocation({
-        region: {
-          latitude: 0,
-          longitude: 0,
-          latitudeDelta: 0,
-          longitudeDelta: 0,
-          accuracy: 0,
-        },
-      });
     };
   }, []);
   function handleConfirmLocation() {
@@ -257,15 +259,16 @@ export function ModalMapView({
             <>
               <MapViewComponent
                 provider={PROVIDER_GOOGLE}
-                initialRegion={{
+                region={{
                   latitude: location.region.latitude,
                   longitude: location.region.longitude,
                   latitudeDelta: location.region.latitudeDelta,
                   longitudeDelta: location.region.longitudeDelta,
                 }}
-                onRegionChangeComplete={position =>
-                  getReverseLocation(position)
-                }
+                onRegionChangeComplete={position => {
+                  setLocation({ region: { ...position, accuracy: 50 } });
+                  getReverseLocation(position);
+                }}
               />
               <AreaMarker>
                 <MaterialCommunityIcon

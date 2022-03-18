@@ -110,7 +110,7 @@ export function PhoneConfirmation() {
       setPhoneConfirmation(true);
       setResendCode(false);
       setSeconds(60 * 3);
-      navigation.replace('SignUpThirdStep');
+      navigation.replace('SignUpFourthStep');
     } catch {
       await signOut();
       navigation.navigate('AuthRoutes');
