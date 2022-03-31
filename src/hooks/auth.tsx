@@ -104,11 +104,13 @@ function AuthProvider({ children }: AuthProviderProps) {
       } else {
         RootNavigation.navigate('RegisterRoutes');
       }
+
       if (user.phones && user.phones.length > 0 && user.phones[0]) {
         const phoneDatabase = await phoneRepository.createOrUpdate({
           ...user.phones[0].phone,
           active: user.phones[0].active,
         });
+
         await userRepository.createUserPhone({
           user: userDatabase,
           phone: phoneDatabase,

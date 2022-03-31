@@ -11,12 +11,12 @@ const { Navigator, Screen } = createStackNavigator();
 export function AppClientStackRoutes() {
   return (
     <Navigator
-      initialRouteName="AppClientTab"
+      initialRouteName="AppClientTabRoutes"
       screenOptions={{
         headerShown: false,
       }}
     >
-      <Screen name="AppClientTab" component={AppClientTabRoutes} />
+      <Screen name="AppClientTabRoutes" component={AppClientTabRoutes} />
       <Screen
         name="ClientAppointmentStackRoutes"
         component={AppClientAppointmentStagesStackRoutes}

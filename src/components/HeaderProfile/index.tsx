@@ -22,6 +22,18 @@ interface HeaderProps {
   image?: string;
   handleToggleMenu?: () => void;
 }
+export enum PAYMENT_TYPES_ENUM {
+  MONEY = 'money',
+  CARD_DEBIT = 'debit',
+  CARD_CREDIT = 'credit',
+  PIX = 'pix',
+}
+const icons_change = {
+  money: 'money-bill-alt',
+  debit: 'money-check',
+  credit: 'money-check',
+  pix: 'piggy-bank',
+};
 
 export function HeaderProfile({
   image = '',

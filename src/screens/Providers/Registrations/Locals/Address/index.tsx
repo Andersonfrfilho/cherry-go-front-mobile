@@ -273,7 +273,15 @@ export function RegistrationsAvailabilitiesAddressesProvider() {
     setOpenModalMapView(true);
   }
 
-  function handleClosedModalMapView() {
+  function handleClosedModalMapView(data) {
+    if (data.location) {
+      if (data.location.region.latitude) {
+        setValue('latitude', String(data.location.region.latitude));
+      }
+      if (data.location.region.longitude) {
+        setValue('longitude', String(data.location.region.longitude));
+      }
+    }
     setOpenModalMapView(false);
   }
 
@@ -304,7 +312,7 @@ export function RegistrationsAvailabilitiesAddressesProvider() {
 
       if (address.state) {
         const stateShort = stateListSelected.find(
-          state => state.label.toLowerCase() === address.state.toLowerCase(),
+          state => state.value.toLowerCase() === address.state.toLowerCase(),
         )?.value;
         if (stateShort) {
           setValue('state', stateShort);
@@ -384,7 +392,7 @@ export function RegistrationsAvailabilitiesAddressesProvider() {
       <HeaderProfile
         name={name}
         lastName={lastName}
-                image={
+        image={
           imageProfile &&
           imageProfile.length > 0 &&
           imageProfile[0].image &&
@@ -448,7 +456,7 @@ export function RegistrationsAvailabilitiesAddressesProvider() {
                     mask="[00].[000]-[000]"
                     inputRef={refZipCode}
                     keyboardType="numeric"
-                    onEndEditing={handleFindCep}
+                    onSubmitEditing={handleFindCep}
                     percentWidth={58}
                   />
                   <FormInput
@@ -462,7 +470,7 @@ export function RegistrationsAvailabilitiesAddressesProvider() {
                     editable={!loadingLocal && !isLoading && !loadingAddress}
                     inputRef={refNumber}
                     keyboardType="numeric"
-                    onEndEditing={() => handleNumberOnEndEditing()}
+                    onSubmitEditing={() => handleNumberOnEndEditing()}
                     maxLength={6}
                     percentWidth={40}
                   />
@@ -477,7 +485,7 @@ export function RegistrationsAvailabilitiesAddressesProvider() {
                   autoCorrect={false}
                   editable={!loadingLocal && !isLoading && !loadingAddress}
                   inputRef={refStreet}
-                  onEndEditing={() => refNumber.current?.focus()}
+                  onSubmitEditing={() => refNumber.current?.focus()}
                   maxLength={100}
                 />
 
@@ -491,7 +499,7 @@ export function RegistrationsAvailabilitiesAddressesProvider() {
                   autoCorrect={false}
                   editable={!loadingLocal && !isLoading && !loadingAddress}
                   inputRef={refDistrict}
-                  onEndEditing={() => refState.current?.focus()}
+                  onSubmitEditing={() => refState.current?.focus()}
                   maxLength={100}
                 />
                 <SelectedPicker
@@ -568,7 +576,7 @@ export function RegistrationsAvailabilitiesAddressesProvider() {
                   iconColor={theme.colors.success_chateau}
                   editable={!loadingLocal && !isLoading && !loadingAddress}
                   inputRef={refComplement}
-                  onEndEditing={() => refReference.current?.focus()}
+                  onSubmitEditing={() => refReference.current?.focus()}
                   maxLength={30}
                 />
                 <FormInput
@@ -580,7 +588,7 @@ export function RegistrationsAvailabilitiesAddressesProvider() {
                   iconColor={theme.colors.success_chateau}
                   editable={!loadingLocal && !isLoading && !loadingAddress}
                   inputRef={refReference}
-                  onEndEditing={() => refAmount.current?.focus()}
+                  onSubmitEditing={() => refAmount.current?.focus()}
                   maxLength={30}
                 />
                 <FormInput

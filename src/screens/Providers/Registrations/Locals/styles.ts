@@ -78,7 +78,7 @@ export const AreaCheckBoxAddAddress = styled.TouchableOpacity<CheckSelected>`
   justify-content: space-around;
   align-items: center;
 
-  background-color: ${({ theme }) => theme.colors.text};
+  background-color: ${({ theme }) => theme.colors.main_light};
 
   border-radius: 12px;
 
@@ -87,12 +87,6 @@ export const AreaCheckBoxAddAddress = styled.TouchableOpacity<CheckSelected>`
   border: solid;
   border-width: 3px;
   border-color: ${({ theme }) => theme.colors.bon_jour_dark_shade};
-
-  ${({ theme, selected }) =>
-    selected &&
-    css`
-      background-color: ${theme.colors.success_chateau_green};
-    `}
 `;
 
 export const AreaTitleLocalType = styled.View`
@@ -130,7 +124,7 @@ export const TitleLocalType = styled.Text<CheckSelected>`
 export const TitleAddLocal = styled.Text`
   font-size: ${RFValue(20)}px;
   font-family: ${({ theme }) => theme.fonts.primary_700};
-  color: ${({ theme }) => theme.colors.main_light};
+  color: ${({ theme }) => theme.colors.background_primary};
 `;
 
 export const TitleLocal = styled.Text`

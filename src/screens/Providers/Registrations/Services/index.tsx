@@ -9,30 +9,8 @@ import {
   Title,
   Form,
   Icon,
-  AreaLocalClient,
-  AreaTextInfoDateLocal,
-  AreaAppointmentButton,
   AreaIcon,
-  List,
-  AreaPhoto,
-  PhotoClientAppointment,
-  IconInfoDateLocal,
-  AreaInfoLocalDate,
-  AreaInfoLocal,
-  IconInfoLocal,
-  AreaTextInfoLocal,
-  TextInfoLocal,
-  AreaAmount,
-  ValueAmount,
-  AreaInfoDate,
-  AreaCheckBox,
-  TitleLocalType,
-  AreaLocalOwn,
-  AreaLocalOwners,
-  AreaLocalOwnLocals,
-  AreaLocalOwnLocal,
   IconMaterialCommunity,
-  AreaCheckBoxAddAddress,
   AreaServices,
   AreaServiceTitle,
   AreaServicesContent,
@@ -54,6 +32,7 @@ import { useError } from '../../../../hooks/error';
 import { useLocal } from '../../../../hooks/local';
 import { LOCALS_TYPES_ENUM } from '../../../../enums/localsTypes.enum';
 import { getValueAmount } from '../../../../utils/formatValueAmount';
+import { getMinutes } from '../../../../utils/getMinutes';
 
 export interface Focusable {
   focus(): void;
@@ -115,7 +94,7 @@ export function RegistrationsAvailabilitiesServicesProvider() {
       <HeaderProfile
         name={name}
         lastName={lastName}
-                image={
+        image={
           imageProfile &&
           imageProfile.length > 0 &&
           imageProfile[0].image &&
@@ -174,6 +153,16 @@ export function RegistrationsAvailabilitiesServicesProvider() {
                       <AreaTitleServiceType>
                         <TitleService numberOfLines={3}>
                           {service.name}
+                        </TitleService>
+                      </AreaTitleServiceType>
+                      <AreaTitleServiceType>
+                        <TitleService numberOfLines={3}>
+                          {getMinutes(service.duration)}
+                        </TitleService>
+                      </AreaTitleServiceType>
+                      <AreaTitleServiceType>
+                        <TitleService numberOfLines={3}>
+                          {getValueAmount(service.amount)}
                         </TitleService>
                       </AreaTitleServiceType>
                       <AreaIconRemoveService

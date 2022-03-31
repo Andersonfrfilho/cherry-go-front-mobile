@@ -655,8 +655,9 @@ function ProviderUserProvider({ children }: ProviderUserProviderProps) {
     paymentsTypes: PAYMENT_TYPES_ENUM[],
   ): Promise<void> {
     setIsLoading(true);
+
     try {
-      const { data } = await api.patch('/v1/users/providers/payment_type', {
+      const { data } = await api.patch('/v1/users/providers/payments_types', {
         payments_types: paymentsTypes,
       });
       setUserProvider({ ...userProvider, payments_types: data });
@@ -692,6 +693,7 @@ function ProviderUserProvider({ children }: ProviderUserProviderProps) {
       const {
         data: { locals, locals_types },
       } = await api.post('/v1/users/providers/locals/types', data);
+
       setUserProvider({ ...userProvider, locals, locals_types });
     } catch (error) {
       appErrorVerifyError(error);

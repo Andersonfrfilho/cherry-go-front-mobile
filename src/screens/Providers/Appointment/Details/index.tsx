@@ -119,7 +119,7 @@ export function AppointmentsDetailsProvider() {
       <HeaderProfile
         name={name}
         lastName={lastName}
-                image={
+        image={
           imageProfile &&
           imageProfile.length > 0 &&
           imageProfile[0].image &&
@@ -514,7 +514,7 @@ export function AppointmentsDetailsProvider() {
                 )}
                 {(appointment.providers[0].status ===
                   STATUS_PROVIDERS_APPOINTMENT.ACCEPTED ||
-                  appointment.providers[0].status ===
+                  appointment.providers[0].status !==
                     STATUS_PROVIDERS_APPOINTMENT.OPEN) && (
                   <Button
                     title="Cancelar"
@@ -527,12 +527,15 @@ export function AppointmentsDetailsProvider() {
                   />
                 )}
 
-                <Button
-                  title="Voltar"
-                  onPress={handleCanBack}
-                  enabled={!isLoading}
-                  loading={isLoading}
-                />
+                {appointment.providers[0].status !==
+                  STATUS_PROVIDERS_APPOINTMENT.OPEN && (
+                  <Button
+                    title="Voltar"
+                    onPress={handleCanBack}
+                    enabled={!isLoading}
+                    loading={isLoading}
+                  />
+                )}
               </AreaAppointmentStatusButtons>
             </AreaAppointmentStatus>
           </AreaAppointments>

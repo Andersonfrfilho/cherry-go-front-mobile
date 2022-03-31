@@ -196,7 +196,7 @@ Base de processos para criação de projetos no REACT-NATIVE (diferende do REACT
 		adb devices
 
 1º Inicie o emulador
-    emulator -no-snapshot -avd Pixel_3_API_28_86
+    emulator -no-snapshot -avd Pixel_5
 
 
 2º inicie o projeto

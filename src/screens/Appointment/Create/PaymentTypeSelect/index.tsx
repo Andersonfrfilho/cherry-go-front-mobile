@@ -195,6 +195,7 @@ export function ClientAppointmentCreatePaymentTypeSelect() {
         amountTotal,
         status: STATUS_PROVIDERS_APPOINTMENT.OPEN,
       });
+
       navigation.navigate('ClientAppointmentDetailsStack', {
         providerSelect,
         servicesSelect,

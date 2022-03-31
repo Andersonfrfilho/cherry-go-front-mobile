@@ -83,7 +83,7 @@ export const AreaButtonLocalClient = styled.View``;
 export const LocalTitleClient = styled.Text`
   font-family: ${({ theme }) => theme.fonts.primary_400};
   color: ${({ theme }) => theme.colors.main_light};
-  font-size: ${RFValue(20)}px;
+  font-size: ${RFValue(16)}px;
 `;
 export const AreaLocalButtonProvider = styled.TouchableOpacity<AreaLocalSelectProps>`
   height: 80px;
@@ -103,7 +103,7 @@ export const AreaListProviderLocals = styled.ScrollView`
   flex: 4;
 `;
 export const AreaTitleLocalProvider = styled.View`
-  flex: 3;
+  flex: 2;
 
   justify-content: center;
 `;

@@ -29,7 +29,6 @@ async function createOrUpdate(phone: Phone): Promise<ModelPhone> {
       newPhone.number = phone.number;
       newPhone.active = phone.active;
     });
-
     return phoneCreate;
   });
 

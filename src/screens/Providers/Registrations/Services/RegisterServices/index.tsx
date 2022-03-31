@@ -64,7 +64,10 @@ const schema = Yup.object().shape({
   amount: Yup.number()
     .max(999999999, 'O valor maximo é 9.999.999,99')
     .required('valor é requerido'),
-  tags: Yup.array().of(Yup.string()).required('selecione alguma tag'),
+  tags: Yup.array()
+    .of(Yup.string())
+    .required('selecione alguma tag')
+    .optional(),
 });
 
 export function RegistrationsAvailabilitiesServicesAditionalProvider() {
@@ -106,6 +109,7 @@ export function RegistrationsAvailabilitiesServicesAditionalProvider() {
   async function handleRegisterService(form: FormData) {
     await registerServiceProvider({
       ...form,
+      duration: form.duration * 60 * 1000,
       amount: onlyNumber(String(form.amount)),
     });
     navigation.replace(
@@ -175,7 +179,7 @@ export function RegistrationsAvailabilitiesServicesAditionalProvider() {
       <HeaderProfile
         name={name}
         lastName={lastName}
-                image={
+        image={
           imageProfile &&
           imageProfile.length > 0 &&
           imageProfile[0].image &&

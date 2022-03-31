@@ -198,7 +198,7 @@ export const AreaTextCityState = styled.View`
 `;
 
 export const TextCityState = styled.Text`
-  font-size: ${RFValue(20)}px;
+  font-size: ${RFValue(16)}px;
   font-family: ${({ theme }) => theme.fonts.primary_700};
   color: ${({ theme }) => theme.colors.text};
 `;

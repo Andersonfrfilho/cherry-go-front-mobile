@@ -141,6 +141,12 @@ export const AreaLogoTitle = styled.View`
   width: ${RFValue(300)}px;
   margin-top: 10px;
 `;
+export const AreaTitlePaymentMethod = styled.View`
+  height: 80px;
+  width: 100%;
+  justify-content: center;
+  padding-left: 10px;
+`;
 
 export const AreaTitle = styled.View`
   flex: 3;

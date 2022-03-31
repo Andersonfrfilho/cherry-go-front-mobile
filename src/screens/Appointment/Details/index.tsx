@@ -123,6 +123,7 @@ import { getMinutes } from '../../../utils/getMinutes';
 import { formatarCEP } from '../../../utils/formatCep';
 import { TRANSPORT_TYPE_PROVIDER_TRANSLATE_ENUM } from '../../../enums/transportTypeProvider.enum';
 import { PAYMENT_TYPES_ENUM } from '../../../enums/PaymentTypes.enum';
+import { navigate } from '../../../routes/RootNavigation';
 
 const GOOGLE_MAPS_APIKEY = 'AIzaSyD0gMj0W2pDcNWGYmtRh5zU4mxMLdg6vLw';
 export interface Focusable {
@@ -162,14 +163,6 @@ export function ClientAppointmentDetails() {
   const route = useRoute();
   const theme = useTheme();
 
-  const [handleContinued, setHandleContinued] = useState<boolean>(false);
-  const [transportTypesAvailable, setTransportTypesAvailable] = useState<
-    ProviderTransportTypesSelected[]
-  >([] as ProviderTransportTypesSelected[]);
-  const [transportTypesAvailableOriginal, setTransportTypesAvailableOriginal] =
-    useState<ProviderTransportTypesSelected[]>(
-      [] as ProviderTransportTypesSelected[],
-    );
   const [coordinateLocal, setCoordinateLocal] = useState<Coordinates>({
     latitude: -20.558,
     longitude: -47.3707,
@@ -194,8 +187,6 @@ export function ClientAppointmentDetails() {
   const { appError, setAppError } = useError();
   const { userClient, invalidateAppointmentStageClient, createAppointment } =
     useClientUser();
-  const { getTags, tags } = useTag();
-  const { signIn, signOut } = useAuth();
 
   const navigation = useNavigation<ScreenNavigationProp>();
   const {
@@ -298,38 +289,17 @@ export function ClientAppointmentDetails() {
     navigation.navigate('ClientAppointmentStagesProviderSelectServiceStack');
   }
 
-  async function handleConfirmAppointment() {
-    if (
-      paymentType?.payment_type.name === PAYMENT_TYPES_ENUM.CARD_CREDIT ||
-      paymentType?.payment_type.name === PAYMENT_TYPES_ENUM.CARD_DEBIT
-    ) {
-      navigation.navigate('ClientAppointmentPaymentCardStack', {
-        providerSelect,
-        servicesSelect,
-        necessaryMilliseconds,
-        hours,
-        local,
-        transportType,
-        paymentType,
-        amountTotal,
-        notConfirmed,
-        status,
-      });
-    } else {
-      const status = await createAppointment();
-      route.params.status = status;
-    }
+  async function handleCreateAppointment() {
+    const statusResponse = await createAppointment();
+    route.params.status = statusResponse;
+    navigation.navigate('ClientAppointmentAnimationConfirmStack');
   }
 
-  // async function handleCreateAppointment() {
-  //   try {
-  //     // const status = await createAppointment();
-  //     // route.params.status = status;
-  //   } catch (error) {
-  //   } finally {
-  //   }
-  // }
-
+  function handleCanBack() {
+    navigation.replace('AppointmentClientTab');
+  }
+  console.log('########status');
+  console.log(status);
   return (
     <Container>
       <StatusBar
@@ -550,19 +520,24 @@ export function ClientAppointmentDetails() {
           </AreaPaymentTypeAmount>
         </AreaPaymentType>
         <AreaButtons>
-          <AreaButtonBack onPress={handleCancelAppointment}>
-            <TitleButtonBack>Cancelar</TitleButtonBack>
-          </AreaButtonBack>
           {notConfirmed && (
-            <AreaButtonNext onPress={handleConfirmAppointment}>
-              <TitleButtonNext>Confirmar</TitleButtonNext>
-            </AreaButtonNext>
+            <>
+              <AreaButtonBack onPress={handleCancelAppointment}>
+                <TitleButtonBack>Cancelar</TitleButtonBack>
+              </AreaButtonBack>
+
+              <AreaButtonNext onPress={handleCreateAppointment}>
+                <TitleButtonNext>Confirmar</TitleButtonNext>
+              </AreaButtonNext>
+            </>
           )}
-          {!notConfirmed && status && (
-            <AreaButtonNext onPress={handleCreateAppointment}>
-              <TitleButtonNext>Confirmar</TitleButtonNext>
-            </AreaButtonNext>
-          )}
+          {status === STATUS_PROVIDERS_APPOINTMENT.OPEN ||
+            status === STATUS_PROVIDERS_APPOINTMENT.ACCEPTED ||
+            (status === STATUS_PROVIDERS_APPOINTMENT.REJECTED && (
+              <AreaButtonBack onPress={handleCanBack}>
+                <TitleButtonBack>Voltar</TitleButtonBack>
+              </AreaButtonBack>
+            ))}
         </AreaButtons>
       </Body>
     </Container>

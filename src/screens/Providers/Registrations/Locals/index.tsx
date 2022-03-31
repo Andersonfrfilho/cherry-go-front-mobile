@@ -95,7 +95,7 @@ export function RegistrationsAvailabilitiesLocalsProvider() {
       deleteLocalsTypesAvailable([id]);
       return;
     }
-    createLocalsTypesAvailable(['client']);
+    await createLocalsTypesAvailable(['client']);
   }
 
   async function handleSetOwnTypeLocal({
@@ -106,7 +106,7 @@ export function RegistrationsAvailabilitiesLocalsProvider() {
       deleteLocalsTypesAvailable([id]);
       return;
     }
-    createLocalsTypesAvailable(['own']);
+    await createLocalsTypesAvailable(['provider']);
   }
 
   useEffect(() => {
@@ -126,7 +126,9 @@ export function RegistrationsAvailabilitiesLocalsProvider() {
         ),
       );
       setLocalOwnAvailable(
-        locals_types.some(local => local.local_type === LOCALS_TYPES_ENUM.OWN),
+        locals_types.some(
+          local => local.local_type === LOCALS_TYPES_ENUM.PROVIDER,
+        ),
       );
     } else {
       setLocalClientAvailable(false);
@@ -152,7 +154,7 @@ export function RegistrationsAvailabilitiesLocalsProvider() {
       <HeaderProfile
         name={name}
         lastName={lastName}
-                image={
+        image={
           imageProfile &&
           imageProfile.length > 0 &&
           imageProfile[0].image &&
@@ -230,7 +232,7 @@ export function RegistrationsAvailabilitiesLocalsProvider() {
                         ? handleSetOwnTypeLocal({
                             id: locals_types.find(
                               local =>
-                                local.local_type === LOCALS_TYPES_ENUM.OWN,
+                                local.local_type === LOCALS_TYPES_ENUM.PROVIDER,
                             )?.id,
                             selected: localOwnAvailable,
                           })
@@ -260,25 +262,23 @@ export function RegistrationsAvailabilitiesLocalsProvider() {
                 </AreaLocalOwn>
                 <AreaLocalOwnLocals>
                   <AreaLocalOwnLocal>
-                    <AreaCheckBoxAddAddress
-                      selected={localOwnAvailable}
-                      onPress={handlePageAddAddress}
-                    >
-                      <AreaIcon>
-                        <IconMaterialCommunity
-                          name="map-marker-plus"
-                          size={RFValue(30)}
-                          color={
-                            localOwnAvailable
-                              ? theme.colors.main_light
-                              : theme.colors.background_primary
-                          }
-                        />
-                      </AreaIcon>
-                      <AreaTitleLocalType>
-                        <TitleAddLocal>Adicionar local</TitleAddLocal>
-                      </AreaTitleLocalType>
-                    </AreaCheckBoxAddAddress>
+                    {localOwnAvailable && (
+                      <AreaCheckBoxAddAddress
+                        selected={localOwnAvailable}
+                        onPress={handlePageAddAddress}
+                      >
+                        <AreaIcon>
+                          <IconMaterialCommunity
+                            name="map-marker-plus"
+                            size={RFValue(30)}
+                            color={theme.colors.background_primary}
+                          />
+                        </AreaIcon>
+                        <AreaTitleLocalType>
+                          <TitleAddLocal>Adicionar local</TitleAddLocal>
+                        </AreaTitleLocalType>
+                      </AreaCheckBoxAddAddress>
+                    )}
                     <AreaLocalsAvailable>
                       {locals &&
                         locals?.map((local, index) => (

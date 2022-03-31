@@ -109,6 +109,7 @@ export function RegistrationsDetailsProvider() {
         height: onlyNumber(String(form.height)),
       },
     });
+    navigation.replace('RegistrationsProviderRoutesProviderStack');
   }
 
   function handleChangeSelectedColorHair(value: string) {

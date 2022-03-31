@@ -155,7 +155,6 @@ export function ClientAppointmentCreateTransportSelect() {
   function handleBackClientSelect() {
     navigation.goBack();
   }
-  function handleSelectTransport() {}
 
   useEffect(() => {
     let unmounted = false;

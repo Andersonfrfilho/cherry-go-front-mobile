@@ -199,7 +199,7 @@ export function ClientAppointmentCreateLocalSelect() {
       details: localDistanceFormatted,
     });
     const localTypeSelectFound = locals_types.find(
-      local_type => local_type.local_type === LOCALS_TYPES_ENUM.OWN,
+      local_type => local_type.local_type === LOCALS_TYPES_ENUM.PROVIDER,
     );
 
     if (localTypeSelectFound) {
@@ -232,7 +232,7 @@ export function ClientAppointmentCreateLocalSelect() {
         );
         setHandleLocalProvider(
           locals_types.some(
-            local_type => local_type.local_type === LOCALS_TYPES_ENUM.OWN,
+            local_type => local_type.local_type === LOCALS_TYPES_ENUM.PROVIDER,
           ),
         );
         if (!!locals && locals?.length > 0) {

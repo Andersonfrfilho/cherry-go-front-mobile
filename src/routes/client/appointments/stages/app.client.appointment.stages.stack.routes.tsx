@@ -9,6 +9,7 @@ import { ClientAppointmentCreateTransportSelect } from '../../../../screens/Appo
 import { ClientAppointmentCreatePaymentTypeSelect } from '../../../../screens/Appointment/Create/PaymentTypeSelect';
 import { ClientAppointmentDetails } from '../../../../screens/Appointment/Details';
 import { ClientAppointmentPaymentCard } from '../../../../screens/Appointment/Payment';
+import { ClientAppointmentAnimationConfirm } from '../../../../screens/Appointment/ConfirmAnimation';
 
 const { Navigator, Screen } = createNativeStackNavigator();
 
@@ -49,6 +50,10 @@ export function AppClientAppointmentStagesStackRoutes() {
       <Screen
         name="ClientAppointmentPaymentCardStack"
         component={ClientAppointmentPaymentCard}
+      />
+      <Screen
+        name="ClientAppointmentAnimationConfirmStack"
+        component={ClientAppointmentAnimationConfirm}
       />
     </Navigator>
   );

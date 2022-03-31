@@ -76,6 +76,7 @@ export function RegistrationsAvailabilitiesDaysProvider() {
     }));
     setSelectedDaysProvider(newDaysSelected);
   }
+
   useEffect(() => {
     setSelectedDaysProvider(daysForSelected);
   }, []);
@@ -84,7 +85,7 @@ export function RegistrationsAvailabilitiesDaysProvider() {
     const daysSelected = days.filter(day => day.selected).map(day => day.day);
 
     await availableDaysToProviderWork(daysSelected);
-    navigation.replace('HomeProviderStack');
+    navigation.replace('RegistrationsProviderRoutesProviderStack');
   }
 
   function handleBackPage() {
@@ -100,7 +101,7 @@ export function RegistrationsAvailabilitiesDaysProvider() {
       <HeaderProfile
         name={name}
         lastName={lastName}
-                image={
+        image={
           imageProfile &&
           imageProfile.length > 0 &&
           imageProfile[0].image &&

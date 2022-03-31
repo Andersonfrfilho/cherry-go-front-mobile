@@ -3,13 +3,11 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { TransitionPresets } from '@react-navigation/stack';
 import { useTheme } from 'styled-components';
 import { RFValue } from 'react-native-responsive-fontsize';
-import { Profile } from '../../screens/Profile';
-import { MyCars } from '../../screens/MyCars';
+import { MyAppointments } from '../../screens/MyAppointments';
 
-import CarSvg from '../../assets/car.svg';
-import PeopleSvg from '../../assets/people.svg';
 import HomeSvg from '../../assets/home.svg';
 import { AppClientDrawerRoutes } from './app.client.home.drawer.routes';
+import { IconFeather } from '../../components/Icons/style';
 
 const { Navigator, Screen } = createBottomTabNavigator();
 export function AppClientTabRoutes() {
@@ -41,7 +39,7 @@ export function AppClientTabRoutes() {
       />
       <Screen
         name="AppointmentClientTab"
-        component={MyCars}
+        component={MyAppointments}
         options={{
           tabBarLabel: 'Agendamentos',
           tabBarActiveTintColor: theme.colors.text,
@@ -51,11 +49,11 @@ export function AppClientTabRoutes() {
             fontFamily: theme.fonts.primary_300,
           },
           tabBarIcon: ({ color }) => (
-            <CarSvg width={24} height={24} fill={color} />
+            <IconFeather name="calendar" size={RFValue(24)} color={color} />
           ),
         }}
       />
-      <Screen
+      {/* <Screen
         name="AppointmentProfileTab"
         component={Profile}
         options={{
@@ -70,7 +68,7 @@ export function AppClientTabRoutes() {
             <PeopleSvg width={24} height={24} fill={color} />
           ),
         }}
-      />
+      /> */}
     </Navigator>
   );
 }

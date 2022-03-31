@@ -122,7 +122,9 @@ export function RegistrationsAvailabilitiesTransportTypesProvider() {
           )?.amount;
 
         setAmountTransport(
-          !!amount && Number(amount) > 0 ? String(Number(amount) / 100) : '0',
+          !!amount && Number(amount) > 0
+            ? (Number(amount) / 100).toString()
+            : '0',
         );
         return {
           ...transport,
@@ -168,9 +170,7 @@ export function RegistrationsAvailabilitiesTransportTypesProvider() {
           )?.amount;
 
         setAmountTransport(
-          !!amount && Number(amount) > 0
-            ? String(Number(amount) / (10 * 10 * 10))
-            : '0',
+          !!amount && Number(amount) > 0 ? String(Number(amount) / 100) : '0',
         );
         return {
           ...transport,
@@ -181,9 +181,7 @@ export function RegistrationsAvailabilitiesTransportTypesProvider() {
                 transportTypeProvider.transport_type_id === transport.id,
             ),
           amount:
-            !!amount && Number(amount) > 0
-              ? String(Number(amount) / (10 * 10 * 10))
-              : '0',
+            !!amount && Number(amount) > 0 ? String(Number(amount) / 100) : '0',
         };
       }
 
@@ -261,7 +259,7 @@ export function RegistrationsAvailabilitiesTransportTypesProvider() {
       <HeaderProfile
         name={name}
         lastName={lastName}
-                image={
+        image={
           imageProfile &&
           imageProfile.length > 0 &&
           imageProfile[0].image &&

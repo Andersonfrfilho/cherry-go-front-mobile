@@ -103,8 +103,10 @@ export function RegistrationsAvailabilitiesPaymentsMethodsProvider() {
     const selectedPaymentAvailable = paymentTypesAvailable.map(paymentType => {
       if (
         PaymentsTypes &&
-        PaymentsTypes.some(
-          paymentTypes => paymentTypes.payment.name === paymentType.name,
+        PaymentsTypes.find(
+          paymentTypes =>
+            paymentTypes.payment_type.name === paymentType.name &&
+            paymentTypes.active,
         )
       ) {
         return {
@@ -117,10 +119,9 @@ export function RegistrationsAvailabilitiesPaymentsMethodsProvider() {
         selected: false,
       };
     });
-
     setPaymentTypesAvailableSelected(selectedPaymentAvailable);
     setPaymentTypesAvailableSelectedOrigin(selectedPaymentAvailable);
-  }, [paymentTypesAvailable]);
+  }, [paymentTypesAvailable, PaymentsTypes]);
 
   useEffect(() => {
     if (
@@ -152,10 +153,9 @@ export function RegistrationsAvailabilitiesPaymentsMethodsProvider() {
     );
     setPaymentTypesAvailableSelected(selectedPaymentAvailable);
   }
-  async function handleSendPaymentTypes(
-    paymentTypesAvailableSelectedParam: SelectedPaymentAvailable[],
-  ) {
-    const paymentsType = paymentTypesAvailableSelectedParam
+
+  async function handleSendPaymentTypes() {
+    const paymentsType = paymentTypesAvailableSelected
       .filter(paymentType => paymentType.selected)
       .map(paymentType => paymentType.name);
 
@@ -168,29 +168,6 @@ export function RegistrationsAvailabilitiesPaymentsMethodsProvider() {
     credit: 'Cartão - Crédito',
     pix: 'Pix',
   };
-
-  useEffect(() => {
-    const selectedPaymentAvailable = paymentTypesAvailable.map(paymentType => {
-      if (
-        PaymentsTypes &&
-        PaymentsTypes.some(
-          paymentTypes => paymentTypes.payment.name === paymentType.name,
-        )
-      ) {
-        return {
-          ...paymentType,
-          selected: true,
-        };
-      }
-      return {
-        ...paymentType,
-        selected: false,
-      };
-    });
-
-    setPaymentTypesAvailableSelected(selectedPaymentAvailable);
-    setPaymentTypesAvailableSelectedOrigin(selectedPaymentAvailable);
-  }, [userProvider]);
 
   function handleGoToRegisterAccountBank() {
     navigation.push('RegistrationsAccountBankProviderStack');
@@ -206,7 +183,7 @@ export function RegistrationsAvailabilitiesPaymentsMethodsProvider() {
       <HeaderProfile
         name={name}
         lastName={lastName}
-                image={
+        image={
           imageProfile &&
           imageProfile.length > 0 &&
           imageProfile[0].image &&
@@ -344,7 +321,7 @@ export function RegistrationsAvailabilitiesPaymentsMethodsProvider() {
                 </>
               )}
               {applyChangePaymentMethod && (
-                <AreaSavedPaymentsTypes>
+                <AreaSavedPaymentsTypes onPress={handleSendPaymentTypes}>
                   <TitlePaymentTypeButton>Salvar</TitlePaymentTypeButton>
                 </AreaSavedPaymentsTypes>
               )}

@@ -121,6 +121,17 @@ async function removeAll(): Promise<void> {
   });
 }
 
+async function removeUserPhone(): Promise<void> {
+  const userCollection = database.get<ModelUser>('users');
+  const phoneCollection = database.get<ModelPhone>('phones');
+  const userPhoneCollection = database.get<ModelUserPhone>('users_phones');
+
+  await database.write(async () => {
+    await userPhoneCollection.query().destroyAllPermanently();
+    await phoneCollection.query().destroyAllPermanently();
+  });
+}
+
 async function removeAllDatabase(): Promise<void> {
   await database.write(async () => {
     await database.unsafeResetDatabase();
@@ -209,4 +220,5 @@ export const userRepository = {
   createUserTerm,
   createUserTypeUser,
   getUser,
+  removeUserPhone,
 };

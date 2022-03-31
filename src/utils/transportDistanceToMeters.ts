@@ -12,11 +12,13 @@ export function transportDistanceToMeters({
 }: ParamsDTO): ResponseDTO {
   const data =
     amount && distanceInMeters
-      ? Number((Number(amount) / 100) * Number(distanceInMeters)).toFixed(2)
+      ? Number((Number(amount) / 1000) * Number(distanceInMeters)) / 100
       : 0;
 
   return {
-    value: Number(Number(data * 100).toFixed(0)),
+    value: Number(data / 100)
+      .toFixed(0)
+      .toString(),
     text: new Intl.NumberFormat('pt-BR', {
       style: 'currency',
       currency: 'BRL',

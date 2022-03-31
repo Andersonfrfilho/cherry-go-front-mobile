@@ -1,4 +1,5 @@
 import React, { createContext, ReactNode, useContext, useState } from 'react';
+import Geolocation from 'react-native-geolocation-service';
 import { GENDER_ENUM } from '../enums/genderType.enum';
 import { api } from '../services/api';
 import { userRepository } from '../databases/repository/user.repository';
@@ -61,6 +62,7 @@ type ClientUserContextData = {
   invalidateAppointmentStageClient():Promise<void>;
   createAppointment():Promise<void>;
   initialRegisterClient():Promise<void>;
+  getClientAppointments():Promise<[Appointment[],number]>;
 };
 
 export interface HourSelectInterface{
@@ -256,9 +258,14 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
   const [userClient, setUserClient] = useState<UserClientDatabase>({} as UserClientDatabase);
   const [token, setToken] = useState<Token>({} as Token);
   const [countdown, setCountdown] = useState(0);
+  const [distance, setDistance] = useState(100);
   const [phone, setPhone] = useState('');
   const [userIdResetPassword, setUserIdResetPassword] = useState('');
   const [providers, setProviders] = useState([] as UserProvider[]);
+  const [highAccuracy, setHighAccuracy] = useState(true);
+  const [forceLocation, setForceLocation] = useState(true);
+  const [locationDialog, setLocationDialog] = useState(true);
+  const [useLocationManager, setUseLocationManager] = useState(false);
 
   const { setIsLoading } = useCommon();
   const { appErrorVerifyError } = useError();
@@ -341,12 +348,20 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
 
       setToken({ token })
 
-      const [phone] = user.phones;
+      const [userDatabase] = await userRepository.findAll();
 
-      await phoneRepository.createOrUpdate({...phone.phone,active:phone.active})
+      const phoneDatabase = await phoneRepository.createOrUpdate({
+        ...user.phones[0].phone,
+        active: user.phones[0].active,
+      });
 
+      await userRepository.createUserPhone({
+        user: userDatabase,
+        phone: phoneDatabase,
+      });
       await tokenRepository.createOrUpdate({ token })
-
+      const userUpdate = await userDatabase.getUser();
+      setUserClient({ ...userUpdate });
     } catch (err) {
       await userRepository.removeAll();
     }
@@ -470,7 +485,22 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
         '/v1/users/confirm/phone',
         { code, token: token || token_db, user_id },
       );
-      setUserIdResetPassword(user_id)
+
+      await userRepository.removeUserPhone();
+      const [userDatabase] = await userRepository.findAll();
+      const phoneDatabase = await phoneRepository.createOrUpdate({
+        country_code:userClient.phones.country_code,
+        ddd:userClient.phones.ddd,
+        number:userClient.phones.number,
+        active: true
+      });
+      await userRepository.createUserPhone({
+        user: userDatabase,
+        phone: phoneDatabase,
+      });
+      const [userUpdate] = await userRepository.findAll();
+      const userUpdated = await userUpdate.getUser();
+      setUserClient(userUpdated)
     } catch (err) {
       if (NOT_FOUND[404][4001].code === err.response.data.code && NOT_FOUND[404][4001].status_code === err.response.status && NOT_FOUND[404][4001].message === err.response.data.message) {
         await userRepository.removeAll();
@@ -652,7 +682,8 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
   async function updateDetails({ details }: UpdateDetailsProps): Promise<void> {
     setIsLoading(true)
     try {
-      await api.put('/v1/users/clients/details', { details });
+      const {data:user} = await api.put('/v1/users/clients/details', { details });
+      setUserClient(user)
     } catch (err) {
       appErrorVerifyError(err);
     } finally {
@@ -698,11 +729,41 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
       setIsLoading(false)
     }
   }
-  async function getProviders({ distance, longitude, latitude }: GetProvidersDTO): Promise<void> {
+  async function getProviders(): Promise<void> {
     setIsLoading(true)
+    const position = await new Promise<Geolocation.GeoPosition>(
+      (resolve, reject) => {
+        Geolocation.getCurrentPosition(
+          positionCurrent => {
+            resolve(positionCurrent);
+          },
+          error => {
+            reject(error);
+          },
+          {
+            accuracy: {
+              android: 'high',
+              ios: 'best',
+            },
+            enableHighAccuracy: highAccuracy,
+            timeout: 15000,
+            maximumAge: 10000,
+            distanceFilter: 0,
+            forceRequestLocation: forceLocation,
+            forceLocationManager: useLocationManager,
+            showLocationDialog: locationDialog,
+          },
+        );
+      },
+    );
+
+    const params = {}
+
+    Object.assign(params, position.coords);
+
     try {
       const { data: providers } = await api.get('/v1/users/clients/providers/available', {
-        data: { distance, longitude, latitude }
+        params: { distance,position:params }
       });
       setProviders(providers)
     } catch (err) {
@@ -767,7 +828,7 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
   async function getHoursProvidersSelect({providerId,duration}:GetProviderHoursSelectedParamsDTO){
     setIsLoading(true);
     try {
-
+      console.log(providerId,duration)
       const queryParams = {
         params: { provider_id:providerId,duration },
       };
@@ -808,8 +869,8 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
   async function createAppointment(){
     setIsLoading(true);
     try {
-      await api.post('/v1/users/clients/appointment');
-      await api.delete('/v1/users/clients/appointment/stage');
+      const { data } = await api.post('/v1/users/clients/appointment');
+      return data
     } catch (error) {
       appErrorVerifyError(error);
     } finally {
@@ -838,6 +899,11 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
         }
         RootNavigation.navigate('AuthRoutes');
   }
+  async function getClientAppointments(){
+    const { data: appointments } = await api.get('/v1/users/clients/appointments');
+    return appointments
+  }
+
   return (
     <ClientUserContext.Provider
       value={{
@@ -874,7 +940,8 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
         updateProfileUser,
         getHoursProvidersSelect,
         getDistanceLocalSelect,
-        createAppointment
+        createAppointment,
+        getClientAppointments
       }}
     >
       {children}
