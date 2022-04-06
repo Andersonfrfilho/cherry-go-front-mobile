@@ -107,6 +107,10 @@ export const AreaAppointmentButton = styled.TouchableOpacity<AreaInfoProps>`
 
 export const AreaPhoto = styled.View`
   flex: 1;
+
+  justify-content: center;
+  align-items: center;
+
   width: 70px;
   height: 70px;
 
@@ -120,7 +124,11 @@ export const PhotoClientAppointment = styled(FastImage)`
   width: 70px;
   height: 70px;
 `;
-
+export const TextName = styled.Text`
+  font-size: ${RFValue(18)}px;
+  font-family: ${({ theme }) => theme.fonts.primary_700};
+  color: ${({ theme }) => theme.colors.text};
+`;
 export const AreaInfoLocalDate = styled.View`
   flex: 4;
 

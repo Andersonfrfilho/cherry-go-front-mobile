@@ -54,6 +54,7 @@ import {
   AreaAppointmentStatus,
   AreaTitleAppointmentStatus,
   AreaAppointmentStatusButtons,
+  TextName,
 } from './styles';
 
 import { useCommon } from '../../../../hooks/common';
@@ -71,6 +72,7 @@ import { getMinutes } from '../../../../utils/getMinutes';
 import { getDuration } from '../../../../utils/getDuration';
 import { useAppointment } from '../../../../hooks/appointment';
 import { STATUS_PROVIDERS_APPOINTMENT } from '../../../../enums/statusProvidersAppointment.enum';
+import { ITENS_TYPES_TRANSACTIONS } from '../../../../enums/transactions.enum';
 
 export interface Focusable {
   focus(): void;
@@ -175,15 +177,24 @@ export function AppointmentsDetailsProvider() {
                   appointment.clients.map((client, index) => (
                     <AreaAppointmentClient key={index.toString()}>
                       <AreaPhoto>
-                        <PhotoClientAppointment
-                          source={{
-                            uri:
-                              client &&
-                              client.client.image_profile &&
-                              client.client.image_profile[0].image &&
-                              client.client.image_profile[0].image.link,
-                          }}
-                        />
+                        {client.client.image_profile.length > 0 ? (
+                          <PhotoClientAppointment
+                            source={{
+                              uri:
+                                client &&
+                                client.client.image_profile.length > 0 &&
+                                client.client.image_profile[0].image &&
+                                client.client.image_profile[0].image.link,
+                            }}
+                          />
+                        ) : (
+                          <TextName>
+                            {client.client.name.substring(0, 1).toUpperCase()}
+                            {client.client.last_name
+                              .substring(0, 1)
+                              .toUpperCase()}
+                          </TextName>
+                        )}
                       </AreaPhoto>
                       <AreaTitle>
                         <Title
@@ -394,7 +405,7 @@ export function AppointmentsDetailsProvider() {
             <AreaAppointmentServices>
               <AreaAppointmentAddressTitleIcon>
                 <AreaTitle>
-                  <Title>Serviços</Title>
+                  <Title>Elementos</Title>
                 </AreaTitle>
                 <AreaIcon>
                   <Icon
@@ -409,30 +420,39 @@ export function AppointmentsDetailsProvider() {
                   <AreaTransactionService key={index.toString()}>
                     <AreaAppointmentTransactionServiceInformation>
                       <AreaTitleTransactionItem>
-                        <Title>{item.elements.name}</Title>
+                        <Title>
+                          {item.elements.name ||
+                            ITENS_TYPES_TRANSACTIONS[item.type]}
+                        </Title>
                       </AreaTitleTransactionItem>
                       <AreaInfoServiceDurationAmount>
-                        <AreaTransactionText>
-                          <Title numberOfLines={1}>Duração:</Title>
-                          <Title
-                            numberOfLines={1}
-                            style={{ fontSize: RFValue(16) }}
-                          >
-                            {getMinutes(item.elements.duration)}
-                          </Title>
-                        </AreaTransactionText>
-                        <AreaTransactionText>
-                          <Title numberOfLines={1}>Incremento:</Title>
-                          <Title numberOfLines={1}>
-                            {getValueAmount(item.increment_amount)}
-                          </Title>
-                        </AreaTransactionText>
-                        <AreaTransactionText>
-                          <Title numberOfLines={1}>Desconto:</Title>
-                          <Title numberOfLines={1}>
-                            {getValueAmount(item.discount_amount)}
-                          </Title>
-                        </AreaTransactionText>
+                        {item.elements.duration && (
+                          <AreaTransactionText>
+                            <Title numberOfLines={1}>Duração:</Title>
+                            <Title
+                              numberOfLines={1}
+                              style={{ fontSize: RFValue(16) }}
+                            >
+                              {getMinutes(item.elements.duration)}
+                            </Title>
+                          </AreaTransactionText>
+                        )}
+                        {item.increment_amount !== '0' && (
+                          <AreaTransactionText>
+                            <Title numberOfLines={1}>Incremento:</Title>
+                            <Title numberOfLines={1}>
+                              {getValueAmount(item.increment_amount)}
+                            </Title>
+                          </AreaTransactionText>
+                        )}
+                        {item.discount_amount !== '0' && (
+                          <AreaTransactionText>
+                            <Title numberOfLines={1}>Desconto:</Title>
+                            <Title numberOfLines={1}>
+                              {getValueAmount(item.discount_amount)}
+                            </Title>
+                          </AreaTransactionText>
+                        )}
                       </AreaInfoServiceDurationAmount>
 
                       <AreaTitleTransactionItemValueInformation>
@@ -459,30 +479,37 @@ export function AppointmentsDetailsProvider() {
                         m
                       </Title>
                     </AreaTitleTransactionItemValueInformation>
-                    <AreaTitleTransactionItemValueInformation>
-                      <Title>Original</Title>
-                      <Title>
-                        {getValueAmount(
-                          appointment.transactions[0].original_amount,
-                        )}
-                      </Title>
-                    </AreaTitleTransactionItemValueInformation>
-                    <AreaTitleTransactionItemValueInformation>
-                      <Title>Incrementos</Title>
-                      <Title>
-                        {getValueAmount(
-                          appointment.transactions[0].increment_amount,
-                        )}
-                      </Title>
-                    </AreaTitleTransactionItemValueInformation>
-                    <AreaTitleTransactionItemValueInformation>
-                      <Title>Descontos</Title>
-                      <Title>
-                        {getValueAmount(
-                          appointment.transactions[0].discount_amount,
-                        )}
-                      </Title>
-                    </AreaTitleTransactionItemValueInformation>
+                    {(appointment.transactions[0].increment_amount !== '0' ||
+                      appointment.transactions[0].increment_amount !== '0') && (
+                      <AreaTitleTransactionItemValueInformation>
+                        <Title>Original</Title>
+                        <Title>
+                          {getValueAmount(
+                            appointment.transactions[0].original_amount,
+                          )}
+                        </Title>
+                      </AreaTitleTransactionItemValueInformation>
+                    )}
+                    {appointment.transactions[0].increment_amount !== '0' && (
+                      <AreaTitleTransactionItemValueInformation>
+                        <Title>Incrementos</Title>
+                        <Title>
+                          {getValueAmount(
+                            appointment.transactions[0].increment_amount,
+                          )}
+                        </Title>
+                      </AreaTitleTransactionItemValueInformation>
+                    )}
+                    {appointment.transactions[0].increment_amount !== '0' && (
+                      <AreaTitleTransactionItemValueInformation>
+                        <Title>Descontos</Title>
+                        <Title>
+                          {getValueAmount(
+                            appointment.transactions[0].discount_amount,
+                          )}
+                        </Title>
+                      </AreaTitleTransactionItemValueInformation>
+                    )}
                     <AreaTitleTransactionItemValueInformation>
                       <Title>Total</Title>
                       <Title>

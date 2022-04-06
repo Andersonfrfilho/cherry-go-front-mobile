@@ -4,6 +4,7 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import styled from 'styled-components/native';
 import FastImage from 'react-native-fast-image';
 import { Appointment } from '../../hooks/providerUser';
+import { AppointmentList } from './myAppointments.dto';
 
 export const Container = styled.View`
   flex: 1;
@@ -59,7 +60,7 @@ export const AreaAppointment = styled.TouchableOpacity`
   border-radius: 8px;
 `;
 
-export const List = styled(FlatList as new () => FlatList<Appointment>)``;
+export const List = styled(FlatList as new () => FlatList<AppointmentList>)``;
 
 export const AreaImageProvider = styled.View`
   flex: 1;
@@ -74,6 +75,13 @@ export const AreaImageProvider = styled.View`
   margin: 3px;
 `;
 
+export const TextName = styled.Text`
+  font-family: ${({ theme }) => theme.fonts.primary_700};
+  color: ${({ theme }) => theme.colors.text_detail};
+  font-size: ${RFValue(32)}px;
+  text-transform: uppercase;
+`;
+
 export const ImageProvider = styled(FastImage)`
   width: 100%;
   height: 100%;
@@ -86,6 +94,9 @@ export const AreaNameDateHourProvider = styled.View`
 
 export const AreaNameProvider = styled.View`
   flex: 1;
+
+  justify-content: center;
+  align-items: center;
 `;
 
 export const NameProvider = styled.Text`
@@ -109,7 +120,9 @@ export const DateHourProvider = styled.Text`
 export const AreaAmountIcon = styled.View`
   flex: 2;
 `;
-
+export const AreaIconItem = styled.View`
+  flex: 1;
+`;
 export const AreaIcon = styled.View`
   flex: 1;
   justify-content: center;

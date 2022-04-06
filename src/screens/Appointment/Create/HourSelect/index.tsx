@@ -60,7 +60,7 @@ export interface Focusable {
   focus(): void;
 }
 
-export const DAYS_WEEK_DATE = {
+export const DAYS_WEEK_DATE_NUMBER = {
   '0': 'MONDAY',
   '1': 'TUESDAY',
   '2': 'WEDNESDAY',

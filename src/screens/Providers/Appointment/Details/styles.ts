@@ -103,7 +103,11 @@ export const PhotoClientAppointment = styled(FastImage)`
   width: 50px;
   height: 50px;
 `;
-
+export const TextName = styled.Text`
+  font-size: ${RFValue(18)}px;
+  font-family: ${({ theme }) => theme.fonts.primary_700};
+  color: ${({ theme }) => theme.colors.text};
+`;
 export const AreaAppointmentAddress = styled.View`
   flex: 1;
 

@@ -150,6 +150,7 @@ interface Params {
   amountTotal?: number;
   notConfirmed?: boolean;
   status: STATUS_PROVIDERS_APPOINTMENT;
+  pageAppointments?: boolean;
 }
 interface Coordinates {
   latitude: number;
@@ -200,6 +201,7 @@ export function ClientAppointmentDetails() {
     notConfirmed,
     amountTotal,
     status,
+    pageAppointments,
   } = route.params as Params;
   const {
     id: providerId,
@@ -296,10 +298,9 @@ export function ClientAppointmentDetails() {
   }
 
   function handleCanBack() {
-    navigation.replace('AppointmentClientTab');
+    navigation.navigate('AppointmentClientTab', {});
   }
-  console.log('########status');
-  console.log(status);
+
   return (
     <Container>
       <StatusBar
@@ -531,13 +532,14 @@ export function ClientAppointmentDetails() {
               </AreaButtonNext>
             </>
           )}
-          {status === STATUS_PROVIDERS_APPOINTMENT.OPEN ||
+          {(pageAppointments ||
+            status === STATUS_PROVIDERS_APPOINTMENT.OPEN ||
             status === STATUS_PROVIDERS_APPOINTMENT.ACCEPTED ||
-            (status === STATUS_PROVIDERS_APPOINTMENT.REJECTED && (
-              <AreaButtonBack onPress={handleCanBack}>
-                <TitleButtonBack>Voltar</TitleButtonBack>
-              </AreaButtonBack>
-            ))}
+            status === STATUS_PROVIDERS_APPOINTMENT.REJECTED) && (
+            <AreaButtonBack onPress={handleCanBack}>
+              <TitleButtonBack>Voltar</TitleButtonBack>
+            </AreaButtonBack>
+          )}
         </AreaButtons>
       </Body>
     </Container>

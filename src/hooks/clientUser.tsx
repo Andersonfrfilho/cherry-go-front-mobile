@@ -15,7 +15,7 @@ import { useError } from './error';
 import { UserClient } from '../databases/model/dtos/getUser.dto';
 import { useCommon } from './common';
 import { AppError } from '../errors/AppError'
-import { Details, Local, LocalType, UserProvider } from './providerUser';
+import { Appointment, Details, Local, LocalType, UserProvider } from './providerUser';
 import { ServiceFormattedModalService } from '../components/ModalServices';
 import { DAYS_WEEK_ENUM } from '../enums/DaysProviders.enum';
 import { GetDistanceLocalSelectedParamsDTO, GetDistanceLocalSelectResponse } from './dtos/locas.dto';

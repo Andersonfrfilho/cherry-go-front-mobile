@@ -29,6 +29,7 @@ import {
   AreaAmount,
   ValueAmount,
   AreaInfoDate,
+  TextName,
 } from './styles';
 
 import { useCommon } from '../../../hooks/common';
@@ -65,6 +66,8 @@ export function HomeProvider() {
     setAppError({});
     loadUserData();
   }, []);
+
+  useEffect(() => {}, [userProvider]);
 
   return (
     <Container>
@@ -124,15 +127,28 @@ export function HomeProvider() {
                         onPress={() => handleSelectedAppointment(item)}
                       >
                         <AreaPhoto>
-                          <PhotoClientAppointment
-                            source={{
-                              uri:
-                                item.clients &&
-                                item.clients[0].client.image_profile &&
-                                item.clients[0].client.image_profile[0].image
-                                  .link,
-                            }}
-                          />
+                          {item.clients &&
+                          item.clients[0].client.image_profile &&
+                          item.clients[0].client.image_profile.length > 0 ? (
+                            <PhotoClientAppointment
+                              source={{
+                                uri:
+                                  item.clients &&
+                                  item.clients[0].client.image_profile &&
+                                  item.clients[0].client.image_profile[0].image
+                                    .link,
+                              }}
+                            />
+                          ) : (
+                            <TextName>
+                              {item.clients[0].client.name
+                                .substring(0, 1)
+                                .toUpperCase()}
+                              {item.clients[0].client.last_name
+                                .substring(0, 1)
+                                .toUpperCase()}
+                            </TextName>
+                          )}
                         </AreaPhoto>
                         <AreaInfoLocalDate>
                           <AreaInfoLocal

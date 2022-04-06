@@ -19,10 +19,15 @@ import { AppError } from '../errors/AppError';
 import { UpdateImagesPositionProviderDTO } from './dtos/users/UpdateImagesPositionProvider.dto';
 import { DeleteImagesProviderDTO } from './dtos/users/DeleteImagesProvider.dto';
 import { DAYS_WEEK_ENUM } from '../enums/DaysProviders.enum';
-import { PAYMENT_TYPES_ENUM } from '../enums/PaymentTypes.enum';
+import {
+  PAYMENT_TYPES_ENUM,
+  STATUS_EVENTS_TRANSACTIONS_ENUM,
+  STATUS_TRANSACTION_ENUM,
+} from '../enums/PaymentTypes.enum';
 import { STRIPE_PAYMENT_REQUIRES_ENUM } from '../enums/stripe.enums';
 import { LOCALS_TYPES_ENUM } from '../enums/localsTypes.enum';
 import { TRANSPORT_TYPE_PROVIDER_TRANSLATE_ENUM } from '../enums/transportTypeProvider.enum';
+import { ITENS_TYPES_TRANSACTIONS_ENUM } from '../enums/transactions.enum';
 
 interface RegisterServiceProviderDTO {
   amount: string;
@@ -134,7 +139,7 @@ export type Addresses = {
   latitude?: string;
   longitude?: string;
 };
-type AddressesAppointment = {
+export type AddressesAppointment = {
   id: string;
   appointment_id: string;
   address_id: string;
@@ -181,7 +186,7 @@ export type ProviderTransportTypes = {
   transport_type: TransportType;
 };
 
-type Transport = {
+export type Transport = {
   id: string;
   provider_id: string;
   appointment_id: string;
@@ -200,7 +205,7 @@ type Transport = {
   origin_address: Addresses;
   destination_address: Addresses;
 };
-type Service = {
+export type Service = {
   id: string;
   provider_id: string;
   appointment_id: string;
@@ -228,25 +233,49 @@ type TransactionItem = {
   transaction_id: string;
   elements: ElementTransactionItem;
   reference_key: string;
-  type: string;
+  type: ITENS_TYPES_TRANSACTIONS_ENUM;
   increment_amount: string;
   discount_amount: string;
   amount: string;
   created_at: string;
 };
 
-type Transaction = {
+export type TransactionEventsPaymentType = {
+  id: string;
+  name: PAYMENT_TYPES_ENUM;
+  description: null;
+  active: true;
+  created_at: Date;
+  updated_at: null;
+  deleted_at: null;
+};
+
+export type TransactionEvents = {
+  id: string;
+  amount: number;
+  transaction_id: string;
+  payment_type_id: string;
+  status: STATUS_EVENTS_TRANSACTIONS_ENUM;
+  details: null;
+  created_at: Date;
+  updated_at: null;
+  deleted_at: null;
+  payment_type: TransactionEventsPaymentType;
+};
+
+export type Transaction = {
   id: string;
   current_amount: string;
   original_amount: string;
   discount_amount: string;
   increment_amount: string;
-  status: string;
+  status: STATUS_TRANSACTION_ENUM;
   client_id: string;
   appointment_id: string;
   created_at: string;
   updated_at: string;
   itens: TransactionItem[];
+  events: TransactionEvents[];
 };
 
 export type Appointment = {
