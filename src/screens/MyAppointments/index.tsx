@@ -142,7 +142,7 @@ export function MyAppointments() {
       start: date_start,
       end: date_end,
     };
-    console.log(hours);
+
     const data: Params = {
       providerSelect: appointment.providers[0].provider,
       servicesSelect: appointment.services.map(

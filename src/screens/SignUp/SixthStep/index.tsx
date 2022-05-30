@@ -1,5 +1,5 @@
-import React, { useState, useRef } from 'react';
-import { StatusBar } from 'react-native';
+import React, { useState, useRef, useEffect } from 'react';
+import { PermissionsAndroid, StatusBar } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from 'styled-components';
 
@@ -56,6 +56,9 @@ export function SignUpSixthStep() {
   );
   const [isPreview, setIsPreview] = useState(false);
   const [imagePreview, setImagePreview] = useState('');
+  const [permissionCamera, setPermissionCamera] = useState(false);
+  const [writeStoragePermission, setWriteStoragePermission] = useState(false);
+  const [readStoragePermission, setReadStoragePermission] = useState(false);
   const [camMode, setCamMode] = useState<CameraType>(
     Camera.Constants.Type.back,
   );
@@ -150,6 +153,84 @@ export function SignUpSixthStep() {
         : Camera.Constants.Type.back,
     );
   }
+  const requestCameraPermission = async () => {
+    try {
+      const grantedReadStorage = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+        {
+          title: 'Cherry-go precisa de acesso a suas fotos',
+          message:
+            'O aplicativo cherry-go precisa acessar suas fotos ' +
+            'para podermos prosseguir.',
+          // buttonNeutral: 'Ask Me Later',
+          buttonNegative: 'Não',
+          buttonPositive: 'Sim',
+        },
+      );
+      const grantedWriteStorage = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+        {
+          title: 'Cherry-go precisa de acesso para salvar fotos',
+          message:
+            'O aplicativo cherry-go precisa acesso para salvar suas fotos ' +
+            'para podermos prosseguir.',
+          // buttonNeutral: 'Ask Me Later',
+          buttonNegative: 'Não',
+          buttonPositive: 'Sim',
+        },
+      );
+      const grantedCamera = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.CAMERA,
+        {
+          title: 'Cherry-go precisa de acesso a sua camera',
+          message:
+            'O aplicativo cherry-go precisa acessar sua camera ' +
+            'para podermos prosseguir.',
+          // buttonNeutral: 'Ask Me Later',
+          buttonNegative: 'Não',
+          buttonPositive: 'Sim',
+        },
+      );
+
+      if (
+        grantedCamera === PermissionsAndroid.RESULTS.GRANTED &&
+        grantedWriteStorage === PermissionsAndroid.RESULTS.GRANTED &&
+        grantedReadStorage === PermissionsAndroid.RESULTS.GRANTED
+      ) {
+        setPermissionCamera(true);
+        setWriteStoragePermission(true);
+        setReadStoragePermission(true);
+      } else {
+        setPermissionCamera(false);
+        setWriteStoragePermission(false);
+        setReadStoragePermission(false);
+      }
+    } catch (err) {
+      setPermissionCamera(false);
+      setWriteStoragePermission(false);
+      setReadStoragePermission(false);
+    }
+  };
+
+  useEffect(() => {
+    if (
+      !permissionCamera ||
+      !writeStoragePermission ||
+      !readStoragePermission
+    ) {
+      requestCameraPermission();
+    }
+  }, []);
+
+  useEffect(() => {
+    if (
+      !permissionCamera ||
+      !writeStoragePermission ||
+      !readStoragePermission
+    ) {
+      requestCameraPermission();
+    }
+  }, [permissionCamera]);
   return (
     <Container>
       <StatusBar

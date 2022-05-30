@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useTheme } from 'styled-components';
-import { TouchableOpacityProps } from 'react-native';
+import {
+  PermissionsAndroid,
+  Platform,
+  TouchableOpacityProps,
+} from 'react-native';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { PROVIDER_GOOGLE, Region } from 'react-native-maps';
 import Geolocation from 'react-native-geolocation-service';
@@ -31,6 +35,8 @@ import { Load } from '../Load';
 import { useCommon } from '../../hooks/common';
 import { useAddress } from '../../hooks/address';
 import { calDeltaCoordinates } from '../../utils/calDeltaCoordinates';
+import { useAuth } from '../../hooks/auth';
+import { useClientUser } from '../../hooks/clientUser';
 
 interface ParamsCalDelta {
   latitude: number;
@@ -70,6 +76,7 @@ export function ModalMapView({
   handleClosedModal,
 }: Props) {
   const [value, setValueText] = useState('');
+  const [permissionLocation, setPermissionLocation] = useState(false);
   const [forceLocation, setForceLocation] = useState(true);
   const [highAccuracy, setHighAccuracy] = useState(true);
   const [locationDialog, setLocationDialog] = useState(true);
@@ -88,14 +95,14 @@ export function ModalMapView({
 
   const theme = useTheme();
 
-  const { setIsLoading, isLoading } = useCommon();
+  const { setIsLoading } = useCommon();
+
   const {
     getGeolocationReverse,
     address,
     getGeolocationByAddress,
     setLoadingAddress,
   } = useAddress();
-
   function calDelta({ latitude, longitude, accuracy }: ParamsCalDelta) {
     const { latitudeDelta, longitudeDelta } = calDeltaCoordinates({
       distance: 25,
@@ -205,9 +212,82 @@ export function ModalMapView({
       setLoadingAddress(false);
     }
   }
+  const requestGeolocationPermission = async () => {
+    if (Platform.OS === 'ios') {
+      try {
+        // "disabled", "granted", "denied", "restricted"
+        const status = await Geolocation.requestAuthorization('whenInUse');
+
+        if (status === 'granted') {
+          setPermissionLocation(true);
+        } else {
+          setPermissionLocation(false);
+        }
+      } catch (err) {
+        setPermissionLocation(false);
+      }
+    } else {
+      try {
+        const grantedFineLocation = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+          {
+            title:
+              'Cherry-go precisa de permissão para acessar sua localização',
+            message:
+              'O aplicativo cherry-go precisa acessar sua localização ' +
+              'para podermos acessar endereços.',
+            // buttonNeutral: 'Ask Me Later',
+            buttonNegative: 'Não',
+            buttonPositive: 'Sim',
+          },
+        );
+        const grantedCoarseLocation = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
+          {
+            title:
+              'Cherry-go precisa de permissão para acessar sua localização',
+            message:
+              'O aplicativo cherry-go precisa acessar sua localização ' +
+              'para podermos acessar endereços.',
+            // buttonNeutral: 'Ask Me Later',
+            buttonNegative: 'Não',
+            buttonPositive: 'Sim',
+          },
+        );
+        const grantedBackgroundLocation = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
+          {
+            title:
+              'Cherry-go precisa de permissão para acessar sua localização em segundo plano',
+            message:
+              'O aplicativo cherry-go precisa acessar sua localização ' +
+              'para podermos acessar endereços.',
+            // buttonNeutral: 'Ask Me Later',
+            buttonNegative: 'Não',
+            buttonPositive: 'Sim',
+          },
+        );
+        if (
+          grantedFineLocation === PermissionsAndroid.RESULTS.GRANTED ||
+          grantedCoarseLocation === PermissionsAndroid.RESULTS.GRANTED ||
+          grantedBackgroundLocation === PermissionsAndroid.RESULTS.GRANTED
+        ) {
+          setPermissionLocation(true);
+        } else {
+          setPermissionLocation(false);
+        }
+      } catch (err) {
+        setPermissionLocation(false);
+      }
+    }
+  };
 
   useEffect(() => {
-    getLocation();
+    if (permissionLocation) {
+      getLocation();
+    } else {
+      requestGeolocationPermission();
+    }
     return () => {
       setValueText('');
       setForceLocation(true);
@@ -216,8 +296,16 @@ export function ModalMapView({
       setUseLocationManager(false);
       setGetCurrentLocation(false);
       setLoadingMoveMap(false);
+      setPermissionLocation(false);
     };
   }, []);
+
+  useEffect(() => {
+    if (!permissionLocation) {
+      requestGeolocationPermission();
+    }
+  }, [permissionLocation]);
+
   function handleConfirmLocation() {
     handleClosedModal({ location, address });
   }

@@ -115,7 +115,7 @@ export function SignUpThirdStep() {
             type={TextInputTypeEnum.mask}
             name="phone"
             control={control}
-            placeholder="celular"
+            placeholder="+55 (00) 0 0000-0000"
             error={errors.phone && errors.phone.message}
             iconName="phone"
             autoCorrect={false}

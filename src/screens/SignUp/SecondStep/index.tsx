@@ -33,8 +33,6 @@ import { WarningText } from '../../../components/WarningText';
 import { Focusable } from '../FirstStep';
 import { ibgeApi } from '../../../services/ibge';
 import { SearchAbleDropDown } from '../../../components/SearchAbleDropDown';
-import { api } from '../../../services/api';
-import { BAD_REQUEST } from '../../../errors/constants/BadRequest.const';
 import { HTTP_ERROR_CODES_ENUM } from '../../../errors/AppError';
 import { useError } from '../../../hooks/error';
 import { ScreenNavigationProp } from '../../../routes';

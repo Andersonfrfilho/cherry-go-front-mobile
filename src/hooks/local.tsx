@@ -69,7 +69,6 @@ function LocalProvider({ children }: LocalProviderProps) {
   async function registerLocalProvider(data: RegisterLocalProviderDTO) {
     setIsLoading(true);
     try {
-      console.log(data);
       const { data: locals_available } = await api.post(
         '/v1/users/providers/locals',
         data,

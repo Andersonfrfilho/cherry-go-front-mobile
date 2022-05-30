@@ -5,6 +5,7 @@ import { tokenRepository } from '../databases/repository/token.repository';
 import { UNAUTHORIZED } from '../errors/constants/Unauthorized.const';
 
 const api = axios.create({
+  // baseURL: 'https://staging.cherry-go.com',
   baseURL: 'http://10.0.2.2:3333',
 });
 

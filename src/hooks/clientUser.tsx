@@ -320,7 +320,6 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
       if (NOT_FOUND[404][4001].code === err.response.data.code && NOT_FOUND[404][4001].status_code === err.response.status && NOT_FOUND[404][4001].message === err.response.data.message) {
         await userRepository.removeAll();
       }
-      console.log(err)
       appErrorVerifyError({
         message: err.response.data.message,
         status_code: err.response.status,
@@ -544,7 +543,7 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
 
       let match = /\.(\w+)$/.exec(fileName);
 
-      let type = match ? `image/${match[1]}` : `image`;
+      let type = match ? `image/${match[1]}` : "image";
 
       const formData = new FormData();
 
@@ -828,7 +827,7 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
   async function getHoursProvidersSelect({providerId,duration}:GetProviderHoursSelectedParamsDTO){
     setIsLoading(true);
     try {
-      console.log(providerId,duration)
+
       const queryParams = {
         params: { provider_id:providerId,duration },
       };
@@ -863,7 +862,7 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
   }
 
   async function updateProfileUser() {
-    console.log("update profile")
+
   }
 
   async function createAppointment(){

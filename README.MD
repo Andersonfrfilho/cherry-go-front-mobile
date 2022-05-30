@@ -135,3 +135,5 @@ reference: https://stackoverflow.com/questions/62578103/android-emulator-connect
 
 1º Inicie o emulador
     emulator -no-snapshot -avd Pixel5
+
+- cd android;./gradlew clean;./gradlew assembleRelease;cd ..
