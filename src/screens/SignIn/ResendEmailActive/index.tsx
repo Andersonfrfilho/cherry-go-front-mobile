@@ -46,7 +46,9 @@ const schema = Yup.object().shape({
 
 export function ResendEmailActive() {
   const route = useRoute();
+
   const { email: emailRoute } = route.params as Params;
+
   const {
     control,
     handleSubmit,
@@ -56,14 +58,14 @@ export function ResendEmailActive() {
     resolver: yupResolver(schema),
   });
 
-  const [subTitle, setSubTitle] = useState('');
-
+  const [subTitle, setSubTitle] = useState<string>('');
+  const [initialPage, setInitialPage] = useState<boolean>(true);
   const refEmail = createRef<Focusable>();
 
   const theme = useTheme();
   const { isLoading, setIsLoading } = useCommon();
   const { appError, setAppError, appErrorVerifyError } = useError();
-  const { resendMailActiveClient, token } = useClientUser();
+  const { resendMailActiveClient } = useClientUser();
   const navigation = useNavigation<ScreenNavigationProp>();
 
   function handleBack() {
@@ -86,12 +88,22 @@ export function ResendEmailActive() {
   }
 
   useEffect(() => {
-    setAppError({});
-    if (!!emailRoute && emailRoute.length > 0) {
-      setValue('email', emailRoute);
-    } else {
-      refEmail.current?.focus();
+    let unmounted = false;
+    const ac = new AbortController();
+    if (!unmounted) {
+      setAppError({});
+      if (!!emailRoute && emailRoute.length > 0) {
+        setValue('email', emailRoute);
+      } else if (initialPage) {
+        refEmail.current?.focus();
+        setInitialPage(false);
+      }
     }
+    return () => {
+      ac.abort();
+      unmounted = true;
+      setSubTitle('');
+    };
   }, []);
 
   return (

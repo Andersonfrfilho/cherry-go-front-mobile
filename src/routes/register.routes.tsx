@@ -9,13 +9,8 @@ import { SignUpFifthStep } from '../screens/SignUp/FifthStep';
 import { SignUpSixthStep } from '../screens/SignUp/SixthStep';
 import { SignUpSevenStep } from '../screens/SignUp/SevenStep';
 import { SignUpEighthStep } from '../screens/SignUp/EighthStep';
-import { InternalServerErrorScreen } from '../screens/Errors/InternalErrors';
-import { UnauthorizedErrorScreen } from '../screens/Errors/Unauthorized';
-import { UnknownErrorScreen } from '../screens/Errors/UnknownErrors';
-import { BadRequestErrorScreen } from '../screens/Errors/BadRequestErrors';
-import { NotFoundErrorScreen } from '../screens/Errors/NotFoundErrors';
+
 import { InitialRegister } from '../screens/SignUp/InitialRegister';
-import { AuthRoutes } from './auth.routes';
 import { PhoneConfirmation } from '../screens/SignUp/PhoneConfirmation';
 import { AppErrorsScreenStackRoutes } from './error.routes';
 

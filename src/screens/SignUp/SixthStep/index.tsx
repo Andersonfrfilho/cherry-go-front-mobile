@@ -41,8 +41,9 @@ import { api } from '../../../services/api';
 import { USER_DOCUMENT_VALUE_ENUM } from '../../../enums/UserDocumentValue.enum';
 import { useError } from '../../../hooks/error';
 import { ScreenNavigationProp } from '../../../routes';
+import { FLASH_MODE_ENUM } from '../../../constant/camera.const';
 
-export interface TakePicture {
+export interface TakePicture extends Camera {
   takePictureAsync(
     options?: CameraPictureOptions,
   ): Promise<CameraCapturedPicture>;
@@ -62,12 +63,14 @@ export function SignUpSixthStep() {
   const [camMode, setCamMode] = useState<CameraType>(
     Camera.Constants.Type.back,
   );
-  const [flashMode, setFlashMode] = React.useState('off');
+  const [flashMode, setFlashMode] = useState<FLASH_MODE_ENUM>(
+    FLASH_MODE_ENUM.off,
+  );
 
   const cameraRef = useRef<TakePicture>();
   const theme = useTheme();
   const { isLoading, setIsLoading } = useCommon();
-  const { appError, setAppError, appErrorVerifyError } = useError();
+  const { appError, setAppError } = useError();
   const { userClient, uploadUserClientImageDocument } = useClientUser();
 
   const navigation = useNavigation<ScreenNavigationProp>();
@@ -76,13 +79,13 @@ export function SignUpSixthStep() {
     navigation.replace('SignIn');
   }
 
-  function handleBackCam() {
+  const handleBackCam = () => {
     setIsPreview(false);
     setImagePreview('');
     cameraRef.current?.resumePreview();
-  }
+  };
 
-  async function handleImageSelect() {
+  const handleImageSelect = async () => {
     setIsLoading(true);
     setAppError({});
     try {
@@ -104,9 +107,9 @@ export function SignUpSixthStep() {
     } finally {
       setIsLoading(false);
     }
-  }
+  };
 
-  async function handleCaptureDocumentFront() {
+  const handleCaptureDocumentFront = async () => {
     setIsLoading(true);
     setAppError({});
     try {
@@ -124,9 +127,9 @@ export function SignUpSixthStep() {
     } finally {
       setIsLoading(false);
     }
-  }
+  };
 
-  async function handleSendImage(imageUri: string) {
+  const handleSendImage = async (imageUri: string) => {
     setIsLoading(true);
     setAppError({});
 
@@ -142,10 +145,12 @@ export function SignUpSixthStep() {
     } finally {
       setIsLoading(false);
     }
-  }
-  function handleFlashOnOff(stateFlash: 'on' | 'off') {
-    setFlashMode(stateFlash);
-  }
+  };
+
+  const handleFlashOnOff = async (stateFlash: FLASH_MODE_ENUM) => {
+    setFlashMode(FLASH_MODE_ENUM[stateFlash]);
+  };
+
   function handleModeCam(camModeParam: CameraType) {
     setCamMode(
       Camera.Constants.Type.back === camModeParam
@@ -213,13 +218,31 @@ export function SignUpSixthStep() {
   };
 
   useEffect(() => {
-    if (
-      !permissionCamera ||
-      !writeStoragePermission ||
-      !readStoragePermission
-    ) {
-      requestCameraPermission();
+    let unmounted = false;
+    const ac = new AbortController();
+    if (!unmounted) {
+      if (
+        !permissionCamera ||
+        !writeStoragePermission ||
+        !readStoragePermission
+      ) {
+        requestCameraPermission();
+      }
     }
+    return () => {
+      ac.abort();
+      unmounted = true;
+      setSubTitle(
+        `Retire uma foto sua com seu documento\n ao lado de seu rosto`,
+      );
+      setIsPreview(false);
+      setImagePreview('');
+      setPermissionCamera(false);
+      setWriteStoragePermission(false);
+      setReadStoragePermission(false);
+      setCamMode(Camera.Constants.Type.back);
+      setFlashMode(FLASH_MODE_ENUM.off);
+    };
   }, []);
 
   useEffect(() => {
@@ -231,6 +254,7 @@ export function SignUpSixthStep() {
       requestCameraPermission();
     }
   }, [permissionCamera]);
+
   return (
     <Container>
       <StatusBar
@@ -328,7 +352,11 @@ export function SignUpSixthStep() {
                     <AreaButton
                       disabled={isLoading}
                       onPress={() => {
-                        handleFlashOnOff(flashMode === 'on' ? 'off' : 'on');
+                        handleFlashOnOff(
+                          FLASH_MODE_ENUM[flashMode] === FLASH_MODE_ENUM.on
+                            ? FLASH_MODE_ENUM.off
+                            : FLASH_MODE_ENUM.on,
+                        );
                       }}
                       color={
                         camMode === Camera.Constants.Type.back

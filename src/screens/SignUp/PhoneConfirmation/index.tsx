@@ -5,7 +5,6 @@ import { useNavigation } from '@react-navigation/native';
 import { useTheme } from 'styled-components';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { mask } from 'react-native-mask-text';
 
 import {
   KeyboardDismiss,
@@ -25,9 +24,7 @@ import {
 import { FormInput } from '../../../components/FormInput';
 import { ButtonIcon } from '../../../components/ButtonIcon';
 import { useCommon } from '../../../hooks/common';
-import { TextInputTypeEnum } from '../../../enums/TextInputType.enum';
 import { useClientUser } from '../../../hooks/clientUser';
-import { removeCharacterSpecial } from '../../../utils/validations';
 import { Load } from '../../../components/Load';
 import { WarningText } from '../../../components/WarningText';
 
@@ -36,6 +33,11 @@ import { Button } from '../../../components/Button';
 import { useError } from '../../../hooks/error';
 import { ScreenNavigationProp } from '../../../routes';
 import { useAuth } from '../../../hooks/auth';
+import {
+  ONE_SECOND,
+  PHONE_TIME_CONFIRMATION,
+  ZERO_SECOND,
+} from '../../../constant/phone.cont';
 
 interface FormCodeData {
   code: string;
@@ -56,10 +58,10 @@ export function PhoneConfirmation() {
     resolver: yupResolver(schemaCode),
   });
 
+  const [initialPage, setInitialPage] = useState<boolean>(true);
   const [subTitle, setSubTitle] = useState('');
   const [phoneConfirmation, setPhoneConfirmation] = useState(false);
-  const [resendCode, setResendCode] = React.useState(false);
-  const [seconds, setSeconds] = React.useState(0);
+  const [seconds, setSeconds] = React.useState(ZERO_SECOND);
 
   const refCode = createRef<Focusable>();
 
@@ -76,29 +78,37 @@ export function PhoneConfirmation() {
   const { signOut } = useAuth();
   const navigation = useNavigation<ScreenNavigationProp>();
 
-  async function handleResendCodePhones() {
+  const handleResendCodePhones = async () => {
     setIsLoading(true);
     setAppError({});
     try {
-      await resendCodePhoneClient(userClient.id);
+      await resendCodePhoneClient(
+        !!userClient && userClient.external_id
+          ? userClient.external_id
+          : userClient.id,
+      );
       setPhoneConfirmation(true);
-      setResendCode(false);
-      setSeconds(60 * 3);
+      setSeconds(PHONE_TIME_CONFIRMATION);
     } finally {
       setIsLoading(false);
     }
-  }
+  };
 
   async function handleConfirmCodePhone(form: FormCodeData) {
     setIsLoading(true);
+
     setAppError({});
+
     try {
       if (!token.token) {
         setAppError(appErrorVerifyError({ status_code: 600, code: '0002' }));
         await signOut();
-        navigation.navigate('AuthRoutes');
+        navigation.replace('AuthRoutes', {
+          screen: 'SignIn',
+        });
         return;
       }
+
       await confirmCodePhoneClient({
         id:
           !!userClient && userClient.external_id
@@ -107,59 +117,72 @@ export function PhoneConfirmation() {
         token: token.token,
         code: form.code,
       });
+
       setPhoneConfirmation(true);
-      setResendCode(false);
-      setSeconds(60 * 3);
+
+      setSeconds(PHONE_TIME_CONFIRMATION);
+
       navigation.replace('SignUpFourthStep');
     } catch {
       await signOut();
-      navigation.navigate('AuthRoutes');
+      navigation.replace('AuthRoutes', {
+        screen: 'SignIn',
+      });
     } finally {
       setIsLoading(false);
     }
   }
 
-  function handleBack() {
-    navigation.replace('AuthRoutes');
-  }
+  const handleBack = () => {
+    navigation.replace('AuthRoutes', {
+      screen: 'SignIn',
+    });
+  };
 
   useEffect(() => {
-    if (seconds > 0) {
-      setTimeout(() => setSeconds(seconds - 1), 1000);
-    } else {
-      setResendCode(true);
+    if (seconds > ZERO_SECOND) {
+      setTimeout(() => setSeconds(seconds - 1), ONE_SECOND);
     }
   }, [seconds]);
 
   useEffect(() => {
-    setPhoneConfirmation(true);
-    setResendCode(false);
-    setSeconds(60 * 3);
-    refCode.current?.focus();
+    let unmounted = false;
+    const ac = new AbortController();
+    if (!unmounted) {
+      setPhoneConfirmation(true);
+      setSeconds(PHONE_TIME_CONFIRMATION);
+      if (initialPage) {
+        refCode.current?.focus();
+        setInitialPage(false);
+      }
+    }
+
+    return () => {
+      ac.abort();
+      unmounted = true;
+      setInitialPage(true);
+      setSubTitle('');
+      setPhoneConfirmation(false);
+      setSeconds(ZERO_SECOND);
+    };
   }, []);
 
-  async function handleEditPhone() {
-    if (
-      !!userClient.phones &&
-      !!userClient.phones.country_code &&
-      !!userClient.phones.ddd &&
-      !!userClient.phones.number
-    ) {
+  const handleEditPhone = async () => {
+    if (userClient || userClient.external_id || userClient.id) {
       await removePhoneClient({
         user_id:
           !!userClient && userClient.external_id
             ? userClient.external_id
             : userClient.id,
-        country_code: userClient.phones.country_code,
-        ddd: userClient.phones.ddd,
-        number: userClient.phones.number,
       });
       navigation.navigate('SignUpThirdStep');
     } else {
       await signOut();
-      navigation.navigate('AuthRoutes');
+      navigation.replace('AuthRoutes', {
+        screen: 'SignIn',
+      });
     }
-  }
+  };
 
   return (
     <KeyboardDismiss onPress={Keyboard.dismiss}>

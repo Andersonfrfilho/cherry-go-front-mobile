@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { ListRenderItemInfo, StatusBar } from 'react-native';
+import { StatusBar } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from 'styled-components';
 
-import { RFValue } from 'react-native-responsive-fontsize';
 import {
   Container,
   Header,
@@ -14,13 +13,11 @@ import {
   List,
   AreaBoxTag,
   AreaFooter,
-  Icon,
   ImageTag,
   TitleTag,
   AreaImageTag,
   AreaIcon,
   AreaTitleTag,
-  ButtonIconClosed,
   AreaButtonTag,
   ButtonIcons,
 } from './styles';
@@ -49,15 +46,16 @@ export function SignUpEighthStep() {
   const { appError, setAppError } = useError();
   const { userClient } = useClientUser();
   const { getTags, linkUserTags } = useTag();
-  const { appErrorVerifyError } = useError();
 
   const navigation = useNavigation<ScreenNavigationProp>();
 
-  function handleBack() {
-    navigation.replace('SignIn');
-  }
+  const handleBack = () => {
+    navigation.replace('AuthRoutes', {
+      screen: 'SignIn',
+    });
+  };
 
-  function handleSelected(item: Tag) {
+  const handleSelected = (item: Tag) => {
     const tag = tagsSelected.map(tagParam => {
       if (item.id === tagParam.id) {
         return { ...tagParam, select: !tagParam.select };
@@ -66,9 +64,9 @@ export function SignUpEighthStep() {
     });
 
     setTagsSelected(tag);
-  }
+  };
 
-  async function handleLinkTags(tags: TagSelected[]) {
+  const handleLinkTags = async (tags: TagSelected[]) => {
     setIsLoading(true);
     setAppError({});
     try {
@@ -83,21 +81,31 @@ export function SignUpEighthStep() {
     } finally {
       setIsLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
-    async function foundTags() {
-      setIsLoading(true);
-      setAppError({});
-      try {
-        const tagsResults = await getTags({});
+    let unmounted = false;
+    const ac = new AbortController();
+    const foundTags = async () => {
+      if (unmounted) {
+        setIsLoading(true);
+        setAppError({});
+        try {
+          const tagsResults = await getTags({});
 
-        setTagsSelected(tagsResults.map(tag => ({ ...tag, select: false })));
-      } finally {
-        setIsLoading(false);
+          setTagsSelected(tagsResults.map(tag => ({ ...tag, select: false })));
+        } finally {
+          setIsLoading(false);
+        }
       }
-    }
-    foundTags().then(() => {});
+    };
+    foundTags();
+    return () => {
+      ac.abort();
+      unmounted = true;
+      setSubTitle('Selecione as favoritas tags');
+      setTagsSelected([] as TagSelected[]);
+    };
   }, []);
 
   if (isLoading) {
@@ -139,7 +147,7 @@ export function SignUpEighthStep() {
       <AreaList>
         <List
           data={tagsSelected}
-          renderItem={({ item, index }) => (
+          renderItem={({ item }) => (
             <AreaBoxTag selected={!!item.select}>
               <AreaIcon />
               <AreaButtonTag onPress={() => handleSelected(item)}>
@@ -148,7 +156,6 @@ export function SignUpEighthStep() {
                     <ImageTag
                       source={{ uri: item.image.link }}
                       resizeMode="stretch"
-                      defaultSource={{ uri: 'default-placeholder.png' }}
                     />
                   </AreaImageTag>
                 </AreaButtonTag>
@@ -158,8 +165,8 @@ export function SignUpEighthStep() {
               </AreaButtonTag>
             </AreaBoxTag>
           )}
-          keyExtractor={(item, index) => String(index)}
-          getItemLayout={(data, index) => ({
+          keyExtractor={(_, index) => String(index)}
+          getItemLayout={(_, index) => ({
             length: 10,
             offset: 10 * index,
             index,

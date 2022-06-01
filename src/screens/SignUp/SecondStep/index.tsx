@@ -58,7 +58,13 @@ interface FormData {
   reference: string;
   country: string;
 }
-
+const stateDefault: StateInterface[] = [
+  {
+    id: '',
+    value: '',
+    label: 'Selecione seu estado',
+  },
+];
 const schema = Yup.object().shape({
   zipcode: Yup.string()
     .min(8, 'Cep invalido')
@@ -85,26 +91,20 @@ export function SignUpSecondStep() {
     control,
     handleSubmit,
     setValue,
-    clearErrors,
     getValues,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
   });
-  const [states, setStates] = useState([
-    {
-      id: '',
-      value: '',
-      label: 'Selecione seu estado',
-    } as StateInterface,
-  ]);
+  const [states, setStates] = useState(stateDefault);
   const [stateSelected, setStateSelected] = useState('');
   const [cities, setCities] = useState<string[]>([]);
   const [filteredCities, setFilteredCities] = useState<string[]>([]);
   const [cityFind, setCityFind] = useState('');
   const [subTitle, setSubTitle] = useState('');
-  const [foundCep, setFoundCep] = useState(undefined);
+  const [foundCep, setFoundCep] = useState<boolean | undefined>(undefined);
   const [modalMap, setModalMap] = useState(false);
+  const [initialPage, setInitialPage] = useState<boolean>(true);
 
   const refZipCode = createRef<Focusable>();
   const refStreet = createRef<Focusable>();
@@ -141,9 +141,11 @@ export function SignUpSecondStep() {
     }
   }
 
-  function handleBack() {
-    navigation.replace('AuthRoutes');
-  }
+  const handleBack = () => {
+    navigation.replace('AuthRoutes', {
+      screen: 'SignIn',
+    });
+  };
 
   function handleChangeValuesCityName(value: string) {
     setCityFind(value);
@@ -231,48 +233,70 @@ export function SignUpSecondStep() {
   }
 
   useEffect(() => {
+    let unmounted = false;
+    const ac = new AbortController();
+
     if (!!userClient && !!userClient.addresses) {
       navigation.replace('AuthRoutes');
       return;
     }
-    async function getInformationLocation() {
-      setIsLoading(true);
-      try {
-        const { data: statesIbge } = await ibgeApi.get<
-          { sigla: string; nome: string; id: string }[]
-        >('/localidades/estados');
 
-        const statesFormatted = statesIbge
-          .map(state => ({
-            id: state.id,
-            value: state.sigla,
-            label: state.nome,
-          }))
-          .sort((a, b) => {
-            if (a.label < b.label) {
-              return -1;
-            }
-            if (a.label > b.label) {
-              return 1;
-            }
-            return 0;
-          });
-        setStates([
-          {
-            id: '',
-            value: '',
-            label: 'Selecione seu estado',
-          },
-          ...statesFormatted,
-        ]);
-      } catch (error) {
-        setAppError(appErrorVerifyError(error));
-      } finally {
-        setIsLoading(false);
+    async function getInformationLocation() {
+      if (!unmounted) {
+        setIsLoading(true);
+        try {
+          const { data: statesIbge } = await ibgeApi.get<
+            { sigla: string; nome: string; id: string }[]
+          >('/localidades/estados');
+
+          const statesFormatted = statesIbge
+            .map(state => ({
+              id: state.id,
+              value: state.sigla,
+              label: state.nome,
+            }))
+            .sort((a, b) => {
+              if (a.label < b.label) {
+                return -1;
+              }
+              if (a.label > b.label) {
+                return 1;
+              }
+              return 0;
+            });
+          setStates([
+            {
+              id: '',
+              value: '',
+              label: 'Selecione seu estado',
+            },
+            ...statesFormatted,
+          ]);
+        } catch (error) {
+          setAppError(appErrorVerifyError(error));
+        } finally {
+          setIsLoading(false);
+        }
       }
     }
     getInformationLocation();
-    refZipCode.current?.focus();
+    if (initialPage) {
+      refZipCode.current?.focus();
+    }
+    return () => {
+      ac.abort();
+      unmounted = true;
+      setStates(stateDefault);
+      setStateSelected('');
+      setCities([]);
+      setFilteredCities([]);
+      setCityFind('');
+      setSubTitle('');
+      setFoundCep(undefined);
+      setModalMap(false);
+      setInitialPage(true);
+      setInitialPage(true);
+    };
   }, []);
 
   useEffect(() => {

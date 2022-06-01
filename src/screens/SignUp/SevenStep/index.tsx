@@ -32,17 +32,13 @@ import {
   CamBorder,
   AreaCamAndOptions,
 } from './styles';
-import { ButtonIcon } from '../../../components/ButtonIcon';
 import { useCommon } from '../../../hooks/common';
 import { useClientUser } from '../../../hooks/clientUser';
-import { Load } from '../../../components/Load';
 import { WarningText } from '../../../components/WarningText';
-import { ButtonOnlyIcon } from '../../../components/ButtonOnlyIcon';
-import { api } from '../../../services/api';
-import { USER_DOCUMENT_VALUE_ENUM } from '../../../enums/UserDocumentValue.enum';
 import { useError } from '../../../hooks/error';
+import { FLASH_MODE_ENUM } from '../../../constant/camera.const';
 
-export interface TakePicture {
+export interface TakePicture extends Camera {
   takePictureAsync(
     options?: CameraPictureOptions,
   ): Promise<CameraCapturedPicture>;
@@ -60,7 +56,9 @@ export function SignUpSevenStep() {
   const [camMode, setCamMode] = useState<CameraType>(
     Camera.Constants.Type.front,
   );
-  const [flashMode, setFlashMode] = React.useState('off');
+  const [flashMode, setFlashMode] = useState<FLASH_MODE_ENUM>(
+    FLASH_MODE_ENUM.off,
+  );
 
   const cameraRef = useRef<TakePicture>();
   const theme = useTheme();
@@ -74,11 +72,11 @@ export function SignUpSevenStep() {
     navigation.replace('SignIn');
   }
 
-  function handleBackCam() {
+  const handleBackCam = () => {
     setIsPreview(false);
     setImagePreview('');
     cameraRef.current?.resumePreview();
-  }
+  };
 
   async function handleImageSelect() {
     setIsLoading(true);
@@ -107,7 +105,7 @@ export function SignUpSevenStep() {
     }
   }
 
-  async function handleCaptureDocumentFront() {
+  const handleCaptureDocumentFront = async () => {
     setIsLoading(true);
     setAppError({});
     try {
@@ -127,9 +125,9 @@ export function SignUpSevenStep() {
     } finally {
       setIsLoading(false);
     }
-  }
+  };
 
-  async function handleSendImage(imageUri: string) {
+  const handleSendImage = async (imageUri: string) => {
     setIsLoading(true);
     setAppError({});
 
@@ -146,17 +144,19 @@ export function SignUpSevenStep() {
     } finally {
       setIsLoading(false);
     }
-  }
-  function handleFlashOnOff(stateFlash: 'on' | 'off') {
-    setFlashMode(stateFlash);
-  }
-  function handleModeCam(camModeParam: CameraType) {
+  };
+
+  const handleFlashOnOff = async (stateFlash: FLASH_MODE_ENUM) => {
+    setFlashMode(FLASH_MODE_ENUM[stateFlash]);
+  };
+
+  const handleModeCam = (camModeParam: CameraType) => {
     setCamMode(
       Camera.Constants.Type.back === camModeParam
         ? Camera.Constants.Type.front
         : Camera.Constants.Type.back,
     );
-  }
+  };
 
   const requestCameraPermission = async () => {
     try {
@@ -218,13 +218,32 @@ export function SignUpSevenStep() {
   };
 
   useEffect(() => {
-    if (
-      !permissionCamera ||
-      !writeStoragePermission ||
-      !readStoragePermission
-    ) {
-      requestCameraPermission();
+    let unmounted = false;
+    const ac = new AbortController();
+    if (!unmounted) {
+      if (
+        !permissionCamera ||
+        !writeStoragePermission ||
+        !readStoragePermission
+      ) {
+        requestCameraPermission();
+      }
     }
+    return () => {
+      ac.abort();
+      unmounted = true;
+      setSubTitle(
+        `Retire uma foto sua com seu documento\n ao lado de seu rosto`,
+      );
+      setSubTitle('Retire uma foto para seu perfil');
+      setIsPreview(false);
+      setImagePreview('');
+      setPermissionCamera(false);
+      setWriteStoragePermission(false);
+      setReadStoragePermission(false);
+      setCamMode(Camera.Constants.Type.front);
+      setFlashMode(FLASH_MODE_ENUM.off);
+    };
   }, []);
 
   useEffect(() => {
@@ -330,7 +349,11 @@ export function SignUpSevenStep() {
                     <AreaButton
                       disabled={isLoading}
                       onPress={() => {
-                        handleFlashOnOff(flashMode === 'on' ? 'off' : 'on');
+                        handleFlashOnOff(
+                          FLASH_MODE_ENUM[flashMode] === FLASH_MODE_ENUM.on
+                            ? FLASH_MODE_ENUM.off
+                            : FLASH_MODE_ENUM.on,
+                        );
                       }}
                       color={
                         camMode === Camera.Constants.Type.back

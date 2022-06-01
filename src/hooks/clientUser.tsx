@@ -413,7 +413,6 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
             code: '0003',
           });
         }
-
         user_id = user.external_id;
       }
 
@@ -426,6 +425,10 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
 
       await tokenRepository.createOrUpdate({ token })
     } catch (err: unknown | AxiosError) {
+      if (NOT_FOUND[404][4018].code === err.response.data.code && NOT_FOUND[404][4018].status_code === err.response.status && NOT_FOUND[404][4018].message === err.response.data.message){
+        RootNavigation.navigate('SignUpThirdStep');
+      }
+
       if (NOT_FOUND[404][4001].code === err.response.data.code && NOT_FOUND[404][4001].status_code === err.response.status && NOT_FOUND[404][4001].message === err.response.data.message) {
         await userRepository.removeAll();
       }
@@ -475,18 +478,16 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
             code: '0003',
           });
         }
-
         user_id = user.external_id;
         token_db = token.token;
       }
-
       await api.post(
         '/v1/users/confirm/phone',
         { code, token: token || token_db, user_id },
       );
-
       await userRepository.removeUserPhone();
       const [userDatabase] = await userRepository.findAll();
+
       const phoneDatabase = await phoneRepository.createOrUpdate({
         country_code:userClient.phones.country_code,
         ddd:userClient.phones.ddd,

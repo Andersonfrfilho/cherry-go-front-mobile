@@ -29,5 +29,10 @@ export const NOT_FOUND = {
       status_code,
       code: '4005',
     },
+    '4018': {
+      message: 'Phone does not recover!',
+      status_code: 404,
+      code: '4018',
+    },
   },
 };

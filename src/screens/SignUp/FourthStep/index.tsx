@@ -30,18 +30,18 @@ import {
   AreaButtonIcon,
   AreaButtonsCam,
 } from './styles';
-import { ButtonIcon } from '../../../components/ButtonIcon';
+
 import { useCommon } from '../../../hooks/common';
 import { useClientUser } from '../../../hooks/clientUser';
-import { Load } from '../../../components/Load';
+
 import { WarningText } from '../../../components/WarningText';
-import { ButtonOnlyIcon } from '../../../components/ButtonOnlyIcon';
-import { api } from '../../../services/api';
+
 import { USER_DOCUMENT_VALUE_ENUM } from '../../../enums/UserDocumentValue.enum';
 import { useError } from '../../../hooks/error';
 import { ScreenNavigationProp } from '../../../routes';
+import { FLASH_MODE_ENUM } from '../../../constant/camera.const';
 
-export interface TakePicture {
+export interface TakePicture extends Camera {
   takePictureAsync(
     options?: CameraPictureOptions,
   ): Promise<CameraCapturedPicture>;
@@ -55,21 +55,26 @@ export function SignUpFourthStep() {
   );
   const [isPreview, setIsPreview] = useState(false);
   const [imagePreview, setImagePreview] = useState('');
-  const [flashMode, setFlashMode] = useState('off');
+  const [flashMode, setFlashMode] = useState<FLASH_MODE_ENUM>(
+    FLASH_MODE_ENUM.off,
+  );
   const [permissionCamera, setPermissionCamera] = useState(false);
   const [writeStoragePermission, setWriteStoragePermission] = useState(false);
   const [readStoragePermission, setReadStoragePermission] = useState(false);
+
   const cameraRef = useRef<TakePicture>();
   const theme = useTheme();
   const { isLoading, setIsLoading } = useCommon();
-  const { appError, setAppError, appErrorVerifyError } = useError();
+  const { appError, setAppError } = useError();
   const { userClient, uploadUserClientImageDocument } = useClientUser();
 
   const navigation = useNavigation<ScreenNavigationProp>();
 
-  function handleBack() {
-    navigation.replace('AuthRoutes');
-  }
+  const handleBack = () => {
+    navigation.replace('AuthRoutes', {
+      screen: 'SignIn',
+    });
+  };
 
   function handleBackCam() {
     setIsPreview(false);
@@ -77,7 +82,7 @@ export function SignUpFourthStep() {
     cameraRef.current?.resumePreview();
   }
 
-  async function handleImageSelect() {
+  const handleImageSelect = async () => {
     setIsLoading(true);
     setAppError({});
     try {
@@ -99,9 +104,9 @@ export function SignUpFourthStep() {
     } finally {
       setIsLoading(false);
     }
-  }
+  };
 
-  async function handleCaptureDocumentFront() {
+  const handleCaptureDocumentFront = async () => {
     setIsLoading(true);
     setAppError({});
     try {
@@ -119,9 +124,9 @@ export function SignUpFourthStep() {
     } finally {
       setIsLoading(false);
     }
-  }
+  };
 
-  async function handleSendImage(imageUri: string) {
+  const handleSendImage = async (imageUri: string) => {
     setIsLoading(true);
     setAppError({});
 
@@ -138,10 +143,12 @@ export function SignUpFourthStep() {
     } finally {
       setIsLoading(false);
     }
-  }
-  async function handleFlashOnOff(stateFlash: 'on' | 'off') {
-    setFlashMode(stateFlash);
-  }
+  };
+
+  const handleFlashOnOff = async (stateFlash: FLASH_MODE_ENUM) => {
+    setFlashMode(FLASH_MODE_ENUM[stateFlash]);
+  };
+
   const requestCameraPermission = async () => {
     try {
       const grantedReadStorage = await PermissionsAndroid.request(
@@ -192,13 +199,29 @@ export function SignUpFourthStep() {
   };
 
   useEffect(() => {
-    if (
-      !permissionCamera ||
-      !writeStoragePermission ||
-      !readStoragePermission
-    ) {
-      requestCameraPermission();
+    let unmounted = false;
+    const ac = new AbortController();
+    if (!unmounted) {
+      if (
+        !permissionCamera ||
+        !writeStoragePermission ||
+        !readStoragePermission
+      ) {
+        requestCameraPermission();
+      }
     }
+
+    return () => {
+      ac.abort();
+      unmounted = true;
+      setSubTitle('Retire uma foto de seu documento frente');
+      setIsPreview(false);
+      setImagePreview('');
+      setFlashMode(FLASH_MODE_ENUM.off);
+      setPermissionCamera(false);
+      setWriteStoragePermission(false);
+      setReadStoragePermission(false);
+    };
   }, []);
 
   useEffect(() => {
@@ -287,7 +310,11 @@ export function SignUpFourthStep() {
                     <AreaButton
                       disabled={isLoading}
                       onPress={() => {
-                        handleFlashOnOff(flashMode === 'on' ? 'off' : 'on');
+                        handleFlashOnOff(
+                          FLASH_MODE_ENUM[flashMode] === FLASH_MODE_ENUM.on
+                            ? FLASH_MODE_ENUM.off
+                            : FLASH_MODE_ENUM.on,
+                        );
                       }}
                       color={
                         isLoading

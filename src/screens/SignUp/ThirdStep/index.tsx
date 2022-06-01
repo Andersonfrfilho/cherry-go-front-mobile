@@ -1,4 +1,4 @@
-import React, { useState, createRef, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import * as Yup from 'yup';
 import { StatusBar, Keyboard } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -51,8 +51,9 @@ export function SignUpThirdStep() {
   });
 
   const [subTitle, setSubTitle] = useState('');
+  const [initialPage, setInitialPage] = useState<boolean>(true);
 
-  const refPhone = createRef<Focusable>();
+  const refPhone = useRef<Focusable>(null);
 
   const theme = useTheme();
   const { isLoading, setIsLoading } = useCommon();
@@ -84,12 +85,27 @@ export function SignUpThirdStep() {
     }
   }
 
-  function handleBack() {
-    navigation.replace('AuthRoutes');
-  }
+  const handleBack = () => {
+    navigation.replace('AuthRoutes', {
+      screen: 'SignIn',
+    });
+  };
 
   useEffect(() => {
-    refPhone.current?.focus();
+    let unmounted = false;
+
+    if (!unmounted) {
+      if (initialPage) {
+        refPhone.current?.focus();
+        setInitialPage(false);
+      }
+    }
+
+    return () => {
+      unmounted = true;
+      setSubTitle('');
+      setInitialPage(true);
+    };
   }, []);
 
   return (

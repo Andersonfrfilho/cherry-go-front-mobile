@@ -218,9 +218,11 @@ export function SignUpFirstStep() {
     }
   }
 
-  function handleBack() {
-    navigation.replace('SignIn');
-  }
+  const handleBack = () => {
+    navigation.replace('AuthRoutes', {
+      screen: 'SignIn',
+    });
+  };
 
   const onChangeBirthDate = (event: Event, selectedDate?: Date | undefined) => {
     if (selectedDate) {
