@@ -532,6 +532,7 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
 
         user_id = user.external_id;
       }
+
       const fileName = image_uri.split('/').pop()
 
       if (!fileName) {
@@ -561,7 +562,9 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
           'content-type': 'multipart/form-data'
         }
       }
+
       await api.post('/v1/users/documents/image', formData, config);
+
     } catch (err) {
       if (NOT_FOUND[404][4001].code === err.response.data.code && NOT_FOUND[404][4001].status_code === err.response.status && NOT_FOUND[404][4001].message === err.response.data.message) {
         await userRepository.removeAll();
@@ -593,6 +596,7 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
 
         user_id = user.external_id;
       }
+
       const fileName = image_uri.split('/').pop()
 
       if (!fileName) {
@@ -608,20 +612,22 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
       let type = match ? `image/${match[1]}` : `image`;
 
       const formData = new FormData();
-      formData.append('userpic', myFileInput.files[0], 'chris.jpg');
+
       formData.append('image_profile', {
         uri: Platform.OS === "android" ? image_uri : image_uri.replace("file://", ""),
         name: fileName,
         type
       });
 
-      formData.append('user_id', 'b83d1b74-4015-4b27-95dd-86110dbcff32');
+      formData.append('user_id', user_id);
       const config = {
         headers: {
           'content-type': 'multipart/form-data'
         }
       }
+
       await api.post('/v1/users/profiles/images', formData, config);
+
     } catch (err) {
       if (NOT_FOUND[404][4001].code === err.response.data.code && NOT_FOUND[404][4001].status_code === err.response.status && NOT_FOUND[404][4001].message === err.response.data.message) {
         await userRepository.removeAll();

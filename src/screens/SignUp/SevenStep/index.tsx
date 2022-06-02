@@ -130,7 +130,6 @@ export function SignUpSevenStep() {
   const handleSendImage = async (imageUri: string) => {
     setIsLoading(true);
     setAppError({});
-
     try {
       await uploadUserClientImageProfile({
         image_uri: imageUri,
@@ -139,6 +138,8 @@ export function SignUpSevenStep() {
             ? userClient.external_id
             : userClient.id,
       });
+
+      navigation.replace('SignUpEighthStep');
     } catch (error) {
       setAppError(appErrorVerifyError(error));
     } finally {

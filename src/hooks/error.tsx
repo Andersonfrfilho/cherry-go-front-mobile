@@ -78,11 +78,11 @@ function ErrorProvider({ children }: ErrorProviderProps) {
   }
 
   async function appErrorVerifyError(err) {
-    console.log(
-      '%c ### Hook Error####',
-      'color: green; background: yellow; font-size: 30px',
-    );
-    console.log(JSON.stringify(err, null, 2));
+    // console.log(
+    //   '%c ### Hook Error####',
+    //   'color: green; background: yellow; font-size: 30px',
+    // );
+    // console.log(JSON.stringify(err, null, 2));
     if (!err.response) {
       return;
     }

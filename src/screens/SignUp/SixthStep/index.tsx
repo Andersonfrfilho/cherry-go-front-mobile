@@ -142,6 +142,7 @@ export function SignUpSixthStep() {
             : userClient.id,
         description: USER_DOCUMENT_VALUE_ENUM.SELF_DOCUMENT_FRONT,
       });
+      navigation.replace('SignUpSevenStep');
     } finally {
       setIsLoading(false);
     }

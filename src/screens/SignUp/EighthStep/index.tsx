@@ -189,17 +189,31 @@ export function SignUpEighthStep() {
             onPress={handleBack}
             titleSize={20}
           />
-          <ButtonIcon
-            iconName="chevron-right"
-            title="Enviar"
-            buttonColor={theme.colors.success}
-            textColor={theme.colors.shape}
-            iconColor={theme.colors.shape}
-            disabled={isLoading}
-            loading={isLoading}
-            titleSize={20}
-            onPress={() => handleLinkTags(tagsSelected)}
-          />
+          {tagsSelected.length > 0 ? (
+            <ButtonIcon
+              iconName="chevron-right"
+              title="Enviar"
+              buttonColor={theme.colors.success}
+              textColor={theme.colors.shape}
+              iconColor={theme.colors.shape}
+              disabled={isLoading}
+              loading={isLoading}
+              titleSize={20}
+              onPress={() => handleLinkTags(tagsSelected)}
+            />
+          ) : (
+            <ButtonIcon
+              iconName="chevron-right"
+              title="Continuar"
+              buttonColor={theme.colors.success}
+              textColor={theme.colors.shape}
+              iconColor={theme.colors.shape}
+              disabled={isLoading}
+              loading={isLoading}
+              titleSize={20}
+              onPress={handleBack}
+            />
+          )}
         </ButtonIcons>
       </AreaFooter>
     </Container>
