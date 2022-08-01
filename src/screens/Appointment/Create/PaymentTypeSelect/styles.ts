@@ -84,7 +84,7 @@ export const AreaAmountPaymentType = styled.View`
 export const PaymentTypeTitleName = styled.Text<AreaPaymentTypeSelectProps>`
   font-family: ${({ theme }) => theme.fonts.primary_400};
   color: ${({ theme }) => theme.colors.background_primary};
-  font-size: ${RFValue(20)}px;
+  font-size: ${RFValue(16)}px;
 
   ${({ theme, select }) =>
     select &&

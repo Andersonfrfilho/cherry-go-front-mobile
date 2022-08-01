@@ -122,8 +122,6 @@ interface SetFavoriteProviderDTO {
 }
 interface GetProvidersDTO {
   distance?: string;
-  latitude?: string;
-  longitude?: string;
 }
 interface UpdateProfileDTO {
   name: string;
@@ -735,7 +733,8 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
       setIsLoading(false)
     }
   }
-  async function getProviders(): Promise<void> {
+  async function getProviders({distance,
+    }:GetProvidersDTO): Promise<void> {
     setIsLoading(true)
     const position = await new Promise<Geolocation.GeoPosition>(
       (resolve, reject) => {
@@ -763,13 +762,12 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
       },
     );
 
-    const params = {}
 
-    Object.assign(params, position.coords);
+    const {latitude,longitude} = position.coords
 
     try {
       const { data: providers } = await api.get('/v1/users/clients/providers/available', {
-        params: { distance,position:params }
+        params: { distance,latitude,longitude }
       });
       setProviders(providers)
     } catch (err) {

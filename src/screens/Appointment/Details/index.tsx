@@ -80,6 +80,11 @@ import {
   AreaCircleName,
   InitialLetterName,
   HEIGHT_MAP_VIEW_COMPONENT,
+  AreaAddressLocalTitle,
+  AddressLocalTitle,
+  AreaMapTransportExpand,
+  AreaButtonCanBack,
+  AreaBackButtons,
 } from './styles';
 
 import { useAuth } from '../../../hooks/auth';
@@ -112,7 +117,10 @@ import { LOCALS_TYPES_ENUM } from '../../../enums/localsTypes.enum';
 import { getValueAmount } from '../../../utils/formatValueAmount';
 import { transportDistanceToMeters } from '../../../utils/transportDistanceToMeters';
 import { IconFeather, IconFontAwesome } from '../../../components/Icons/style';
-import { calDeltaCoordinates } from '../../../utils/calDeltaCoordinates';
+import {
+  calDeltaCoordinates,
+  getRegionForCoordinates,
+} from '../../../utils/calDeltaCoordinates';
 import { STATUS_PROVIDERS_APPOINTMENT } from '../../../enums/statusProvidersAppointment.enum';
 import { ProviderPaymentsTypesSelected } from '../Create/PaymentTypeSelect';
 import { firstLetterUppercase } from '../../../utils/firstLetterUppercase';
@@ -313,14 +321,26 @@ export function ClientAppointmentDetails() {
         lastName={lastName}
         image={imageProfile && imageProfile.link}
       />
+      <AreaBackButtons>
+        {(pageAppointments ||
+          status === STATUS_PROVIDERS_APPOINTMENT.OPEN ||
+          status === STATUS_PROVIDERS_APPOINTMENT.ACCEPTED ||
+          status === STATUS_PROVIDERS_APPOINTMENT.REJECTED) && (
+          <AreaButtonCanBack onPress={handleCanBack}>
+            <TitleButtonBack>Voltar</TitleButtonBack>
+          </AreaButtonCanBack>
+        )}
+      </AreaBackButtons>
       <Body>
         <AreaProvider>
           <AreaPhotoProvider>
-            {imageProfileProvider.length > 0 ? (
+            {imageProfileProvider && imageProfileProvider.length > 0 ? (
               <PhotoProvider
                 source={{
                   // uri: item.image.link,
-                  uri: imageProfileProvider[0].image.link,
+                  uri:
+                    imageProfileProvider[0].image &&
+                    imageProfileProvider[0].image.link,
                 }}
                 resizeMode="stretch"
               />
@@ -413,6 +433,9 @@ export function ClientAppointmentDetails() {
           </AreaServiceTotalAmount>
         </AreaServiceTotal>
         <AreaLocal>
+          <AreaAddressLocalTitle>
+            <AddressLocalTitle>Local</AddressLocalTitle>
+          </AreaAddressLocalTitle>
           <AreaAddressNumber>
             <AddressNumber>{`${local.address.street}, ${local.address.number}`}</AddressNumber>
           </AreaAddressNumber>
@@ -435,8 +458,8 @@ export function ClientAppointmentDetails() {
               initialRegion={{
                 latitude: Number(coordinateLocal.latitude),
                 longitude: Number(coordinateLocal.longitude),
-                latitudeDelta: Number(coordinateLocal.latitudeDelta),
-                longitudeDelta: Number(coordinateLocal.longitudeDelta),
+                latitudeDelta: 0.0043,
+                longitudeDelta: 0.0034,
               }}
               scrollEnabled={false}
               zoomEnabled={false}
@@ -454,11 +477,11 @@ export function ClientAppointmentDetails() {
         <AreaTransportType>
           <AreaTitleTransportType>
             <TransportTypeTitleName>
-              {
+              {`Transporte - ${
                 TRANSPORT_TYPE_PROVIDER_TRANSLATE_ENUM[
                   transportType?.transport_type.name
                 ]
-              }
+              }`}
             </TransportTypeTitleName>
           </AreaTitleTransportType>
           <AreaTransportTypeTitle>
@@ -473,9 +496,18 @@ export function ClientAppointmentDetails() {
                 </TransportTypeTitle>
               )}
           </AreaTransportTypeTitle>
-          <AreaMapExpand>
+          <AreaMapTransportExpand>
             <MapViewComponent
-              initialRegion={coordinates[0]}
+              initialRegion={getRegionForCoordinates([
+                {
+                  latitude: coordinates[0].latitude || 0,
+                  longitude: coordinates[0].longitude || 0,
+                },
+                {
+                  latitude: coordinates[1].latitude || 0,
+                  longitude: coordinates[1].longitude || 0,
+                },
+              ])}
               scrollEnabled={false}
               zoomEnabled={false}
               rotateEnabled={false}
@@ -490,7 +522,7 @@ export function ClientAppointmentDetails() {
               <Marker coordinate={coordinates[0]} />
               <Marker coordinate={coordinates[1]} />
             </MapViewComponent>
-          </AreaMapExpand>
+          </AreaMapTransportExpand>
         </AreaTransportType>
         <AreaPaymentType>
           <AreaPaymentTypeTitle>
@@ -531,14 +563,6 @@ export function ClientAppointmentDetails() {
                 <TitleButtonNext>Confirmar</TitleButtonNext>
               </AreaButtonNext>
             </>
-          )}
-          {(pageAppointments ||
-            status === STATUS_PROVIDERS_APPOINTMENT.OPEN ||
-            status === STATUS_PROVIDERS_APPOINTMENT.ACCEPTED ||
-            status === STATUS_PROVIDERS_APPOINTMENT.REJECTED) && (
-            <AreaButtonBack onPress={handleCanBack}>
-              <TitleButtonBack>Voltar</TitleButtonBack>
-            </AreaButtonBack>
           )}
         </AreaButtons>
       </Body>

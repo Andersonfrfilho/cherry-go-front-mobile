@@ -27,6 +27,8 @@ import {
   MapViewComponent,
   HEIGHT_MAP_VIEW_APPOINTMENT_TRANSPORT_SELECT,
   HEIGHT_MAP_VIEW_COMPONENT,
+  AreaTransportTitle,
+  TransportTitle,
 } from './styles';
 
 import { useAuth } from '../../../../hooks/auth';
@@ -62,7 +64,10 @@ import {
   IconFeather,
   IconFontAwesome,
 } from '../../../../components/Icons/style';
-import { calDeltaCoordinates } from '../../../../utils/calDeltaCoordinates';
+import {
+  calDeltaCoordinates,
+  getRegionForCoordinates,
+} from '../../../../utils/calDeltaCoordinates';
 
 const GOOGLE_MAPS_APIKEY = 'AIzaSyD0gMj0W2pDcNWGYmtRh5zU4mxMLdg6vLw';
 export interface Focusable {
@@ -158,7 +163,7 @@ export function ClientAppointmentCreateTransportSelect() {
 
   useEffect(() => {
     let unmounted = false;
-    if (!unmounted && transportsTypes?.length) {
+    if (!unmounted && transportsTypes && transportsTypes?.length) {
       const transportTypeAvailableList = transportsTypes
         .filter(
           transportTypeParam =>
@@ -171,6 +176,9 @@ export function ClientAppointmentCreateTransportSelect() {
             !!local &&
             !!local.details &&
             !!local.details.distance_between &&
+            !!local.details.distance_between.routes &&
+            !!local.details.distance_between.routes.length &&
+            local.details.distance_between.routes.length > 0 &&
             !!local.details.distance_between.routes[0] &&
             !!local.details.distance_between.routes[0].legs[0] &&
             !!local.details.distance_between.routes[0].legs[0].distance &&
@@ -353,8 +361,12 @@ export function ClientAppointmentCreateTransportSelect() {
         image={imageProfile && imageProfile.link}
       />
       <Body>
+        <AreaTransportTitle>
+          <TransportTitle>Selecione o transporte</TransportTitle>
+        </AreaTransportTitle>
         <AreaButtonTransportTypes>
-          {transportTypesAvailable.length > 0 &&
+          {transportTypesAvailable &&
+            transportTypesAvailable.length > 0 &&
             transportTypesAvailable.map((transportType, index) => {
               return (
                 <AreaTransportTypeExpand
@@ -432,12 +444,16 @@ export function ClientAppointmentCreateTransportSelect() {
                   {transportType.expand && (
                     <AreaMapExpand>
                       <MapViewComponent
-                        initialRegion={{
-                          latitude: coordinates[0].latitude,
-                          longitude: coordinates[0].longitude,
-                          latitudeDelta: coordinates[0].latitudeDelta,
-                          longitudeDelta: coordinates[0].longitudeDelta,
-                        }}
+                        initialRegion={getRegionForCoordinates([
+                          {
+                            latitude: coordinates[0].latitude || 0,
+                            longitude: coordinates[0].longitude || 0,
+                          },
+                          {
+                            latitude: coordinates[1].latitude || 0,
+                            longitude: coordinates[1].longitude || 0,
+                          },
+                        ])}
                       >
                         <MapViewDirections
                           origin={coordinates[0]}

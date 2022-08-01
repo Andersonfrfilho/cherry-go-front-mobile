@@ -235,9 +235,14 @@ export function ClientAppointmentCreateProviderSelect() {
         </AreaPhotosSlideList>
         <AreaButtons>
           <AreaButtonServices>
-            <ButtonServices onPress={handleOpenServiceModal}>
-              <TitleButtonService>Serviços</TitleButtonService>
-            </ButtonServices>
+            {services && (
+              <ButtonServices
+                onPress={handleOpenServiceModal}
+                disabled={services.length <= 0}
+              >
+                <TitleButtonService>Serviços</TitleButtonService>
+              </ButtonServices>
+            )}
           </AreaButtonServices>
           <AreaButtonBackNext>
             <AreaButtonBack onPress={handleBackClientSelect}>

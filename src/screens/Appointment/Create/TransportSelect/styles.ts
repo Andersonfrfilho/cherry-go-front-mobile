@@ -49,12 +49,26 @@ export const AreaTransportTypeExpand = styled.View<AreaTransportTypeSelectProps>
     css`
       background-color: ${theme.colors.success};
     `}
-  ${({ theme, expand }) =>
+  ${({ expand }) =>
     expand &&
     css`
-      height: 500px;
+      flex: 1;
+      height: 80%;
     `}
 `;
+export const AreaTransportTitle = styled.View`
+  height: 80px;
+  width: 100%;
+
+  justify-content: center;
+  align-items: center;
+`;
+export const TransportTitle = styled.Text`
+  font-family: ${({ theme }) => theme.fonts.primary_400};
+  color: ${({ theme }) => theme.colors.main_light};
+  font-size: ${RFValue(20)}px;
+`;
+
 export const AreaTransportType = styled.View<AreaTransportTypeSelectProps>`
   height: 80px;
   width: 100%;
@@ -62,13 +76,14 @@ export const AreaTransportType = styled.View<AreaTransportTypeSelectProps>`
   flex-direction: row;
 `;
 export const AreaMapExpand = styled.View`
+  flex: 1;
   height: 420px;
   width: 100%;
 `;
+
 export const MapViewComponent = styled(MapView)`
   flex: 1;
   width: 100%;
-  height: ${HEIGHT_MAP_VIEW_COMPONENT}px;
   background-color: ${({ theme }) => theme.colors.background_primary};
 `;
 export const AreaTitleAmountTransportType = styled.View`

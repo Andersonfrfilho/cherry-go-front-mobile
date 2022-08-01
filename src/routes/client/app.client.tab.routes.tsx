@@ -49,7 +49,7 @@ export function AppClientTabRoutes() {
             fontFamily: theme.fonts.primary_300,
           },
           tabBarIcon: ({ color }) => (
-            <IconFeather name="calendar" size={RFValue(24)} color={color} />
+            <IconFeather name="calendar" size={RFValue(14)} color={color} />
           ),
         }}
       />

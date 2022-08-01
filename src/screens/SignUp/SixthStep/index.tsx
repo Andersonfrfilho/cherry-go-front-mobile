@@ -41,7 +41,7 @@ import { api } from '../../../services/api';
 import { USER_DOCUMENT_VALUE_ENUM } from '../../../enums/UserDocumentValue.enum';
 import { useError } from '../../../hooks/error';
 import { ScreenNavigationProp } from '../../../routes';
-import { FLASH_MODE_ENUM } from '../../../constant/camera.const';
+import { CAMERA_OPTION_QUALITY_CONSTANT, FLASH_MODE_ENUM } from '../../../constant/camera.const';
 
 export interface TakePicture extends Camera {
   takePictureAsync(
@@ -75,9 +75,11 @@ export function SignUpSixthStep() {
 
   const navigation = useNavigation<ScreenNavigationProp>();
 
-  function handleBack() {
-    navigation.replace('SignIn');
-  }
+  const handleBack = () => {
+    navigation.replace('AuthRoutes', {
+      screen: 'SignIn',
+    });
+  };
 
   const handleBackCam = () => {
     setIsPreview(false);
@@ -92,7 +94,7 @@ export function SignUpSixthStep() {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
-        quality: 0.7,
+        quality: CAMERA_OPTION_QUALITY_CONSTANT,
         base64: true,
       });
 
@@ -114,7 +116,10 @@ export function SignUpSixthStep() {
     setAppError({});
     try {
       if (cameraRef.current) {
-        const options = { quality: 0.7, base64: true };
+        const options = {
+          quality: CAMERA_OPTION_QUALITY_CONSTANT,
+          base64: true,
+        };
         const data = await cameraRef.current?.takePictureAsync(options);
 
         const source = data.uri;
@@ -128,7 +133,6 @@ export function SignUpSixthStep() {
       setIsLoading(false);
     }
   };
-
   const handleSendImage = async (imageUri: string) => {
     setIsLoading(true);
     setAppError({});
@@ -140,7 +144,7 @@ export function SignUpSixthStep() {
           !!userClient && userClient.external_id
             ? userClient.external_id
             : userClient.id,
-        description: USER_DOCUMENT_VALUE_ENUM.SELF_DOCUMENT_FRONT,
+            description: USER_DOCUMENT_VALUE_ENUM.SELF_DOCUMENT_FRONT,
       });
       navigation.replace('SignUpSevenStep');
     } finally {
@@ -218,6 +222,7 @@ export function SignUpSixthStep() {
     }
   };
 
+
   useEffect(() => {
     let unmounted = false;
     const ac = new AbortController();
@@ -230,19 +235,17 @@ export function SignUpSixthStep() {
         requestCameraPermission();
       }
     }
+
     return () => {
       ac.abort();
       unmounted = true;
-      setSubTitle(
-        `Retire uma foto sua com seu documento\n ao lado de seu rosto`,
-      );
+      setSubTitle(`Retire uma foto sua com seu documento\n ao lado de seu rosto`,);
       setIsPreview(false);
       setImagePreview('');
+      setFlashMode(FLASH_MODE_ENUM.off);
       setPermissionCamera(false);
       setWriteStoragePermission(false);
       setReadStoragePermission(false);
-      setCamMode(Camera.Constants.Type.back);
-      setFlashMode(FLASH_MODE_ENUM.off);
     };
   }, []);
 

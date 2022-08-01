@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Geolocation from 'react-native-geolocation-service';
-import { StatusBar } from 'react-native';
+import { PermissionsAndroid, Platform, StatusBar, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from 'styled-components';
 
@@ -86,12 +86,17 @@ import { GENDER_BR_ENUM } from '../../enums/genderType.enum';
 import { getOldest } from '../../utils/getOldest';
 import { MINIMAL_RADIUS_DISTANCE } from '../../enums/geolocation.enum';
 import { navigate } from '../../routes/RootNavigation';
+import { DISTANCE_RADIUS_DEFAULT_IN_METES } from '../../constant/distance.const';
+import { formatDistance } from '../../utils/formatDistance';
 
 export interface Focusable {
   focus(): void;
 }
 export function HomeClient({ navigation: { openDrawer, closeDrawer } }) {
-  const [distanceRadius, setDistanceRadius] = useState<number>(3000);
+  const [distanceRadius, setDistanceRadius] = useState<number>(
+    DISTANCE_RADIUS_DEFAULT_IN_METES,
+  );
+  const [permissionLocation, setPermissionLocation] = useState(false);
   const [forceLocation, setForceLocation] = useState<boolean>(true);
   const [highAccuracy, setHighAccuracy] = useState<boolean>(true);
   const [locationDialog, setLocationDialog] = useState<boolean>(true);
@@ -129,6 +134,76 @@ export function HomeClient({ navigation: { openDrawer, closeDrawer } }) {
   const navigation = useNavigation<ScreenNavigationProp>();
 
   const { name, last_name: lastName, image_profile: imageProfile } = userClient;
+
+  const requestGeolocationPermission = async () => {
+    if (Platform.OS === 'ios') {
+      try {
+        // "disabled", "granted", "denied", "restricted"
+        const status = await Geolocation.requestAuthorization('whenInUse');
+
+        if (status === 'granted') {
+          setPermissionLocation(true);
+        } else {
+          setPermissionLocation(false);
+        }
+      } catch (err) {
+        setPermissionLocation(false);
+      }
+    } else {
+      try {
+        const grantedFineLocation = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+          {
+            title:
+              'Cherry-go precisa de permissão para acessar sua localização',
+            message:
+              'O aplicativo cherry-go precisa acessar sua localização ' +
+              'para podermos acessar endereços.',
+            // buttonNeutral: 'Ask Me Later',
+            buttonNegative: 'Não',
+            buttonPositive: 'Sim',
+          },
+        );
+        const grantedCoarseLocation = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
+          {
+            title:
+              'Cherry-go precisa de permissão para acessar sua localização',
+            message:
+              'O aplicativo cherry-go precisa acessar sua localização ' +
+              'para podermos acessar endereços.',
+            // buttonNeutral: 'Ask Me Later',
+            buttonNegative: 'Não',
+            buttonPositive: 'Sim',
+          },
+        );
+        const grantedBackgroundLocation = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
+          {
+            title:
+              'Cherry-go precisa de permissão para acessar sua localização em segundo plano',
+            message:
+              'O aplicativo cherry-go precisa acessar sua localização ' +
+              'para podermos acessar endereços.',
+            // buttonNeutral: 'Ask Me Later',
+            buttonNegative: 'Não',
+            buttonPositive: 'Sim',
+          },
+        );
+        if (
+          grantedFineLocation === PermissionsAndroid.RESULTS.GRANTED ||
+          grantedCoarseLocation === PermissionsAndroid.RESULTS.GRANTED ||
+          grantedBackgroundLocation === PermissionsAndroid.RESULTS.GRANTED
+        ) {
+          setPermissionLocation(true);
+        } else {
+          setPermissionLocation(false);
+        }
+      } catch (err) {
+        setPermissionLocation(false);
+      }
+    }
+  };
 
   async function handleLogout() {
     await signOut();
@@ -180,6 +255,16 @@ export function HomeClient({ navigation: { openDrawer, closeDrawer } }) {
     setIsLoading(false);
     setAppError({});
     let unmounted = false;
+    if (permissionLocation) {
+      getLocation();
+      if (location.latitude && location.longitude) {
+        getProviders({
+          distance: String(distanceRadius),
+        });
+      }
+    } else {
+      requestGeolocationPermission();
+    }
     if (!unmounted) {
       getLocation();
       getTags({});
@@ -193,8 +278,6 @@ export function HomeClient({ navigation: { openDrawer, closeDrawer } }) {
     if (location.latitude && location.longitude) {
       getProviders({
         distance: String(distanceRadius),
-        latitude: '',
-        longitude: '',
       });
     }
   }, [location]);
@@ -257,8 +340,6 @@ export function HomeClient({ navigation: { openDrawer, closeDrawer } }) {
   async function handleUpdateProviders() {
     await getProviders({
       distance: String(distanceRadius),
-      latitude: '',
-      longitude: '',
     });
   }
 
@@ -294,8 +375,8 @@ export function HomeClient({ navigation: { openDrawer, closeDrawer } }) {
         distance: String(distanceRadius),
         // latitude: String(location.latitude) || '',
         // longitude: String(location.longitude) || '',
-        latitude: '',
-        longitude: '',
+        // latitude: '',
+        // longitude: '',
       });
     }
   }, [distanceRadius]);
@@ -438,7 +519,7 @@ export function HomeClient({ navigation: { openDrawer, closeDrawer } }) {
               {!!providers && !isLoading && (
                 <AreaDistance onPress={handleOpenModalDistance}>
                   <ProviderDistanceTitle numberOfLines={1}>
-                    {`${distanceRadius} m`}
+                    {`${formatDistance(distanceRadius)}`}
                   </ProviderDistanceTitle>
                   <AreaDistanceIcon>
                     <IconMaterialCommunityIcons
@@ -468,6 +549,7 @@ export function HomeClient({ navigation: { openDrawer, closeDrawer } }) {
               keyExtractor={(item, index) => {
                 return item.id;
               }}
+              ItemSeparatorComponent={() => <View style={{ margin: 4 }} />}
               renderItem={({ item }) => {
                 return (
                   <AreaItemProvider
@@ -493,8 +575,8 @@ export function HomeClient({ navigation: { openDrawer, closeDrawer } }) {
                         name="heart"
                         size={
                           listTagSelectFormatted.length > 0
-                            ? RFValue(20)
-                            : RFValue(25)
+                            ? RFValue(15)
+                            : RFValue(20)
                         }
                         color={theme.colors.bon_jour_light_shade}
                       />
@@ -522,12 +604,14 @@ export function HomeClient({ navigation: { openDrawer, closeDrawer } }) {
                         numberOfLines={1}
                         tagsSelected={listTagSelectFormatted.length > 0}
                       >{` - `}</TitleProvider>
-                      <TitleProvider
-                        numberOfLines={1}
-                        tagsSelected={listTagSelectFormatted.length > 0}
-                      >
-                        {`${getOldest(new Date(item.birth_date))}`}
-                      </TitleProvider>
+                      {item.birth_date && (
+                        <TitleProvider
+                          numberOfLines={1}
+                          tagsSelected={listTagSelectFormatted.length > 0}
+                        >
+                          {`${getOldest(new Date(item.birth_date))}`}
+                        </TitleProvider>
+                      )}
                     </TitleItemDateProvider>
                     <AreaRatingProvider>
                       {Array.from(Array(5).keys()).map((element, index) => (

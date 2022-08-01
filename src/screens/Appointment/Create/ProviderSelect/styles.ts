@@ -1,4 +1,4 @@
-import styled from 'styled-components/native';
+import styled, { css } from 'styled-components/native';
 import {
   Feather,
   FontAwesome,
@@ -29,7 +29,7 @@ export const Body = styled.View`
 
 export const AreaHeader = styled.View`
   width: 100%;
-  height: 80px;
+  flex: 1;
 `;
 
 export const AreaNameDistanceIcon = styled.View`
@@ -75,6 +75,7 @@ export const AreaRatingAge = styled.View`
   flex: 1;
   flex-direction: row;
   justify-content: space-between;
+  align-items: center;
 `;
 export const AreaRating = styled.View`
   flex: 5;
@@ -86,6 +87,8 @@ export const AreaIconRating = styled.View`
 
 export const AreaAge = styled.View`
   flex: 1;
+  justify-content: center;
+  align-items: center;
 `;
 export const Age = styled.Text`
   font-family: ${({ theme }) => theme.fonts.primary_400};
@@ -94,8 +97,12 @@ export const Age = styled.Text`
 `;
 
 export const AreaPhotosSlideList = styled.View`
-  height: 380px;
+  flex: 4;
+  /* height: 380px; */
   width: 100%;
+
+  margin-top: 5px;
+  margin-bottom: 5px;
 `;
 
 export const SlidePhotosList = styled(
@@ -140,6 +147,12 @@ export const ButtonServices = styled.TouchableOpacity`
   border-radius: 12px;
   border-width: 5px;
   border-color: ${({ theme }) => theme.colors.main_light};
+
+  ${({ theme, disabled }) =>
+    disabled &&
+    css`
+      background-color: ${theme.colors.shape_medium};
+    `}
 `;
 
 export const TitleButtonService = styled.Text`

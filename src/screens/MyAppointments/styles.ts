@@ -53,7 +53,7 @@ export const AreaAppointment = styled.TouchableOpacity`
   flex-direction: row;
   margin-top: 5px;
   margin-bottom: 5px;
-  height: 80px;
+  height: 120px;
   width: 100%;
   background-color: ${({ theme }) => theme.colors.shape};
 
@@ -80,6 +80,7 @@ export const TextName = styled.Text`
   color: ${({ theme }) => theme.colors.text_detail};
   font-size: ${RFValue(32)}px;
   text-transform: uppercase;
+  text-align: center;
 `;
 
 export const ImageProvider = styled(FastImage)`
@@ -93,7 +94,7 @@ export const AreaNameDateHourProvider = styled.View`
 `;
 
 export const AreaNameProvider = styled.View`
-  flex: 1;
+  flex: 2;
 
   justify-content: center;
   align-items: center;

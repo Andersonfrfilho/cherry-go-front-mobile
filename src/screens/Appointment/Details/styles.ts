@@ -25,7 +25,7 @@ export const Body = styled.ScrollView`
 `;
 export const AreaProvider = styled.View`
   width: 100%;
-  height: 80px;
+  height: 120px;
 
   flex-direction: row;
 
@@ -42,7 +42,11 @@ export const AreaProvider = styled.View`
 `;
 export const AreaPhotoProvider = styled.View`
   flex: 1;
-  border-radius: 36px;
+
+  width: 100px;
+  height: 100px;
+
+  border-radius: 50px;
   border-style: solid;
   border-width: 3px;
   border-color: ${({ theme }) => theme.colors.header};
@@ -50,8 +54,9 @@ export const AreaPhotoProvider = styled.View`
 `;
 export const AreaCircleName = styled.View`
   flex: 1;
-  width: 100%;
-  height: 100%;
+
+  width: 100px;
+  height: 100px;
 
   justify-content: center;
   align-items: center;
@@ -59,6 +64,8 @@ export const AreaCircleName = styled.View`
   overflow: hidden;
 
   background-color: ${({ theme }) => theme.colors.background_primary};
+
+  border-radius: 50px;
 `;
 
 export const InitialLetterName = styled.Text`
@@ -98,7 +105,7 @@ export const OldProvider = styled.Text``;
 // Area hour
 export const AreaHour = styled.View`
   width: 100%;
-  height: 80px;
+  height: 120px;
 
   flex-direction: row;
 
@@ -153,7 +160,7 @@ export const AreaServices = styled.ScrollView`
 
 export const AreaService = styled.View`
   width: 100%;
-  height: 60px;
+  height: 80px;
 
   flex-direction: row;
 
@@ -180,7 +187,7 @@ export const AreaServiceDuration = styled.View`
 export const ServiceDuration = styled.Text`
   font-family: ${({ theme }) => theme.fonts.primary_400};
   color: ${({ theme }) => theme.colors.background_primary};
-  font-size: ${RFValue(16)}px;
+  font-size: ${RFValue(14)}px;
 `;
 
 export const AreaServiceName = styled.View`
@@ -207,7 +214,7 @@ export const ServicePrice = styled.Text`
 `;
 export const AreaServicesTitle = styled.View`
   width: 100%;
-  height: 60px;
+  height: 80px;
 
   justify-content: center;
   align-items: center;
@@ -263,7 +270,7 @@ export const AreaServiceTotalAmount = styled.View`
 // Area Local
 export const AreaLocal = styled.View`
   width: 100%;
-  height: 560px;
+  height: 600px;
 
   flex-direction: column;
 
@@ -278,9 +285,19 @@ export const AreaLocal = styled.View`
 
   margin-top: 10px;
 `;
+export const AreaAddressLocalTitle = styled.View`
+  width: 100%;
+  height: 60px;
+`;
+export const AddressLocalTitle = styled.Text`
+  font-family: ${({ theme }) => theme.fonts.primary_400};
+  color: ${({ theme }) => theme.colors.background_primary};
+  text-align: center;
+  font-size: ${RFValue(18)}px;
+`;
 export const AreaAddressNumber = styled.View`
   width: 100%;
-  height: 30px;
+  height: 40px;
 `;
 export const AreaAddress = styled.View`
   flex: 2;
@@ -294,7 +311,7 @@ export const AddressNumber = styled.Text`
 
 export const AreaDistrictCityState = styled.View`
   width: 100%;
-  height: 30px;
+  height: 40px;
 `;
 export const DistrictCityState = styled.Text`
   font-family: ${({ theme }) => theme.fonts.primary_400};
@@ -305,7 +322,7 @@ export const DistrictCityState = styled.Text`
 
 export const AreaCep = styled.View`
   width: 100%;
-  height: 30px;
+  height: 40px;
 `;
 export const Cep = styled.Text`
   font-family: ${({ theme }) => theme.fonts.primary_400};
@@ -315,7 +332,7 @@ export const Cep = styled.Text`
 `;
 export const AreaAmount = styled.View`
   width: 100%;
-  height: 30px;
+  height: 60px;
 
   flex-direction: row;
 `;
@@ -339,7 +356,7 @@ export const TitleAmount = styled.Text`
 // Payment type
 export const AreaPaymentType = styled.View`
   width: 100%;
-  height: 80px;
+  height: 120px;
 
   flex-direction: column;
 
@@ -355,14 +372,15 @@ export const AreaPaymentType = styled.View`
   padding: 5px;
 `;
 export const AreaPaymentTypeTitle = styled.View`
-  width: 100%;
-  height: 40px;
+  flex: 1;
 
   align-items: center;
 `;
 export const PaymentTitle = styled.Text``;
 export const AreaPaymentTypeAmount = styled.View`
   flex-direction: row;
+
+  align-items: flex-end;
 `;
 export const PaymentTitleAmount = styled.View`
   flex: 2;
@@ -423,6 +441,10 @@ export const AreaTransportType = styled.View<AreaTransportTypeSelectProps>`
   margin-top: 10px;
 `;
 export const AreaMapExpand = styled.View`
+  height: 340px;
+  width: 100%;
+`;
+export const AreaMapTransportExpand = styled.View`
   height: 420px;
   width: 100%;
 `;
@@ -478,13 +500,28 @@ export const TransportTypeTitle = styled.Text<AreaTransportTypeSelectProps>`
   color: ${({ theme }) => theme.colors.background_primary};
   font-size: ${RFValue(18)}px;
 `;
-
+export const AreaBackButtons = styled.View`
+  height: 80px;
+  width: 100%;
+  flex-direction: row;
+  margin: 10px;
+`;
 export const AreaButtons = styled.View`
   height: 80px;
   width: 100%;
   flex-direction: row;
   margin-top: 10px;
   margin-bottom: 10px;
+`;
+export const AreaButtonCanBack = styled.TouchableOpacity`
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+  background-color: ${({ theme }) => theme.colors.header};
+  border-radius: 12px;
+  border-color: ${({ theme }) => theme.colors.header};
+
+  margin-right: 5px;
 `;
 export const AreaButtonBack = styled.TouchableOpacity`
   flex: 1;

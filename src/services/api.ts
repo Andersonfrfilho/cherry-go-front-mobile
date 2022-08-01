@@ -5,8 +5,9 @@ import { tokenRepository } from '../databases/repository/token.repository';
 import { UNAUTHORIZED } from '../errors/constants/Unauthorized.const';
 
 const api = axios.create({
-  // baseURL: 'https://staging.cherry-go.com',
-  baseURL: 'http://10.0.2.2:3333',
+  // baseURL: 'https://staging.api.cherry-go.com',
+  // baseURL: 'http://10.0.2.2:3333',
+  baseURL: 'http://localhost:3333',
 });
 
 function defineInterceptor() {

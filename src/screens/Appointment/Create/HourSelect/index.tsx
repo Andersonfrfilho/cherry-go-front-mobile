@@ -246,6 +246,7 @@ export function ClientAppointmentCreateHourSelect() {
     setListHoursFormatted(newList);
     setHandleContinued(true);
   }
+
   return (
     <Container>
       <StatusBar

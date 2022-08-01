@@ -73,16 +73,6 @@ export function HeaderProfile({
           )}
         </AreaButtonPhoto>
       </AreaImageName>
-      <AreaLogoff>
-        <AreaOff />
-        <AreaIconLogOff onPress={handleSingOut}>
-          <IconFeather
-            name="power"
-            size={RFValue(25)}
-            color={theme.colors.main_light}
-          />
-        </AreaIconLogOff>
-      </AreaLogoff>
     </Container>
   );
 }

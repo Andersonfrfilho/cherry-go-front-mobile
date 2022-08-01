@@ -207,11 +207,13 @@ export function MyAppointments() {
                       !!item.providers.length > 0 &&
                       !!item.providers[0].provider && (
                         <TextName>
-                          {`${
-                            item.providers[0].provider.name.substring(0, 1) +
-                            item.providers[0].provider.last_name.substring(0, 1)
-                          }
-                          `}
+                          {`${item.providers[0].provider.name.substring(
+                            0,
+                            1,
+                          )}${item.providers[0].provider.last_name.substring(
+                            0,
+                            1,
+                          )}`}
                         </TextName>
                       )
                     )}
@@ -221,7 +223,7 @@ export function MyAppointments() {
                       {!!item.providers &&
                         !!item.providers.length > 0 &&
                         !!item.providers[0].provider && (
-                          <NameProvider numberOfLines={2}>{`${
+                          <NameProvider numberOfLines={1}>{`${
                             !!item.providers[0].provider.details &&
                             !!item.providers[0].provider.details.fantasy_name
                               ? item.providers[0].provider.details.fantasy_name

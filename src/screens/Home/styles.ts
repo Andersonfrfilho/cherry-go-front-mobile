@@ -5,12 +5,23 @@ import {
   MaterialCommunityIcons,
 } from '@expo/vector-icons';
 import FastImage from 'react-native-fast-image';
-import { FlatList, TextInputProps } from 'react-native';
+import { Dimensions, FlatList, TextInputProps } from 'react-native';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import CurrencyInput, { CurrencyInputProps } from 'react-native-currency-input';
 import { Tag } from '../../hooks/tag';
 import { UserProvider } from '../../hooks/providerUser';
+
+const { width, height } = Dimensions.get('window');
+
+const Metrics = {
+  section: 16,
+  halfSection: 8,
+};
+
+const CARD_WIDTH = width * 0.64;
+const MARGIN_CARD = 5;
+const MARGIN_CARD_WIDTH = MARGIN_CARD * 0.64;
 
 export interface PropsTagsFilter {
   tagsSelected?: boolean;
@@ -185,7 +196,7 @@ export const AreaDistance = styled.TouchableOpacity`
 `;
 
 export const AreaItemProvider = styled.TouchableOpacity`
-  width: 210px;
+  width: ${CARD_WIDTH}px;
   height: 100%;
 
   background-color: ${({ theme }) => theme.colors.main_light};
@@ -194,7 +205,7 @@ export const AreaItemProvider = styled.TouchableOpacity`
   border-width: 5px;
   border-color: ${({ theme }) => theme.colors.shape_medium};
 
-  margin: 2px;
+  margin-right: 5px;
 `;
 
 export const AreaImageProvider = styled.View`
@@ -264,10 +275,13 @@ export const AreaFavIcon = styled.TouchableOpacity<
   background-color: ${({ theme }) => theme.colors.bon_jour};
   position: absolute;
   border-radius: 24px;
-  left: 78%;
+  left: ${CARD_WIDTH - 48 - 14}px;
+  top: 5px;
 
   border-width: 3px;
   border-color: ${({ theme }) => theme.colors.bon_jour};
+
+  padding: 5px;
 
   ${({ theme, tagsSelected }) =>
     tagsSelected &&

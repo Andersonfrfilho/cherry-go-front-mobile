@@ -1,0 +1,2 @@
+export const DISTANCE_RADIUS_DEFAULT_IN_METES = 89000.92 / 2;
+export const THOUSAND_METERS = 1000;
