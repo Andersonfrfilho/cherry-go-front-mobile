@@ -88,9 +88,7 @@ export function ClientAppointmentCreatePaymentTypeSelect() {
   const { appError, setAppError } = useError();
   const {
     userClient,
-    providers,
-    getProviders,
-    setFavoriteProvider,
+
     setAppointmentStageClient,
     getHoursProvidersSelect,
   } = useClientUser();

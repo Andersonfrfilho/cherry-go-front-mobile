@@ -62,6 +62,9 @@ import {
   AreaButtonSave,
   AreaButtonFinalizerRegister,
   ButtonFinalizerRegisterTitle,
+  AreaItemListFooter,
+  AreaTitleItemListFooter,
+  TitleItemListFooter,
 } from './styles';
 
 import { useAuth } from '../../hooks/auth';
@@ -122,6 +125,8 @@ export function HomeClient({ navigation: { openDrawer, closeDrawer } }) {
     latitude: 0,
     longitude: 0,
   });
+  const [limit, setLimit] = useState<number>(20);
+  const [skip, setSkip] = useState<number>(0);
 
   const theme = useTheme();
   const { isLoading, setIsLoading } = useCommon();
@@ -205,10 +210,6 @@ export function HomeClient({ navigation: { openDrawer, closeDrawer } }) {
     }
   };
 
-  async function handleLogout() {
-    await signOut();
-  }
-
   async function getLocation() {
     setIsLoading(true);
     try {
@@ -260,6 +261,11 @@ export function HomeClient({ navigation: { openDrawer, closeDrawer } }) {
       if (location.latitude && location.longitude) {
         getProviders({
           distance: String(distanceRadius),
+          limit,
+          skip,
+        }).then(response => {
+          setLimit(response.limit);
+          setSkip(response.skip);
         });
       }
     } else {
@@ -278,6 +284,11 @@ export function HomeClient({ navigation: { openDrawer, closeDrawer } }) {
     if (location.latitude && location.longitude) {
       getProviders({
         distance: String(distanceRadius),
+        limit,
+        skip,
+      }).then(response => {
+        setLimit(response.limit);
+        setSkip(response.skip);
       });
     }
   }, [location]);
@@ -338,9 +349,25 @@ export function HomeClient({ navigation: { openDrawer, closeDrawer } }) {
   }
 
   async function handleUpdateProviders() {
-    await getProviders({
+    const data = await getProviders({
       distance: String(distanceRadius),
+      limit,
+      skip,
     });
+
+    setLimit(data.limit);
+    setSkip(data.skip);
+  }
+
+  async function handleMoreProviders() {
+    const data = await getProviders({
+      distance: String(distanceRadius),
+      limit,
+      skip: limit * (skip + 1),
+    });
+
+    setLimit(data.limit);
+    setSkip(data.skip);
   }
 
   async function handleFavoriteProvider(id: string) {
@@ -373,10 +400,11 @@ export function HomeClient({ navigation: { openDrawer, closeDrawer } }) {
     if (distanceRadius >= MINIMAL_RADIUS_DISTANCE) {
       getProviders({
         distance: String(distanceRadius),
-        // latitude: String(location.latitude) || '',
-        // longitude: String(location.longitude) || '',
-        // latitude: '',
-        // longitude: '',
+        limit,
+        skip,
+      }).then(response => {
+        setLimit(response.limit);
+        setSkip(response.skip);
       });
     }
   }, [distanceRadius]);
@@ -460,7 +488,6 @@ export function HomeClient({ navigation: { openDrawer, closeDrawer } }) {
             />
           </AreaIcon>
         </AreaSearch>
-
         {listTagSelectFormatted.length > 0 ? (
           <AreaTagsFilter>
             <AreaTagsTitleFilter onPress={handleOpenModal}>
@@ -469,7 +496,7 @@ export function HomeClient({ navigation: { openDrawer, closeDrawer } }) {
             {!!tags && listTagSelectFormatted.length > 0 && (
               <List
                 data={listTagSelectFormatted}
-                keyExtractor={(item, index) => index.toString()}
+                keyExtractor={item => item.id}
                 renderItem={({ item }) => {
                   return (
                     <AreaItemTag>
@@ -546,10 +573,19 @@ export function HomeClient({ navigation: { openDrawer, closeDrawer } }) {
           {!!providers && providers.length > 0 && (
             <ListProviders
               data={providers}
-              keyExtractor={(item, index) => {
+              keyExtractor={item => {
                 return item.id;
               }}
               ItemSeparatorComponent={() => <View style={{ margin: 4 }} />}
+              ListFooterComponent={
+                <AreaItemListFooter onPress={() => handleUpdateProviders}>
+                  <AreaTitleItemListFooter>
+                    <TitleItemListFooter>Mais...</TitleItemListFooter>
+                  </AreaTitleItemListFooter>
+                </AreaItemListFooter>
+              }
+              onEndReached={() => handleMoreProviders()}
+              onEndReachedThreshold={0.1}
               renderItem={({ item }) => {
                 return (
                   <AreaItemProvider

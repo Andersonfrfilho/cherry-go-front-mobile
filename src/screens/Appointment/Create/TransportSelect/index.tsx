@@ -131,9 +131,7 @@ export function ClientAppointmentCreateTransportSelect() {
   const { appError, setAppError } = useError();
   const {
     userClient,
-    providers,
-    getProviders,
-    setFavoriteProvider,
+
     setAppointmentStageClient,
     getHoursProvidersSelect,
   } = useClientUser();

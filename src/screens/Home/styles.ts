@@ -195,6 +195,33 @@ export const AreaDistance = styled.TouchableOpacity`
   flex-direction: row;
 `;
 
+export const AreaItemListFooter = styled.TouchableOpacity`
+  width: ${CARD_WIDTH}px;
+  height: 100%;
+
+  background-color: ${({ theme }) => theme.colors.main_light};
+
+  border-radius: 24px;
+  border-width: 5px;
+  border-color: ${({ theme }) => theme.colors.shape_medium};
+
+  margin-right: 5px;
+`;
+
+export const AreaTitleItemListFooter = styled.View`
+  flex: 1;
+
+  justify-content: center;
+  align-items: center;
+`;
+
+export const TitleItemListFooter = styled.Text`
+  font-family: ${({ theme }) => theme.fonts.primary_400};
+  color: ${({ theme }) => theme.colors.title};
+  font-size: ${RFValue(22)}px;
+  text-align: right;
+`;
+
 export const AreaItemProvider = styled.TouchableOpacity`
   width: ${CARD_WIDTH}px;
   height: 100%;

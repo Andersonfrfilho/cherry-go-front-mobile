@@ -98,9 +98,7 @@ export function ClientAppointmentCreateLocalSelect() {
   const { appError, setAppError } = useError();
   const {
     userClient,
-    providers,
-    getProviders,
-    setFavoriteProvider,
+
     setAppointmentStageClient,
     getDistanceLocalSelect,
   } = useClientUser();

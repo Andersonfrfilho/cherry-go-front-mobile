@@ -53,7 +53,7 @@ type ClientUserContextData = {
   registerAccountBank(data: RegisterAccountBankProps): Promise<Details>;
   removeAccountBank(accountBankId: string): Promise<Details>;
   updateProfile({ ...rest }: UpdateProfileDTO): Promise<void>;
-  getProviders(data: GetProvidersDTO): Promise<void>;
+  getProviders(data: GetProvidersDTO): Promise<GetProvidersResponse>;
   setFavoriteProvider({ distance, longitude, latitude, provider_id }: SetFavoriteProviderDTO): Promise<void>;
   setAppointmentStageClient(data: SetAppointmentStageClientDTO): Promise<void>;
   getAppointmentStageClient(): Promise<void>;
@@ -122,6 +122,14 @@ interface SetFavoriteProviderDTO {
 }
 interface GetProvidersDTO {
   distance?: string;
+  limit?:number;
+  skip?:number;
+}
+interface GetProvidersResponse{
+  providers:UserProvider[];
+  total:number;
+  limit:number;
+  skip:number;
 }
 interface UpdateProfileDTO {
   name: string;
@@ -733,8 +741,8 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
       setIsLoading(false)
     }
   }
-  async function getProviders({distance,
-    }:GetProvidersDTO): Promise<void> {
+  async function getProviders({distance,limit=0,skip=0
+    }:GetProvidersDTO): Promise<GetProvidersResponse> {
     setIsLoading(true)
     const position = await new Promise<Geolocation.GeoPosition>(
       (resolve, reject) => {
@@ -766,10 +774,15 @@ function ClientUserProvider({ children }: ClientUserProviderProps) {
     const {latitude,longitude} = position.coords
 
     try {
-      const { data: providers } = await api.get('/v1/users/clients/providers/available', {
-        params: { distance,latitude,longitude }
+      const { data } = await api.get<GetProvidersResponse>('/v1/users/clients/providers/available', {
+        params: { distance,latitude,longitude,limit,skip }
       });
-      setProviders(providers)
+      const { providers:providerResponse } = data
+
+      setProviders((providersCurrent)=>
+      [...providersCurrent,...providerResponse.filter(providerResponse=>providersCurrent.every(providerCurrent=>providerCurrent.id!==providerResponse.id))]
+      )
+      return data
     } catch (err) {
       appErrorVerifyError(err);
     } finally {
